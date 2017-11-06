@@ -1,0 +1,39 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\PC_21\\Desktop\\SampleDateTimePicker\\datetimepickerlibrary\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values-v17\\values-v17.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\PC_21\\Desktop\\SampleDateTimePicker\\datetimepickerlibrary\\build\\intermediates\\bundles\\debug\\res\\values-v17\\values-v17.xml",
+                    "from": {
+                        "startLines": "2,5",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,223",
+                        "endLines": "4,8",
+                        "endColumns": "12,12",
+                        "endOffsets": "218,445"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\PC_21\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-26.1.0.aar\\92c8a5fc2a38e32e896c74e29acb8fae\\res\\values-v17\\values-v17.xml",
+                    "from": {
+                        "startLines": "2,5,9,12,15,18,22,26,29,32,35,39,42,46",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,228,456,614,764,936,1164,1406,1577,1751,1920,2193,2393,2597",
+                        "endLines": "4,8,11,14,17,21,25,28,31,34,38,41,45,49",
+                        "endColumns": "12,12,12,12,12,12,12,12,12,12,12,12,12,12",
+                        "endOffsets": "223,451,609,759,931,1159,1401,1572,1746,1915,2188,2388,2592,2921"
+                    },
+                    "to": {
+                        "startLines": "9,12,16,19,22,25,29,33,36,39,42,46,49,53",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "450,623,851,1009,1159,1331,1559,1801,1972,2146,2315,2588,2788,2992",
+                        "endLines": "11,15,18,21,24,28,32,35,38,41,45,48,52,56",
+                        "endColumns": "12,12,12,12,12,12,12,12,12,12,12,12,12,12",
+                        "endOffsets": "618,846,1004,1154,1326,1554,1796,1967,2141,2310,2583,2783,2987,3316"
+                    }
+                }
+            ]
+        }
+    ]
+}
