@@ -51,6 +51,7 @@
 
     <color name="picker_blue">#5d56ff</color>
     <color name="timer_background">#efeeee</color>
+    <color name="timer_background_blocked">#d8d8d8</color>
 
     <color name="picker_icon_gray">#757575</color>
 </resources>

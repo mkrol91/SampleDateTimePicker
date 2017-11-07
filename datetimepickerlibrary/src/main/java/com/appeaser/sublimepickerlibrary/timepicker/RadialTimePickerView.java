@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -694,14 +695,34 @@ public class RadialTimePickerView extends View {
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
 
-        Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
-
         drawCircleBackground(canvas);
-        canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, paint);
+        drawArc(canvas);
+        //drawMyCircleBackground(canvas);
         drawHours(canvas, alphaMod);
         drawMinutes(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
+    }
+
+    private void drawMyCircleBackground(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
+        canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, paint);
+    }
+
+    private void drawArc(Canvas canvas) {
+        //arc
+        Paint p = new Paint();
+        // smooths
+        p.setAntiAlias(true);
+        p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
+        p.setStyle(Paint.Style.FILL);
+        p.setStrokeWidth(5);
+
+        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
+                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
+        canvas.drawOval(rectF, p);
+        p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
+        canvas.drawArc(rectF, 90, 45, true, p);
     }
 
     private void drawCircleBackground(Canvas canvas) {
