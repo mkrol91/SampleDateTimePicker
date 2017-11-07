@@ -719,7 +719,6 @@ public class RadialTimePickerView extends View {
         p.setStyle(Paint.Style.FILL);
         p.setStrokeWidth(5);
 
-
         final int hoursCount = 12;
         final float fullAngle = 360;
         final float offset = 15;
@@ -731,7 +730,9 @@ public class RadialTimePickerView extends View {
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, p);
         p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
+
         canvas.drawArc(rectF, hourStartAngleMap.get(5), unitWidth, true, p);
+
     }
 
     private HashMap<Integer, Float> generateHourToStartAngleMap(int hoursCount, ArrayList<Float> startArcAngles) {
