@@ -52,6 +52,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
+import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -711,14 +712,6 @@ public class RadialTimePickerView extends View {
     }
 
     private void drawArc(Canvas canvas) {
-        //arc
-        Paint p = new Paint();
-        // smooths
-        p.setAntiAlias(true);
-        p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
-        p.setStyle(Paint.Style.FILL);
-        p.setStrokeWidth(5);
-
         final int hoursCount = 12;
         final float fullAngle = 360;
         final float offset = 15;
@@ -726,12 +719,22 @@ public class RadialTimePickerView extends View {
         ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
         HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
 
+        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
+        
+        Paint paint = new Paint();
+        // smooths
+        paint.setAntiAlias(true);
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
+        paint.setStyle(Paint.Style.FILL);
+        paint.setStrokeWidth(5);
         RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
-        canvas.drawOval(rectF, p);
-        p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
+        canvas.drawOval(rectF, paint);
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
 
-        canvas.drawArc(rectF, hourStartAngleMap.get(5), unitWidth, true, p);
+        for (Integer hourToCheck : hoursToCheck) {
+            canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
+        }
 
     }
 
@@ -739,7 +742,7 @@ public class RadialTimePickerView extends View {
         HashMap<Integer, Float> hourStartAngleMap = new HashMap<>();
         for (int i = 0; i < startArcAngles.size(); i++) {
             Float startArcAngle = startArcAngles.get(i);
-            int hourValue = (i+3) % hoursCount + 1;
+            int hourValue = (i + 3) % hoursCount + 1;
             hourStartAngleMap.put(hourValue, startArcAngle);
         }
         return hourStartAngleMap;
