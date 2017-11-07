@@ -707,19 +707,7 @@ public class RadialTimePickerView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
-        drawTimerBackground(canvas);
-        drawHours(canvas, alphaMod);
-        drawMinutes(canvas, alphaMod);
-        drawCenter(canvas, alphaMod);
-    }
 
-    private void drawMyCircleBackground(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
-        canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, paint);
-    }
-
-    private void drawTimerBackground(Canvas canvas) {
         final int hoursCount = 12;
         final float fullAngle = 360;
         final float offset = 15;
@@ -743,6 +731,10 @@ public class RadialTimePickerView extends View {
         for (Integer hourToCheck : hoursToCheck) {
             canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
         }
+
+        drawHours(canvas, alphaMod);
+        drawMinutes(canvas, alphaMod);
+        drawCenter(canvas, alphaMod);
     }
 
     private HashMap<Integer, Float> generateHourToStartAngleMap(int hoursCount, ArrayList<Float> startArcAngles) {
