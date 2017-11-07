@@ -58,7 +58,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.TreeMap;
 
 /**
  * View to show a clock circle picker (with one or two picking circles)
@@ -720,16 +719,37 @@ public class RadialTimePickerView extends View {
         p.setStyle(Paint.Style.FILL);
         p.setStrokeWidth(5);
 
-        final int hoursCount = 12;
-        for(int i=0;i<hoursCount;i++){
 
-        }
+        final int hoursCount = 12;
+        final float fullAngle = 360;
+        final float offset = 15;
+        float unitWidth = fullAngle / hoursCount;
+        ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
+        HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
 
         RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, p);
         p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
-        canvas.drawArc(rectF, 90, 45, true, p);
+        canvas.drawArc(rectF, hourStartAngleMap.get(5), unitWidth, true, p);
+    }
+
+    private HashMap<Integer, Float> generateHourToStartAngleMap(int hoursCount, ArrayList<Float> startArcAngles) {
+        HashMap<Integer, Float> hourStartAngleMap = new HashMap<>();
+        for (int i = 0; i < startArcAngles.size(); i++) {
+            Float startArcAngle = startArcAngles.get(i);
+            int hourValue = (i+3) % hoursCount + 1;
+            hourStartAngleMap.put(hourValue, startArcAngle);
+        }
+        return hourStartAngleMap;
+    }
+
+    private ArrayList<Float> generateTimerStartEndArcAngles(final int hoursCount, final float unitWidth, final float offset) {
+        ArrayList<Float> startArcAngles = new ArrayList<>(hoursCount);
+        for (int i = 0; i < hoursCount; i++) {
+            startArcAngles.add(i * unitWidth + offset);
+        }
+        return startArcAngles;
     }
 
     private void drawCircleBackground(Canvas canvas) {
