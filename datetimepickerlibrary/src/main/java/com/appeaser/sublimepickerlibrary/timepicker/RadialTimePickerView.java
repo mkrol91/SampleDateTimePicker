@@ -385,7 +385,7 @@ public class RadialTimePickerView extends View {
         mSelectorRadius = res.getDimensionPixelSize(R.dimen.sp_timepicker_selector_radius);
         mSelectorStroke = res.getDimensionPixelSize(R.dimen.sp_timepicker_selector_stroke);
         mSelectorDotRadius = res.getDimensionPixelSize(R.dimen.sp_timepicker_selector_dot_radius);
-        mCenterDotRadius = 0;// res.getDimensionPixelSize(R.dimen.sp_timepicker_center_dot_radius);
+        mCenterDotRadius = res.getDimensionPixelSize(R.dimen.sp_timepicker_center_dot_radius);
 
         mTextSize[HOURS] = res.getDimensionPixelSize(R.dimen.sp_timepicker_text_size_normal);
         mTextSize[MINUTES] = res.getDimensionPixelSize(R.dimen.sp_timepicker_text_size_normal);

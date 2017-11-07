@@ -125,7 +125,7 @@
     <dimen name="sp_timepicker_selector_radius">20dp</dimen>
     <dimen name="sp_timepicker_selector_stroke">2dp</dimen>
     <dimen name="sp_timepicker_selector_dot_radius">2dp</dimen>
-    <dimen name="sp_timepicker_center_dot_radius">3dp</dimen>
+    <dimen name="sp_timepicker_center_dot_radius">0dp</dimen>
     <dimen name="sp_timepicker_text_size_normal">16sp</dimen>
     <dimen name="sp_timepicker_text_size_inner">12sp</dimen>
     <dimen name="sp_timepicker_text_inset_normal">22dp</dimen>

@@ -78,7 +78,7 @@
         <item name="spMonthTextAppearance">@style/SPMonthLabelTextAppearance</item>
         <item name="spWeekDayTextAppearance">@style/SPWeekDayLabelTextAppearance</item>
         <item name="spDateTextAppearance">@style/SPDayTextAppearance</item>
-        <item name="spDaySelectorColor">@color/red</item>
+        <item name="spDaySelectorColor">@color/red</item> fghfgh
         <item name="spDayHighlightColor">?attr/colorControlHighlight</item>
     </style>
 
@@ -178,7 +178,7 @@
 
     <style name="RadialTimePickerViewStyle">
         <item name="spNumbersTextColor">?attr/spNumbersTextColorPtr</item>
-        <item name="spNumbersSelectorColor">@color/red</item>
+        <item name="spNumbersSelectorColor">@color/picker_blue</item>
         <item name="spNumbersBackgroundColor">?attr/spNumbersBackgroundColorPtr</item>
         <item name="spNumbersInnerTextColor">?attr/spNumbersInnerTextColorPtr</item>
     </style>
