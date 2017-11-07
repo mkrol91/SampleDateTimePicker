@@ -50,6 +50,7 @@
     <color name="red50">#80F1263A</color>
 
     <color name="picker_blue">#5d56ff</color>
+    <color name="timer_background">#efeeee</color>
 
     <color name="picker_icon_gray">#757575</color>
 </resources>

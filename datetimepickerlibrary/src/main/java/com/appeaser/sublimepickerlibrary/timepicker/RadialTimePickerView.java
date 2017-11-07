@@ -125,33 +125,22 @@ public class RadialTimePickerView extends View {
     private final Paint mPaintCenter = new Paint();
 
     private final Paint[][] mPaintSelector = new Paint[2][3];
-
-    private int mSelectorColor;
-    private int mSelectorDotColor;
-
     private final Paint mPaintBackground = new Paint();
-
-    private Typeface mTypeface;
-
     private final ColorStateList[] mTextColor = new ColorStateList[3];
     private final int[] mTextSize = new int[3];
     private final int[] mTextInset = new int[3];
-
     private final float[][] mOuterTextX = new float[2][12];
     private final float[][] mOuterTextY = new float[2][12];
-
     private final float[] mInnerTextX = new float[12];
     private final float[] mInnerTextY = new float[12];
-
     private final int[] mSelectionDegrees = new int[2];
-
     private final ArrayList<Animator> mHoursToMinutesAnims = new ArrayList<>();
     private final ArrayList<Animator> mMinuteToHoursAnims = new ArrayList<>();
-
-    private RadialPickerTouchHelper mTouchHelper;
-
     private final Path mSelectorPath = new Path();
-
+    private int mSelectorColor;
+    private int mSelectorDotColor;
+    private Typeface mTypeface;
+    private RadialPickerTouchHelper mTouchHelper;
     private boolean mIs24HourMode;
     private boolean mShowHours;
 
@@ -186,9 +175,26 @@ public class RadialTimePickerView extends View {
     private OnValueSelectedListener mListener;
 
     private boolean mInputEnabled = true;
+    private boolean mChangedDuringTouch = false;
 
-    public interface OnValueSelectedListener {
-        void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance);
+    @SuppressWarnings("unused")
+    public RadialTimePickerView(Context context) {
+        this(context, null);
+    }
+
+    public RadialTimePickerView(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.spRadialTimePickerStyle);
+    }
+
+    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(attrs, defStyleAttr, R.style.RadialTimePickerViewStyle);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs);
+        init(attrs, defStyleAttr, defStyleRes);
     }
 
     /**
@@ -289,24 +295,49 @@ public class RadialTimePickerView extends View {
         return degrees;
     }
 
-    @SuppressWarnings("unused")
-    public RadialTimePickerView(Context context) {
-        this(context, null);
+    /**
+     * Using the trigonometric Unit Circle, calculate the positions that the text will need to be
+     * drawn at based on the specified circle radius. Place the values in the textGridHeights and
+     * textGridWidths parameters.
+     */
+    private static void calculatePositions(Paint paint, float radius, float xCenter, float yCenter,
+                                           float textSize, float[] x, float[] y) {
+        // Adjust yCenter to account for the text's baseline.
+        paint.setTextSize(textSize);
+        yCenter -= (paint.descent() + paint.ascent()) / 2;
+
+        for (int i = 0; i < NUM_POSITIONS; i++) {
+            x[i] = xCenter - radius * COS_30[i];
+            y[i] = yCenter - radius * SIN_30[i];
+        }
     }
 
-    public RadialTimePickerView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.spRadialTimePickerStyle);
+    private static ObjectAnimator getFadeOutAnimator(IntHolder target, int startAlpha, int endAlpha,
+                                                     InvalidateUpdateListener updateListener) {
+        final ObjectAnimator animator = ObjectAnimator.ofInt(target, "value", startAlpha, endAlpha);
+        animator.setDuration(FADE_OUT_DURATION);
+        animator.addUpdateListener(updateListener);
+        return animator;
     }
 
-    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(attrs, defStyleAttr, R.style.RadialTimePickerViewStyle);
-    }
+    private static ObjectAnimator getFadeInAnimator(IntHolder target, int startAlpha, int endAlpha,
+                                                    InvalidateUpdateListener updateListener) {
+        final float delayMultiplier = 0.25f;
+        final float transitionDurationMultiplier = 1f;
+        final float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
+        final int totalDuration = (int) (FADE_IN_DURATION * totalDurationMultiplier);
+        final float delayPoint = (delayMultiplier * FADE_IN_DURATION) / totalDuration;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs);
-        init(attrs, defStyleAttr, defStyleRes);
+        final Keyframe kf0, kf1, kf2;
+        kf0 = Keyframe.ofInt(0f, startAlpha);
+        kf1 = Keyframe.ofInt(delayPoint, startAlpha);
+        kf2 = Keyframe.ofInt(1f, endAlpha);
+        final PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("value", kf0, kf1, kf2);
+
+        final ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(target, fadeIn);
+        animator.setDuration(totalDuration);
+        animator.addUpdateListener(updateListener);
+        return animator;
     }
 
     private void init(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -455,15 +486,6 @@ public class RadialTimePickerView extends View {
     }
 
     /**
-     * Sets the current hour in 24-hour time.
-     *
-     * @param hour the current hour between 0 and 23 (inclusive)
-     */
-    public void setCurrentHour(int hour) {
-        setCurrentHourInternal(hour, true, false);
-    }
-
-    /**
      * Sets the current hour.
      *
      * @param hour        The current hour
@@ -500,6 +522,15 @@ public class RadialTimePickerView extends View {
      */
     public int getCurrentHour() {
         return getHourForDegrees(mSelectionDegrees[HOURS], mIsOnInnerCircle);
+    }
+
+    /**
+     * Sets the current hour in 24-hour time.
+     *
+     * @param hour the current hour between 0 and 23 (inclusive)
+     */
+    public void setCurrentHour(int hour) {
+        setCurrentHourInternal(hour, true, false);
     }
 
     private int getHourForDegrees(int degrees, boolean innerCircle) {
@@ -542,10 +573,6 @@ public class RadialTimePickerView extends View {
         return mIs24HourMode && (hour == 0 || hour > 12);
     }
 
-    public void setCurrentMinute(int minute) {
-        setCurrentMinuteInternal(minute, true);
-    }
-
     private void setCurrentMinuteInternal(int minute, boolean callback) {
         mSelectionDegrees[MINUTES] = (minute % MINUTES_IN_CIRCLE) * DEGREES_FOR_ONE_MINUTE;
 
@@ -561,6 +588,10 @@ public class RadialTimePickerView extends View {
         return getMinuteForDegrees(mSelectionDegrees[MINUTES]);
     }
 
+    public void setCurrentMinute(int minute) {
+        setCurrentMinuteInternal(minute, true);
+    }
+
     private int getMinuteForDegrees(int degrees) {
         return degrees / DEGREES_FOR_ONE_MINUTE;
     }
@@ -569,14 +600,14 @@ public class RadialTimePickerView extends View {
         return minute * DEGREES_FOR_ONE_MINUTE;
     }
 
+    public int getAmOrPm() {
+        return mAmOrPm;
+    }
+
     public void setAmOrPm(int val) {
         mAmOrPm = (val % 2);
         invalidate();
         mTouchHelper.invalidateRoot();
-    }
-
-    public int getAmOrPm() {
-        return mAmOrPm;
     }
 
     private void showHours(boolean animate) {
@@ -663,7 +694,11 @@ public class RadialTimePickerView extends View {
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
 
+        Paint paint = new Paint();
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
+
         drawCircleBackground(canvas);
+        canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, paint);
         drawHours(canvas, alphaMod);
         drawMinutes(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
@@ -807,23 +842,6 @@ public class RadialTimePickerView extends View {
     }
 
     /**
-     * Using the trigonometric Unit Circle, calculate the positions that the text will need to be
-     * drawn at based on the specified circle radius. Place the values in the textGridHeights and
-     * textGridWidths parameters.
-     */
-    private static void calculatePositions(Paint paint, float radius, float xCenter, float yCenter,
-                                           float textSize, float[] x, float[] y) {
-        // Adjust yCenter to account for the text's baseline.
-        paint.setTextSize(textSize);
-        yCenter -= (paint.descent() + paint.ascent()) / 2;
-
-        for (int i = 0; i < NUM_POSITIONS; i++) {
-            x[i] = xCenter - radius * COS_30[i];
-            y[i] = yCenter - radius * SIN_30[i];
-        }
-    }
-
-    /**
      * Draw the 12 text values at the positions specified by the textGrid parameters.
      */
     private void drawTextElements(Canvas canvas, float textSize, Typeface typeface,
@@ -850,41 +868,6 @@ public class RadialTimePickerView extends View {
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
-        }
-    }
-
-    private static ObjectAnimator getFadeOutAnimator(IntHolder target, int startAlpha, int endAlpha,
-                                                     InvalidateUpdateListener updateListener) {
-        final ObjectAnimator animator = ObjectAnimator.ofInt(target, "value", startAlpha, endAlpha);
-        animator.setDuration(FADE_OUT_DURATION);
-        animator.addUpdateListener(updateListener);
-        return animator;
-    }
-
-    private static ObjectAnimator getFadeInAnimator(IntHolder target, int startAlpha, int endAlpha,
-                                                    InvalidateUpdateListener updateListener) {
-        final float delayMultiplier = 0.25f;
-        final float transitionDurationMultiplier = 1f;
-        final float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
-        final int totalDuration = (int) (FADE_IN_DURATION * totalDurationMultiplier);
-        final float delayPoint = (delayMultiplier * FADE_IN_DURATION) / totalDuration;
-
-        final Keyframe kf0, kf1, kf2;
-        kf0 = Keyframe.ofInt(0f, startAlpha);
-        kf1 = Keyframe.ofInt(delayPoint, startAlpha);
-        kf2 = Keyframe.ofInt(1f, endAlpha);
-        final PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("value", kf0, kf1, kf2);
-
-        final ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(target, fadeIn);
-        animator.setDuration(totalDuration);
-        animator.addUpdateListener(updateListener);
-        return animator;
-    }
-
-    private class InvalidateUpdateListener implements ValueAnimator.AnimatorUpdateListener {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            RadialTimePickerView.this.invalidate();
         }
     }
 
@@ -959,8 +942,6 @@ public class RadialTimePickerView extends View {
         }
         return false;
     }
-
-    private boolean mChangedDuringTouch = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -1049,6 +1030,33 @@ public class RadialTimePickerView extends View {
     public void setInputEnabled(boolean inputEnabled) {
         mInputEnabled = inputEnabled;
         invalidate();
+    }
+
+    public interface OnValueSelectedListener {
+        void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance);
+    }
+
+    private static class IntHolder {
+        private int mValue;
+
+        public IntHolder(int value) {
+            mValue = value;
+        }
+
+        public int getValue() {
+            return mValue;
+        }
+
+        public void setValue(int value) {
+            mValue = value;
+        }
+    }
+
+    private class InvalidateUpdateListener implements ValueAnimator.AnimatorUpdateListener {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            RadialTimePickerView.this.invalidate();
+        }
     }
 
     private class RadialPickerTouchHelper extends ExploreByTouchHelper {
@@ -1359,22 +1367,6 @@ public class RadialTimePickerView extends View {
 
         private int getValueFromId(int id) {
             return id >>> SHIFT_VALUE & MASK_VALUE;
-        }
-    }
-
-    private static class IntHolder {
-        private int mValue;
-
-        public IntHolder(int value) {
-            mValue = value;
-        }
-
-        public void setValue(int value) {
-            mValue = value;
-        }
-
-        public int getValue() {
-            return mValue;
         }
     }
 }
