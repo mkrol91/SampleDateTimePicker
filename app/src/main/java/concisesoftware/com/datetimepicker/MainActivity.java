@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int currentHourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
         int currentMinute = calendar.get(Calendar.MINUTE);
 
-        options.setTimeParams(currentHourOfDay, currentMinute, true);
+        options.setTimeParams(currentHourOfDay, currentMinute, false);
         options.setDateParams(calendar);
 
         int displayOptions = 0;
