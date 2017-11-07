@@ -732,7 +732,7 @@ public class RadialTimePickerView extends View {
             canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
         }
 
-        drawHours(canvas, alphaMod);
+        drawHours(canvas, alphaMod, hoursToCheck);
         drawMinutes(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
     }
@@ -759,7 +759,7 @@ public class RadialTimePickerView extends View {
         canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, mPaintBackground);
     }
 
-    private void drawHours(Canvas canvas, float alphaMod) {
+    private void drawHours(Canvas canvas, float alphaMod, ArrayList<Integer> hoursToCheck) {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);
         if (hoursAlpha > 0) {
             // Draw the hour selector under the elements.
@@ -768,13 +768,13 @@ public class RadialTimePickerView extends View {
             // Draw outer hours.
             drawTextElements(canvas, mTextSize[HOURS], mTypeface, mTextColor[HOURS],
                     mOuterTextHours, mOuterTextX[HOURS], mOuterTextY[HOURS], mPaint[HOURS],
-                    hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
+                    hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false, hoursToCheck);
 
             // Draw inner hours (13-00) for 24-hour time.
             if (mIs24HourMode && mInnerTextHours != null) {
                 drawTextElements(canvas, mTextSize[HOURS_INNER], mTypeface, mTextColor[HOURS_INNER],
                         mInnerTextHours, mInnerTextX, mInnerTextY, mPaint[HOURS], hoursAlpha,
-                        mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
+                        mIsOnInnerCircle, mSelectionDegrees[HOURS], false, null);
             }
         }
     }
@@ -791,7 +791,7 @@ public class RadialTimePickerView extends View {
             canvas.clipPath(mSelectorPath, Region.Op.DIFFERENCE);
             drawTextElements(canvas, mTextSize[MINUTES], mTypeface, mTextColor[MINUTES],
                     mMinutesText, mOuterTextX[MINUTES], mOuterTextY[MINUTES], mPaint[MINUTES],
-                    minutesAlpha, false, 0, false);
+                    minutesAlpha, false, 0, false, null);
             canvas.restore();
 
             // Intersect the selector region, then draw minutes with only
@@ -800,7 +800,7 @@ public class RadialTimePickerView extends View {
             canvas.clipPath(mSelectorPath, Region.Op.INTERSECT);
             drawTextElements(canvas, mTextSize[MINUTES], mTypeface, mTextColor[MINUTES],
                     mMinutesText, mOuterTextX[MINUTES], mOuterTextY[MINUTES], mPaint[MINUTES],
-                    minutesAlpha, true, mSelectionDegrees[MINUTES], true);
+                    minutesAlpha, true, mSelectionDegrees[MINUTES], true, null);
             canvas.restore();
         }
     }
@@ -897,7 +897,7 @@ public class RadialTimePickerView extends View {
      */
     private void drawTextElements(Canvas canvas, float textSize, Typeface typeface,
                                   ColorStateList textColor, String[] texts, float[] textX, float[] textY, Paint paint,
-                                  int alpha, boolean showActivated, int activatedDegrees, boolean activatedOnly) {
+                                  int alpha, boolean showActivated, int activatedDegrees, boolean activatedOnly, ArrayList<Integer> hoursToCheck) {
         paint.setTextSize(textSize);
         paint.setTypeface(typeface);
 
@@ -920,6 +920,34 @@ public class RadialTimePickerView extends View {
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
         }
+
+        if (hoursToCheck != null) {
+            for (int i = 0; i < texts.length; i++) {
+                String text = texts[i];
+                if (containsString(hoursToCheck, text)) {
+                    paint.setColor(Color.RED);
+                    canvas.drawText(texts[i], textX[i], textY[i], paint);
+                }
+            }
+        }
+    }
+
+    private boolean containsString(ArrayList<Integer> hoursToCheck, String text) {
+        for (Integer hourToCheck : hoursToCheck) {
+            if (hourToCheck.toString().equals(text)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsInt(ArrayList<Integer> hoursToCheck, int i) {
+        for (Integer hour : hoursToCheck) {
+            if (hour == i) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void startHoursToMinutesAnimation() {
