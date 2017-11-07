@@ -17,6 +17,7 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="@dimen/time_picker_width"
     android:layout_height="@dimen/time_picker_height"
     android:background="@color/white"
@@ -25,29 +26,31 @@
     <include layout="@layout/switch_panel_time_picker" />
 
     <include
-        android:layout_marginTop="24dp"
         layout="@layout/time_picker_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="24dp"
         android:background="@color/white" />
 
     <!--<FrameLayout-->
-        <!--android:layout_width="225dp"-->
-        <!--android:layout_height="225dp"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:layout_marginEnd="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
-        <!--android:layout_marginLeft="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
-        <!--android:layout_marginRight="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
-        <!--android:layout_marginStart="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
-        <!--android:layout_marginTop="@dimen/sp_timepicker_radial_picker_top_margin"-->
-        <!--android:background="@drawable/timer_circle">-->
+    <!--android:layout_width="225dp"-->
+    <!--android:layout_height="225dp"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_marginEnd="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
+    <!--android:layout_marginLeft="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
+    <!--android:layout_marginRight="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
+    <!--android:layout_marginStart="@dimen/sp_timepicker_radial_picker_horizontal_margin"-->
+    <!--android:layout_marginTop="@dimen/sp_timepicker_radial_picker_top_margin"-->
+    <!--android:background="@drawable/timer_circle">-->
 
-        <com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView
-            android:id="@+id/radial_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sp_timepicker_radial_picker_dimen"
-            android:layout_gravity="center" />
+    <com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView
+        android:id="@+id/radial_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/sp_timepicker_radial_picker_dimen"
+        android:layout_gravity="center"
+        app:activeHoursBackgroundColor="@color/timer_background"
+        app:inactiveHoursBackgroundColor="@color/timer_background_blocked" />
 
     <!--</FrameLayout>-->
 

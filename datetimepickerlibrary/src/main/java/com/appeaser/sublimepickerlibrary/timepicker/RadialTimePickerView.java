@@ -179,6 +179,8 @@ public class RadialTimePickerView extends View {
 
     private boolean mInputEnabled = true;
     private boolean mChangedDuringTouch = false;
+    private int activeHoursBackground;
+    private int inactiveHoursBackground;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -362,6 +364,9 @@ public class RadialTimePickerView extends View {
         for (int i = 0; i < mAlpha.length; i++) {
             mAlpha[i] = new IntHolder(ALPHA_OPAQUE);
         }
+
+        activeHoursBackground = a.getColor(R.styleable.RadialTimePickerView_activeHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background));
+        inactiveHoursBackground = a.getColor(R.styleable.RadialTimePickerView_inactiveHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background_blocked));
 
         mTextColor[HOURS] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersTextColor);
         mTextColor[HOURS_INNER] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersInnerTextColor);
@@ -696,10 +701,7 @@ public class RadialTimePickerView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
-
-        drawCircleBackground(canvas);
-        drawArc(canvas);
-        //drawMyCircleBackground(canvas);
+        drawTimerBackground(canvas);
         drawHours(canvas, alphaMod);
         drawMinutes(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
@@ -711,7 +713,7 @@ public class RadialTimePickerView extends View {
         canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, paint);
     }
 
-    private void drawArc(Canvas canvas) {
+    private void drawTimerBackground(Canvas canvas) {
         final int hoursCount = 12;
         final float fullAngle = 360;
         final float offset = 15;
@@ -720,22 +722,21 @@ public class RadialTimePickerView extends View {
         HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
 
         ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
-        
+
         Paint paint = new Paint();
         // smooths
         paint.setAntiAlias(true);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
+        paint.setColor(activeHoursBackground);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(5);
         RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, paint);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.timer_background_blocked));
 
+        paint.setColor(inactiveHoursBackground);
         for (Integer hourToCheck : hoursToCheck) {
             canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
         }
-
     }
 
     private HashMap<Integer, Float> generateHourToStartAngleMap(int hoursCount, ArrayList<Float> startArcAngles) {
