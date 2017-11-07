@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -179,26 +180,31 @@ public class RadialTimePickerView extends View {
 
     private boolean mInputEnabled = true;
     private boolean mChangedDuringTouch = false;
-    private int activeHoursBackground;
-    private int inactiveHoursBackground;
+    private int activeHoursBackgroundColor;
+    private int inactiveHoursBackgroundColor;
+    private boolean shouldBlock = true;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
         this(context, null);
+        setDrawingCacheEnabled(true);
     }
 
     public RadialTimePickerView(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.spRadialTimePickerStyle);
+        setDrawingCacheEnabled(true);
     }
 
     public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setDrawingCacheEnabled(true);
         init(attrs, defStyleAttr, R.style.RadialTimePickerViewStyle);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs);
+        setDrawingCacheEnabled(true);
         init(attrs, defStyleAttr, defStyleRes);
     }
 
@@ -365,8 +371,8 @@ public class RadialTimePickerView extends View {
             mAlpha[i] = new IntHolder(ALPHA_OPAQUE);
         }
 
-        activeHoursBackground = a.getColor(R.styleable.RadialTimePickerView_activeHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background));
-        inactiveHoursBackground = a.getColor(R.styleable.RadialTimePickerView_inactiveHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background_blocked));
+        activeHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_activeHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background));
+        inactiveHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_inactiveHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background_blocked));
 
         mTextColor[HOURS] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersTextColor);
         mTextColor[HOURS_INNER] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersInnerTextColor);
@@ -726,14 +732,14 @@ public class RadialTimePickerView extends View {
         Paint paint = new Paint();
         // smooths
         paint.setAntiAlias(true);
-        paint.setColor(activeHoursBackground);
+        paint.setColor(activeHoursBackgroundColor);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(5);
         RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, paint);
 
-        paint.setColor(inactiveHoursBackground);
+        paint.setColor(inactiveHoursBackgroundColor);
         for (Integer hourToCheck : hoursToCheck) {
             canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
         }
@@ -998,34 +1004,57 @@ public class RadialTimePickerView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!mInputEnabled) {
+        if (shouldBlockChoose(event.getX(), event.getY())) {
+            int a = 7;
+            a++;
             return true;
-        }
-
-        final int action = event.getActionMasked();
-        if (action == MotionEvent.ACTION_MOVE
-                || action == MotionEvent.ACTION_UP
-                || action == MotionEvent.ACTION_DOWN) {
-            boolean forceSelection = false;
-            boolean autoAdvance = false;
-
-            if (action == MotionEvent.ACTION_DOWN) {
-                // This is a new event stream, reset whether the value changed.
-                mChangedDuringTouch = false;
-            } else if (action == MotionEvent.ACTION_UP) {
-                autoAdvance = true;
-
-                // If we saw a down/up pair without the value changing, assume
-                // this is a single-tap selection and force a change.
-                if (!mChangedDuringTouch) {
-                    forceSelection = true;
-                }
+        } else {
+            if (!mInputEnabled) {
+                return true;
             }
 
-            mChangedDuringTouch |= handleTouchInput(
-                    event.getX(), event.getY(), forceSelection, autoAdvance);
-        }
+            final int action = event.getActionMasked();
+            if (action == MotionEvent.ACTION_MOVE
+                    || action == MotionEvent.ACTION_UP
+                    || action == MotionEvent.ACTION_DOWN) {
+                boolean forceSelection = false;
+                boolean autoAdvance = false;
 
+                if (action == MotionEvent.ACTION_DOWN) {
+                    // This is a new event stream, reset whether the value changed.
+                    mChangedDuringTouch = false;
+                } else if (action == MotionEvent.ACTION_UP) {
+                    autoAdvance = true;
+
+                    // If we saw a down/up pair without the value changing, assume
+                    // this is a single-tap selection and force a change.
+                    if (!mChangedDuringTouch) {
+                        forceSelection = true;
+                    }
+                }
+
+                mChangedDuringTouch |= handleTouchInput(
+                        event.getX(), event.getY(), forceSelection, autoAdvance);
+            }
+
+            return true;
+        }
+    }
+
+    private boolean shouldBlockChoose(float touchX, float touchY) {
+        if (touchX >= 0 && touchY >= 0) {
+            setDrawingCacheEnabled(true);
+            Bitmap bitmap = getDrawingCache(true);
+            if (bitmap == null) {
+                return true;
+            }
+            if (touchX > bitmap.getWidth() || touchY > bitmap.getHeight()) {
+                return true;
+            }
+            int colorCode = bitmap.getPixel((int) touchX, (int) touchY);
+            setDrawingCacheEnabled(false);
+            return colorCode == inactiveHoursBackgroundColor;
+        }
         return true;
     }
 
