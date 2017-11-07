@@ -55,8 +55,10 @@ import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeMap;
 
 /**
  * View to show a clock circle picker (with one or two picking circles)
@@ -717,6 +719,11 @@ public class RadialTimePickerView extends View {
         p.setColor(ContextCompat.getColor(getContext(), R.color.timer_background));
         p.setStyle(Paint.Style.FILL);
         p.setStrokeWidth(5);
+
+        final int hoursCount = 12;
+        for(int i=0;i<hoursCount;i++){
+
+        }
 
         RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
