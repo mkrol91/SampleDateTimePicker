@@ -265,6 +265,7 @@
 
         <attr name="activeHoursBackgroundColor" format="color" />
         <attr name="inactiveHoursBackgroundColor" format="color" />
+        <attr name="inactiveDigitsColor" format="color" />
     </declare-styleable>
 
 </resources>

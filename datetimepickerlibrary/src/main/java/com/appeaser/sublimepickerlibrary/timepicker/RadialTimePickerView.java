@@ -182,6 +182,7 @@ public class RadialTimePickerView extends View {
     private boolean mChangedDuringTouch = false;
     private int activeHoursBackgroundColor;
     private int inactiveHoursBackgroundColor;
+    private int inactiveDigitsColor;
     private boolean shouldBlock = true;
 
     @SuppressWarnings("unused")
@@ -373,6 +374,7 @@ public class RadialTimePickerView extends View {
 
         activeHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_activeHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background));
         inactiveHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_inactiveHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background_blocked));
+        inactiveDigitsColor = a.getColor(R.styleable.RadialTimePickerView_inactiveDigitsColor, ContextCompat.getColor(context, R.color.inactive_digits_color));
 
         mTextColor[HOURS] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersTextColor);
         mTextColor[HOURS_INNER] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersInnerTextColor);
@@ -925,7 +927,7 @@ public class RadialTimePickerView extends View {
             for (int i = 0; i < texts.length; i++) {
                 String text = texts[i];
                 if (containsString(hoursToCheck, text)) {
-                    paint.setColor(Color.RED);
+                    paint.setColor(inactiveDigitsColor);
                     canvas.drawText(texts[i], textX[i], textY[i], paint);
                 }
             }
@@ -935,15 +937,6 @@ public class RadialTimePickerView extends View {
     private boolean containsString(ArrayList<Integer> hoursToCheck, String text) {
         for (Integer hourToCheck : hoursToCheck) {
             if (hourToCheck.toString().equals(text)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsInt(ArrayList<Integer> hoursToCheck, int i) {
-        for (Integer hour : hoursToCheck) {
-            if (hour == i) {
                 return true;
             }
         }

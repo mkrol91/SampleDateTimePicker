@@ -50,6 +50,7 @@
         android:layout_height="@dimen/sp_timepicker_radial_picker_dimen"
         android:layout_gravity="center"
         app:activeHoursBackgroundColor="@color/timer_background"
+        app:inactiveDigitsColor="@color/inactive_digits_color"
         app:inactiveHoursBackgroundColor="@color/timer_background_blocked" />
 
     <!--</FrameLayout>-->
