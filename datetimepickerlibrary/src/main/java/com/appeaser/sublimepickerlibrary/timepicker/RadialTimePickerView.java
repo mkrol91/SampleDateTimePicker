@@ -184,6 +184,8 @@ public class RadialTimePickerView extends View {
     private int inactiveHoursBackgroundColor;
     private int inactiveDigitsColor;
     private boolean shouldBlock = true;
+    private Float startAngle;
+    private Float endAngle;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -716,7 +718,6 @@ public class RadialTimePickerView extends View {
         float unitWidth = fullAngle / hoursCount;
         ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
         HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
-
         ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
 
         Paint paint = new Paint();
@@ -730,9 +731,9 @@ public class RadialTimePickerView extends View {
         canvas.drawOval(rectF, paint);
 
         paint.setColor(inactiveHoursBackgroundColor);
-        for (Integer hourToCheck : hoursToCheck) {
-            canvas.drawArc(rectF, hourStartAngleMap.get(hourToCheck), unitWidth, true, paint);
-        }
+        startAngle = hourStartAngleMap.get(hoursToCheck.get(0));
+        endAngle = hourStartAngleMap.get(hoursToCheck.get(hoursToCheck.size() - 1));
+        canvas.drawArc(rectF, startAngle, unitWidth * hoursToCheck.size(), true, paint);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawMinutes(canvas, alphaMod);
@@ -1055,7 +1056,24 @@ public class RadialTimePickerView extends View {
     }
 
     private boolean shouldBlockChoose(float touchX, float touchY) {
+        double centerX = mXCenter;
+        double centerY = mYCenter;
+        double circleRadius = mCircleRadius;
+
+        Math.pow(touchX, centerX);
+
+
         if (touchX >= 0 && touchY >= 0) {
+            double distanceFromMiddle = Math.sqrt(Math.pow(touchX - centerX, 2) + Math.pow(touchY - centerY, 2));
+            if (distanceFromMiddle > circleRadius) {
+                return true;
+            }
+            int degrees = getDegreesFromXY(touchX, touchY, false);
+
+            Log.i("distanceFromMiddle", "distanceFromMiddle: " + distanceFromMiddle);
+            Log.i("distanceFromMiddle", "circleRadius: " + centerY);
+            Log.i("distanceFromMiddle", "alpha: " + degrees);
+
             setDrawingCacheEnabled(true);
             Bitmap bitmap = getDrawingCache(true);
             if (bitmap == null) {
