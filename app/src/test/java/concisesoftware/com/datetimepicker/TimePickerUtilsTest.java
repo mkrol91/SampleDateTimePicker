@@ -7,13 +7,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest {
+public class TimePickerUtilsTest {
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
@@ -53,6 +54,23 @@ public class ExampleUnitTest {
     public void hoursToCheckOutOfRangeNegative() {
         ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(-1, -5);
         assertEquals(0, hoursToCheckTest.size());
+    }
+
+    @Test
+    public void degreesWithOffsetToDrawingZero() {
+        float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(0f, 255f);
+        assertTrue(255f == degreesWithOffsetToDrawing);
+    }
+    @Test
+    public void degreesWithOffsetToDrawingOtherValue() {
+        float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(105f, 255f);
+        assertTrue(360f == degreesWithOffsetToDrawing);
+        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(355f, 255f);
+        assertTrue(250f == degreesWithOffsetToDrawing);
+        degreesWithOffsetToDrawing =  TimePickerUtils.getDegreesWithOffsetToDrawing(180f, 255f);
+        assertTrue(75f == degreesWithOffsetToDrawing);
+        degreesWithOffsetToDrawing =  TimePickerUtils.getDegreesWithOffsetToDrawing(270f, 255f);
+        assertTrue(165f == degreesWithOffsetToDrawing);
     }
 
 }

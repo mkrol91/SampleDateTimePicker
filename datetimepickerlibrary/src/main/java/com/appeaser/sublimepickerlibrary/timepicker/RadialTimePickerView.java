@@ -184,8 +184,9 @@ public class RadialTimePickerView extends View {
     private int inactiveHoursBackgroundColor;
     private int inactiveDigitsColor;
     private boolean shouldBlock = true;
-    private Float startAngle;
-    private Float endAngle;
+    private Float startDrawingAngle;
+    private Float endDrawingAngle;
+    private float offsetInAngles;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -731,9 +732,10 @@ public class RadialTimePickerView extends View {
         canvas.drawOval(rectF, paint);
 
         paint.setColor(inactiveHoursBackgroundColor);
-        startAngle = hourStartAngleMap.get(hoursToCheck.get(0));
-        endAngle = hourStartAngleMap.get(hoursToCheck.get(hoursToCheck.size() - 1));
-        canvas.drawArc(rectF, startAngle, unitWidth * hoursToCheck.size(), true, paint);
+        offsetInAngles = hourStartAngleMap.get(12);
+        startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
+        endDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(hoursToCheck.size() - 1));
+        canvas.drawArc(rectF, startDrawingAngle, unitWidth * hoursToCheck.size(), true, paint);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawMinutes(canvas, alphaMod);
@@ -1069,10 +1071,12 @@ public class RadialTimePickerView extends View {
                 return true;
             }
             int degrees = getDegreesFromXY(touchX, touchY, false);
+            float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(degrees, offsetInAngles);
 
             Log.i("distanceFromMiddle", "distanceFromMiddle: " + distanceFromMiddle);
             Log.i("distanceFromMiddle", "circleRadius: " + centerY);
-            Log.i("distanceFromMiddle", "alpha: " + degrees);
+            Log.i("distanceFromMiddle", "degrees: " + degrees);
+            Log.i("distanceFromMiddle", "degreesWithOffsetToDrawing: " + degreesWithOffsetToDrawing);
 
             setDrawingCacheEnabled(true);
             Bitmap bitmap = getDrawingCache(true);

@@ -30,4 +30,13 @@ public class TimePickerUtils {
         }
         return hoursToCheck;
     }
+
+    public static float getDegreesWithOffsetToDrawing(float degrees, float offsetInZeroDegree) {
+        float degreesOffsetSum = degrees + offsetInZeroDegree;
+        if (degreesOffsetSum <= 360) {
+            return degreesOffsetSum;
+        } else {
+            return offsetInZeroDegree - (360 - degrees);
+        }
+    }
 }
