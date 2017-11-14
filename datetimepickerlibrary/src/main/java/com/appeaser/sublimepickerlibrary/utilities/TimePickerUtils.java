@@ -39,4 +39,13 @@ public class TimePickerUtils {
             return offsetInZeroDegree - (360 - degrees);
         }
     }
+
+    public static float moveByAngle(Float angleToMove, float sweepAngle) {
+        float degreesSum = angleToMove + sweepAngle;
+        if (degreesSum <= 360) {
+            return degreesSum;
+        } else {
+            return sweepAngle - (360 - angleToMove);
+        }
+    }
 }

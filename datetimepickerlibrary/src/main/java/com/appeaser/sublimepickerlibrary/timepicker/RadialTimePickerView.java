@@ -734,8 +734,9 @@ public class RadialTimePickerView extends View {
         paint.setColor(inactiveHoursBackgroundColor);
         offsetInAngles = hourStartAngleMap.get(12);
         startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
-        endDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(hoursToCheck.size() - 1));
-        canvas.drawArc(rectF, startDrawingAngle, unitWidth * hoursToCheck.size(), true, paint);
+        float sweepAngle = unitWidth * hoursToCheck.size();
+        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
+        endDrawingAngle = TimePickerUtils.moveByAngle(startDrawingAngle, sweepAngle);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawMinutes(canvas, alphaMod);

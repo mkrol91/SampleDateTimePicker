@@ -61,16 +61,29 @@ public class TimePickerUtilsTest {
         float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(0f, 255f);
         assertTrue(255f == degreesWithOffsetToDrawing);
     }
+
     @Test
     public void degreesWithOffsetToDrawingOtherValue() {
         float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(105f, 255f);
         assertTrue(360f == degreesWithOffsetToDrawing);
         degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(355f, 255f);
         assertTrue(250f == degreesWithOffsetToDrawing);
-        degreesWithOffsetToDrawing =  TimePickerUtils.getDegreesWithOffsetToDrawing(180f, 255f);
+        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(180f, 255f);
         assertTrue(75f == degreesWithOffsetToDrawing);
-        degreesWithOffsetToDrawing =  TimePickerUtils.getDegreesWithOffsetToDrawing(270f, 255f);
+        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(270f, 255f);
         assertTrue(165f == degreesWithOffsetToDrawing);
+    }
+
+    @Test
+    public void moveByAngleTest() {
+        float moved = TimePickerUtils.moveByAngle(255f, 240f);
+        assertTrue(moved == 135f);
+        moved = TimePickerUtils.moveByAngle(0f, 145f);
+        assertTrue(moved == 145f);
+        moved = TimePickerUtils.moveByAngle(187f, 0);
+        assertTrue(moved == 187f);
+        moved = TimePickerUtils.moveByAngle(360f, 360f);
+        assertTrue(moved == 360f);
     }
 
 }
