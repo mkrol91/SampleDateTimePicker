@@ -98,6 +98,8 @@ public class TimePickerUtilsTest {
         assertTrue(isAngleBetweenAngles);
         isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(111, 111, 111);
         assertTrue(isAngleBetweenAngles);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(343,255,135);
+        assertTrue(isAngleBetweenAngles);
     }
 
 }

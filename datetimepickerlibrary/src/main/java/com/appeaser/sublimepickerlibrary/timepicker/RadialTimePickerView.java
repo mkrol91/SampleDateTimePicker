@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -1071,7 +1070,6 @@ public class RadialTimePickerView extends View {
             float degrees = getDegreesFromXY(touchX, touchY, false);
             float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(degrees, offsetInAngles);
             boolean isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(degreesWithOffsetToDrawing, startDrawingAngle, endDrawingAngle);
-
             Log.i("distanceFromMiddle", "-----------------------------------------");
             Log.i("distanceFromMiddle", "startDrawingAngle: " + startDrawingAngle);
             Log.i("distanceFromMiddle", "endDrawingAngle: " + endDrawingAngle);
@@ -1080,20 +1078,11 @@ public class RadialTimePickerView extends View {
             Log.i("distanceFromMiddle", "degrees: " + degrees);
             Log.i("distanceFromMiddle", "degreesWithOffsetToDrawing: " + degreesWithOffsetToDrawing);
             Log.i("distanceFromMiddle", "isAngleBetweenAngles: " + isAngleBetweenAngles);
-
-            setDrawingCacheEnabled(true);
-            Bitmap bitmap = getDrawingCache(true);
-            if (bitmap == null) {
+            if (isAngleBetweenAngles) {
                 return true;
             }
-            if (touchX > bitmap.getWidth() || touchY > bitmap.getHeight()) {
-                return true;
-            }
-            int colorCode = bitmap.getPixel((int) touchX, (int) touchY);
-            setDrawingCacheEnabled(false);
-            return colorCode == inactiveHoursBackgroundColor;
         }
-        return true;
+        return false;
     }
 
     private boolean handleTouchInput(
