@@ -31,21 +31,14 @@ public class TimePickerUtils {
         return hoursToCheck;
     }
 
-    public static float getDegreesWithOffsetToDrawing(float degrees, float offsetInZeroDegree) {
-        float degreesOffsetSum = degrees + offsetInZeroDegree;
-        if (degreesOffsetSum <= 360) {
-            return degreesOffsetSum;
-        } else {
-            return offsetInZeroDegree - (360 - degrees);
-        }
-    }
-
     public static float moveByAngle(Float angleToMove, float sweepAngle) {
         float degreesSum = angleToMove + sweepAngle;
-        if (degreesSum <= 360) {
-            return degreesSum;
-        } else {
-            return sweepAngle - (360 - angleToMove);
-        }
+        return degreesSum <= 360 ? degreesSum : sweepAngle - (360 - angleToMove);
+    }
+
+    public static boolean isAngleBetweenAngles(float degrees, float startDrawingAngle, float endDrawingAngle) {
+        return degrees >= startDrawingAngle && degrees <= endDrawingAngle ||
+                degrees <= endDrawingAngle && endDrawingAngle < startDrawingAngle ||
+                degrees >= startDrawingAngle && endDrawingAngle < startDrawingAngle;
     }
 }

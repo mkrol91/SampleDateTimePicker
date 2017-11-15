@@ -58,19 +58,19 @@ public class TimePickerUtilsTest {
 
     @Test
     public void degreesWithOffsetToDrawingZero() {
-        float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(0f, 255f);
+        float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(0f, 255f);
         assertTrue(255f == degreesWithOffsetToDrawing);
     }
 
     @Test
     public void degreesWithOffsetToDrawingOtherValue() {
-        float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(105f, 255f);
+        float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(105f, 255f);
         assertTrue(360f == degreesWithOffsetToDrawing);
-        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(355f, 255f);
+        degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(355f, 255f);
         assertTrue(250f == degreesWithOffsetToDrawing);
-        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(180f, 255f);
+        degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(180f, 255f);
         assertTrue(75f == degreesWithOffsetToDrawing);
-        degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(270f, 255f);
+        degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(270f, 255f);
         assertTrue(165f == degreesWithOffsetToDrawing);
     }
 
@@ -84,6 +84,20 @@ public class TimePickerUtilsTest {
         assertTrue(moved == 187f);
         moved = TimePickerUtils.moveByAngle(360f, 360f);
         assertTrue(moved == 360f);
+    }
+
+    @Test
+    public void isAngleBetweenAnglesTest() {
+        boolean isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(45, 40, 135);
+        assertTrue(isAngleBetweenAngles);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(20, 355, 30);
+        assertTrue(isAngleBetweenAngles);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(350, 355, 352);
+        assertTrue(isAngleBetweenAngles);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(355, 340, 60);
+        assertTrue(isAngleBetweenAngles);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(111, 111, 111);
+        assertTrue(isAngleBetweenAngles);
     }
 
 }

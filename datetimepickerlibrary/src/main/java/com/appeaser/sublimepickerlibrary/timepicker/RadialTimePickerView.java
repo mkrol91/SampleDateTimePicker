@@ -1063,21 +1063,23 @@ public class RadialTimePickerView extends View {
         double centerY = mYCenter;
         double circleRadius = mCircleRadius;
 
-        Math.pow(touchX, centerX);
-
-
         if (touchX >= 0 && touchY >= 0) {
             double distanceFromMiddle = Math.sqrt(Math.pow(touchX - centerX, 2) + Math.pow(touchY - centerY, 2));
             if (distanceFromMiddle > circleRadius) {
                 return true;
             }
-            int degrees = getDegreesFromXY(touchX, touchY, false);
-            float degreesWithOffsetToDrawing = TimePickerUtils.getDegreesWithOffsetToDrawing(degrees, offsetInAngles);
+            float degrees = getDegreesFromXY(touchX, touchY, false);
+            float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(degrees, offsetInAngles);
+            boolean isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(degreesWithOffsetToDrawing, startDrawingAngle, endDrawingAngle);
 
+            Log.i("distanceFromMiddle", "-----------------------------------------");
+            Log.i("distanceFromMiddle", "startDrawingAngle: " + startDrawingAngle);
+            Log.i("distanceFromMiddle", "endDrawingAngle: " + endDrawingAngle);
             Log.i("distanceFromMiddle", "distanceFromMiddle: " + distanceFromMiddle);
             Log.i("distanceFromMiddle", "circleRadius: " + centerY);
             Log.i("distanceFromMiddle", "degrees: " + degrees);
             Log.i("distanceFromMiddle", "degreesWithOffsetToDrawing: " + degreesWithOffsetToDrawing);
+            Log.i("distanceFromMiddle", "isAngleBetweenAngles: " + isAngleBetweenAngles);
 
             setDrawingCacheEnabled(true);
             Bitmap bitmap = getDrawingCache(true);
