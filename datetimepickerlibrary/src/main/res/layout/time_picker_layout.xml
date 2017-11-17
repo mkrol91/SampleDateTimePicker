@@ -43,6 +43,7 @@
         app:inactiveHoursBackgroundColor="@color/timer_background_blocked" />
 
     <Switch
+        android:id="@+id/am_pm_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal" />
