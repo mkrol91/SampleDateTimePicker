@@ -703,7 +703,7 @@ public class RadialTimePickerView extends View {
         float unitWidth = fullAngle / hoursCount;
         ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
         HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
-        hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
+        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
 
         Paint paint = new Paint();
         // smooths

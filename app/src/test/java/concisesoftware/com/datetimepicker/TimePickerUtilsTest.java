@@ -57,6 +57,31 @@ public class TimePickerUtilsTest {
     }
 
     @Test
+    public void hoursToCheckOnEdge() {
+        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(11, 15);
+        assertEquals(5, hoursToCheck.size());
+        assertEquals(new Integer(11), hoursToCheck.get(0));
+        assertEquals(new Integer(13), hoursToCheck.get(2));
+        assertEquals(new Integer(15), hoursToCheck.get(4));
+    }
+
+    @Test
+    public void hoursToCheckOnPomTest() {
+        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(22, 13);
+        assertEquals(16, hoursToCheck.size());
+        assertEquals(new Integer(13), hoursToCheck.get(15));
+    }
+
+    @Test
+    public void hoursToCheckOnPomTest24h() {
+        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(23, 22);
+        assertEquals(24, hoursToCheck.size());
+        assertEquals(new Integer(22), hoursToCheck.get(23));
+        assertEquals(new Integer(1), hoursToCheck.get(2));
+        assertEquals(new Integer(23), hoursToCheck.get(0));
+    }
+
+    @Test
     public void degreesWithOffsetToDrawingZero() {
         float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(0f, 255f);
         assertTrue(255f == degreesWithOffsetToDrawing);
@@ -98,7 +123,7 @@ public class TimePickerUtilsTest {
         assertTrue(isAngleBetweenAngles);
         isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(111, 111, 111);
         assertTrue(isAngleBetweenAngles);
-        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(343,255,135);
+        isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(343, 255, 135);
         assertTrue(isAngleBetweenAngles);
     }
 
