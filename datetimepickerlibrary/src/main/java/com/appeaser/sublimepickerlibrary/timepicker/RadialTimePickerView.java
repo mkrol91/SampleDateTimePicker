@@ -186,6 +186,7 @@ public class RadialTimePickerView extends View {
     private Float startDrawingAngle;
     private Float endDrawingAngle;
     private float offsetInAngles;
+    private ArrayList<Integer> hoursToCheck;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -718,7 +719,7 @@ public class RadialTimePickerView extends View {
         float unitWidth = fullAngle / hoursCount;
         ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
         HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
-        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
+        hoursToCheck = TimePickerUtils.getHoursToCheck(12, 7);
 
         Paint paint = new Paint();
         // smooths
@@ -1020,69 +1021,35 @@ public class RadialTimePickerView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (shouldBlockChoose(event.getX(), event.getY())) {
-            int a = 7;
-            a++;
+        if (!mInputEnabled) {
             return true;
-        } else {
-            if (!mInputEnabled) {
-                return true;
-            }
+        }
 
-            final int action = event.getActionMasked();
-            if (action == MotionEvent.ACTION_MOVE
-                    || action == MotionEvent.ACTION_UP
-                    || action == MotionEvent.ACTION_DOWN) {
-                boolean forceSelection = false;
-                boolean autoAdvance = false;
+        final int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_MOVE
+                || action == MotionEvent.ACTION_UP
+                || action == MotionEvent.ACTION_DOWN) {
+            boolean forceSelection = false;
+            boolean autoAdvance = false;
 
-                if (action == MotionEvent.ACTION_DOWN) {
-                    // This is a new event stream, reset whether the value changed.
-                    mChangedDuringTouch = false;
-                } else if (action == MotionEvent.ACTION_UP) {
-                    autoAdvance = true;
+            if (action == MotionEvent.ACTION_DOWN) {
+                // This is a new event stream, reset whether the value changed.
+                mChangedDuringTouch = false;
+            } else if (action == MotionEvent.ACTION_UP) {
+                autoAdvance = true;
 
-                    // If we saw a down/up pair without the value changing, assume
-                    // this is a single-tap selection and force a change.
-                    if (!mChangedDuringTouch) {
-                        forceSelection = true;
-                    }
+                // If we saw a down/up pair without the value changing, assume
+                // this is a single-tap selection and force a change.
+                if (!mChangedDuringTouch) {
+                    forceSelection = true;
                 }
-
-                mChangedDuringTouch |= handleTouchInput(
-                        event.getX(), event.getY(), forceSelection, autoAdvance);
             }
 
-            return true;
+            mChangedDuringTouch |= handleTouchInput(
+                    event.getX(), event.getY(), forceSelection, autoAdvance);
         }
-    }
 
-    private boolean shouldBlockChoose(float touchX, float touchY) {
-        double centerX = mXCenter;
-        double centerY = mYCenter;
-        double circleRadius = mCircleRadius;
-
-        if (touchX >= 0 && touchY >= 0) {
-            double distanceFromMiddle = Math.sqrt(Math.pow(touchX - centerX, 2) + Math.pow(touchY - centerY, 2));
-            if (distanceFromMiddle > circleRadius) {
-                return true;
-            }
-            float degrees = getDegreesFromXY(touchX, touchY, false);
-            float degreesWithOffsetToDrawing = TimePickerUtils.moveByAngle(degrees, offsetInAngles);
-            boolean isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(degreesWithOffsetToDrawing, startDrawingAngle, endDrawingAngle);
-            Log.i("distanceFromMiddle", "-----------------------------------------");
-            Log.i("distanceFromMiddle", "startDrawingAngle: " + startDrawingAngle);
-            Log.i("distanceFromMiddle", "endDrawingAngle: " + endDrawingAngle);
-            Log.i("distanceFromMiddle", "distanceFromMiddle: " + distanceFromMiddle);
-            Log.i("distanceFromMiddle", "circleRadius: " + centerY);
-            Log.i("distanceFromMiddle", "degrees: " + degrees);
-            Log.i("distanceFromMiddle", "degreesWithOffsetToDrawing: " + degreesWithOffsetToDrawing);
-            Log.i("distanceFromMiddle", "isAngleBetweenAngles: " + isAngleBetweenAngles);
-            if (isAngleBetweenAngles) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 
     private boolean handleTouchInput(
@@ -1111,6 +1078,10 @@ public class RadialTimePickerView extends View {
             mSelectionDegrees[MINUTES] = snapDegrees;
             type = MINUTES;
             newValue = getCurrentMinute();
+        }
+
+        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
+            return false;
         }
 
         if (valueChanged || forceSelection || autoAdvance) {
