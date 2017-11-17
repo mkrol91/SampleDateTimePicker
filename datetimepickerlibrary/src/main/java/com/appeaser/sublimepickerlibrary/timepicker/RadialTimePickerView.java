@@ -989,7 +989,7 @@ public class RadialTimePickerView extends View {
                     forceSelection = true;
                 }
             }
-
+ 
             mChangedDuringTouch |= handleTouchInput(
                     event.getX(), event.getY(), forceSelection, autoAdvance);
         }
