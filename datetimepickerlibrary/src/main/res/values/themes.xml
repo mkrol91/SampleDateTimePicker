@@ -32,6 +32,7 @@
         <!-- Material (API 23) -->
         <item name="spHeaderBackgroundPtr">#ff555555</item>
         <item name="spCalendarDayTextColorPtr">@color/sp_primary_text_dark</item>
+        <item name="spCalendarSundayTextColorPtr">@color/sp_sunday_text</item>
         <item name="spPrimaryTextSecondaryWhenActivatedMaterialInversePtr">@color/sp_multi_use_text_dark</item>
         <item name="spNumbersTextColorPtr">@color/sp_text_color_primary_activated_dark</item>
         <item name="spNumbersBackgroundColorPtr">#ff555555</item>
@@ -62,6 +63,7 @@
         <!-- Material (API 23) -->
         <item name="spHeaderBackgroundPtr">@color/white</item>
         <item name="spCalendarDayTextColorPtr">@color/sp_primary_text_light</item>
+        <item name="spCalendarSundayTextColorPtr">@color/sp_sunday_text</item>
         <item name="spPrimaryTextSecondaryWhenActivatedMaterialInversePtr">@color/sp_multi_use_text_light</item>
         <item name="spNumbersTextColorPtr">@color/sp_text_color_primary_activated_light</item>
         <item name="spNumbersBackgroundColorPtr">@color/white</item>

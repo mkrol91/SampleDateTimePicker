@@ -95,6 +95,9 @@
     <dimen name="sp_button_bar_padding_top">8dp</dimen>
     <dimen name="sp_button_bar_padding_bottom">8dp</dimen>
 
+    <dimen name="sp_tab_picker_height">48dp</dimen>
+    <dimen name="sp_tab_picker_content_margin_left">20dp</dimen>
+
     <!-- Text size for the time picker header HH:MM label. This value is large
          enough that we don't need to use scaled pixels, dp is fine. -->
     <dimen name="sp_timepicker_time_label_size">60dp</dimen>
@@ -106,26 +109,26 @@
     <dimen name="sp_datepicker_list_year_activated_label_size">26sp</dimen>
     <dimen name="sp_datepicker_list_year_label_size">16sp</dimen>
 
-    <dimen name="sp_date_picker_month_text_size">14sp</dimen>
-    <dimen name="sp_date_picker_day_of_week_text_size">12sp</dimen>
-    <dimen name="sp_date_picker_day_text_size">12sp</dimen>
+    <dimen name="sp_date_picker_month_text_size">18sp</dimen>
+    <dimen name="sp_date_picker_day_of_week_text_size">9sp</dimen>
+    <dimen name="sp_date_picker_day_text_size">14sp</dimen>
 
-    <dimen name="sp_month_view_range_padding">1dp</dimen>
+    <dimen name="sp_month_view_range_padding">0dp</dimen>
     <dimen name="sp_date_picker_day_selector_radius">20dp</dimen>
     <dimen name="sp_date_picker_day_width">44dp</dimen>
     <dimen name="sp_date_picker_day_height">40dp</dimen>
     <dimen name="sp_date_picker_day_of_week_height">36dp</dimen>
-    <dimen name="sp_date_picker_month_height">56dp</dimen>
+    <dimen name="sp_date_picker_month_height">0dp</dimen>
 
     <dimen name="sp_month_scroll_threshold">30dp</dimen>
 
-    <dimen name="sp_day_picker_padding_horizontal">20dp</dimen>
-    <dimen name="sp_day_picker_padding_top">6dp</dimen>
+    <dimen name="sp_day_picker_padding_horizontal">0dp</dimen>
+    <dimen name="sp_day_picker_padding_top">0dp</dimen>
 
     <dimen name="sp_timepicker_selector_radius">20dp</dimen>
     <dimen name="sp_timepicker_selector_stroke">2dp</dimen>
     <dimen name="sp_timepicker_selector_dot_radius">2dp</dimen>
-    <dimen name="sp_timepicker_center_dot_radius">0dp</dimen>
+    <dimen name="sp_timepicker_center_dot_radius">3dp</dimen>
     <dimen name="sp_timepicker_text_size_normal">16sp</dimen>
     <dimen name="sp_timepicker_text_size_inner">12sp</dimen>
     <dimen name="sp_timepicker_text_inset_normal">22dp</dimen>
@@ -142,11 +145,11 @@
 
     <dimen name="sp_timepicker_header_height">96dp</dimen>
 
-    <!--Cheers dimens-->
-    <dimen name="time_picker_width">@dimen/common_pickers_width</dimen>
-    <dimen name="time_picker_height">@dimen/common_pickers_height</dimen>
-    <dimen name="date_picker_width">@dimen/common_pickers_width</dimen>
-    <dimen name="date_picker_height">@dimen/common_pickers_height</dimen>
-    <dimen name="common_pickers_width">320dp</dimen>
-    <dimen name="common_pickers_height">370dp</dimen>
+    <!--Custom dimens-->
+    <dimen name="rental_tv_text_size">14sp</dimen>
+    <dimen name="rental_hours_text_size">17sp</dimen>
+    <dimen name="rental_panel_left_padding">13dp</dimen>
+    <dimen name="rental_panel_right_padding">15dp</dimen>
+    <dimen name="rental_panel_bottom_padding">16dp</dimen>
+    <dimen name="rental_hours_width">85dp</dimen>
 </resources>

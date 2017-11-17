@@ -41,7 +41,6 @@
         android:id="@+id/buttonPositive"
         style="?attr/spButtonModeOkCancelButtonStyle"
         android:textSize="14dp"
-        android:textColor="@color/accept_button_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />

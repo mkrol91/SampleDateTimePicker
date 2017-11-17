@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="horizontal"
+    android:weightSum="2">
+
+    <LinearLayout
+        android:id="@+id/tab_button_date"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/sp_tab_picker_height"
+        android:layout_weight="1"
+        android:background="@drawable/sp_tab_background"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/sp_tab_picker_content_margin_left"
+        android:paddingStart="@dimen/sp_tab_picker_content_margin_left"
+        android:paddingTop="3dp">
+
+        <TextView
+            style="@style/PickerTabLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date" />
+
+        <TextView
+            android:id="@+id/tab_button_date_tv"
+            style="@style/PickerTabText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/tab_divider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/divider" />
+
+    <LinearLayout
+        android:id="@+id/tab_button_time"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/sp_tab_picker_height"
+        android:layout_weight="1"
+        android:background="@drawable/sp_tab_background"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/sp_tab_picker_content_margin_left"
+        android:paddingStart="@dimen/sp_tab_picker_content_margin_left"
+        android:paddingTop="3dp">
+
+        <TextView
+            style="@style/PickerTabLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time" />
+
+        <TextView
+            android:id="@+id/tab_button_time_tv"
+            style="@style/PickerTabText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+

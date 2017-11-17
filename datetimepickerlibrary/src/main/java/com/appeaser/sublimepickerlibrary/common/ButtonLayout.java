@@ -95,13 +95,13 @@ public class ButtonLayout extends LinearLayout implements View.OnClickListener {
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.sublime_button_panel_layout, this, true);
 
-        mSwitcherButton = (Button) findViewById(R.id.buttonSwitcher);
+        mSwitcherButton = findViewById(R.id.buttonSwitcher);
 
-        Button bPositive = (Button) findViewById(R.id.buttonPositive);
-        Button bNegative = (Button) findViewById(R.id.buttonNegative);
+        Button bPositive = findViewById(R.id.buttonPositive);
+        Button bNegative = findViewById(R.id.buttonNegative);
 
-        ImageView ivPositive = (ImageView) findViewById(R.id.imageViewPositive);
-        ImageView ivNegative = (ImageView) findViewById(R.id.imageViewNegative);
+        ImageView ivPositive = findViewById(R.id.imageViewPositive);
+        ImageView ivNegative = findViewById(R.id.imageViewNegative);
 
         try {
             // obtain float value held by android.R.attr.disabledAlpha

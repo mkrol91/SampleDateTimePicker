@@ -48,6 +48,7 @@ import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -68,13 +69,6 @@ class SimpleMonthView extends View {
     private static final String DEFAULT_TITLE_FORMAT = "MMMMy";
     private static final String DAY_OF_WEEK_FORMAT;
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int DRAW_RECT = 0;
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int DRAW_RECT_WITH_CURVE_ON_LEFT = 1;
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int DRAW_RECT_WITH_CURVE_ON_RIGHT = 2;
-
     static {
         // Deals with the change in usage of `EEEEE` pattern.
         // See method `SimpleDateFormat#appendDayOfWeek(...)` for more details.
@@ -88,6 +82,7 @@ class SimpleMonthView extends View {
     private final TextPaint mMonthPaint = new TextPaint();
     private final TextPaint mDayOfWeekPaint = new TextPaint();
     private final TextPaint mDayPaint = new TextPaint();
+    private final TextPaint mSundayPaint = new TextPaint();
     private final Paint mDaySelectorPaint = new Paint();
     private final Paint mDayHighlightPaint = new Paint();
     private final Paint mDayRangeSelectorPaint = new Paint();
@@ -168,6 +163,8 @@ class SimpleMonthView extends View {
     private OnDayClickListener mOnDayClickListener;
 
     private ColorStateList mDayTextColor;
+    private ColorStateList mSundayTextColor;
+    private ColorStateList mDayBgColor;
 
     private int mTouchedItem = -1;
 
@@ -176,6 +173,7 @@ class SimpleMonthView extends View {
     private int mTouchSlopSquared;
 
     private float mPaddingRangeIndicator;
+    private ArrayList<Calendar> mDisabledDays = new ArrayList<>();
 
     public SimpleMonthView(Context context) {
         this(context, null);
@@ -222,16 +220,7 @@ class SimpleMonthView extends View {
 
         final Locale locale = res.getConfiguration().locale;
 
-        String titleFormat;
-
-        if (SUtils.isApi_18_OrHigher()) {
-            titleFormat = DateFormat.getBestDateTimePattern(locale, DEFAULT_TITLE_FORMAT);
-        } else {
-            titleFormat = DateTimePatternHelper.getBestDateTimePattern(locale,
-                    DateTimePatternHelper.PATTERN_MMMMy);
-        }
-
-        mTitleFormatter = new SimpleDateFormat(titleFormat, locale);
+        setTitleFormatter(locale);
         mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
         mDayFormatter = NumberFormat.getIntegerInstance(locale);
 
@@ -255,9 +244,6 @@ class SimpleMonthView extends View {
             //noinspection deprecation
             tv.setTextAppearance(mContext, resId);
         }
-
-        p.setTypeface(tv.getTypeface());
-        p.setTextSize(tv.getTextSize());
 
         final ColorStateList textColor = tv.getTextColors();
 
@@ -297,6 +283,15 @@ class SimpleMonthView extends View {
         invalidate();
     }
 
+    public void setSundayTextAppearance(int resId) {
+        final ColorStateList textColor = applyTextAppearance(mSundayPaint, resId);
+        if (textColor != null) {
+            mSundayTextColor = textColor;
+        }
+
+        invalidate();
+    }
+
     public CharSequence getTitle() {
         if (mTitle == null) {
             mTitle = mTitleFormatter.format(mCalendar.getTime());
@@ -321,13 +316,13 @@ class SimpleMonthView extends View {
 
         mMonthPaint.setAntiAlias(true);
         mMonthPaint.setTextSize(monthTextSize);
-        mMonthPaint.setTypeface(Typeface.create(monthTypeface, 0));
+        mMonthPaint.setTypeface(Typeface.create(monthTypeface, Typeface.NORMAL));
         mMonthPaint.setTextAlign(Paint.Align.CENTER);
         mMonthPaint.setStyle(Paint.Style.FILL);
 
         mDayOfWeekPaint.setAntiAlias(true);
         mDayOfWeekPaint.setTextSize(dayOfWeekTextSize);
-        mDayOfWeekPaint.setTypeface(Typeface.create(dayOfWeekTypeface, 0));
+        mDayOfWeekPaint.setTypeface(Typeface.create(dayOfWeekTypeface, Typeface.NORMAL));
         mDayOfWeekPaint.setTextAlign(Paint.Align.CENTER);
         mDayOfWeekPaint.setStyle(Paint.Style.FILL);
 
@@ -342,9 +337,15 @@ class SimpleMonthView extends View {
 
         mDayPaint.setAntiAlias(true);
         mDayPaint.setTextSize(dayTextSize);
-        mDayPaint.setTypeface(Typeface.create(dayTypeface, 0));
+        mDayPaint.setTypeface(Typeface.create(dayTypeface, Typeface.NORMAL));
         mDayPaint.setTextAlign(Paint.Align.CENTER);
         mDayPaint.setStyle(Paint.Style.FILL);
+
+        mSundayPaint.setAntiAlias(true);
+        mSundayPaint.setTextSize(dayTextSize);
+        mSundayPaint.setTypeface(Typeface.create(dayTypeface, Typeface.BOLD));
+        mSundayPaint.setTextAlign(Paint.Align.CENTER);
+        mSundayPaint.setStyle(Paint.Style.FILL);
     }
 
     void setMonthTextColor(ColorStateList monthTextColor) {
@@ -362,6 +363,10 @@ class SimpleMonthView extends View {
     void setDayTextColor(ColorStateList dayTextColor) {
         mDayTextColor = dayTextColor;
         invalidate();
+    }
+
+    void setDayBgColor(ColorStateList dayBackgroundColor) {
+        mDayBgColor = dayBackgroundColor;
     }
 
     void setDaySelectorColor(ColorStateList dayBackgroundColor) {
@@ -422,10 +427,6 @@ class SimpleMonthView extends View {
 
                 mInitialTarget = getDayAtLocation(mDownX, mDownY);
 
-                if (mInitialTarget < 0) {
-                    return false;
-                }
-
                 if (mPendingCheckForTap == null) {
                     mPendingCheckForTap = new CheckForTap();
                 }
@@ -471,7 +472,7 @@ class SimpleMonthView extends View {
         final int paddingTop = getPaddingTop();
         canvas.translate(paddingLeft, paddingTop);
 
-        drawMonth(canvas);
+//        drawMonth(canvas);
         drawDaysOfWeek(canvas);
         drawDays(canvas);
 
@@ -524,6 +525,7 @@ class SimpleMonthView extends View {
     @SuppressWarnings("ConstantConditions")
     private void drawDays(Canvas canvas) {
         final TextPaint p = mDayPaint;
+        final TextPaint s = mSundayPaint;
         final int headerHeight = mMonthHeight + mDayOfWeekHeight;
         //final int rowHeight = mDayHeight;
         final float rowHeight = mDayHeight;
@@ -535,7 +537,9 @@ class SimpleMonthView extends View {
         //int rowCenter = headerHeight + rowHeight / 2;
         float rowCenter = headerHeight + rowHeight / 2f;
 
-        for (int day = 1, col = findDayOffset(); day <= mDaysInMonth; day++) {
+        int lastDayCol = (findDayOffset() + mDaysInMonth) % DAYS_IN_WEEK;
+        int totalDaysShown = mDaysInMonth + (lastDayCol > 0 ? DAYS_IN_WEEK - lastDayCol : 0);
+        for (int day = 1 - findDayOffset(), col = 0; day <= totalDaysShown; day++) {
             //final int colCenter = colWidth * col + colWidth / 2;
             final float colCenter = colWidth * col + colWidth / 2f;
             //final int colCenterRtl;
@@ -552,93 +556,31 @@ class SimpleMonthView extends View {
             if (isDayEnabled) {
                 stateMask |= SUtils.STATE_ENABLED;
             }
-
-            final boolean isDayInActivatedRange = mActivatedDays.isValid()
-                    && mActivatedDays.isActivated(day);
-            final boolean isSelected = mActivatedDays.isSelected(day);
-
-            if (isSelected) {
+            if (!isValidDayOfMonth(day)) {
                 stateMask |= SUtils.STATE_ACTIVATED;
-                canvas.drawCircle(colCenterRtl, rowCenter, mDaySelectorRadius, mDaySelectorPaint);
-            } else if (isDayInActivatedRange) {
-                stateMask |= SUtils.STATE_ACTIVATED;
-
-                int bgShape = DRAW_RECT;
-
-                if (mActivatedDays.isSingleDay()) {
-                    if (mActivatedDays.isStartOfMonth()) {
-                        bgShape = DRAW_RECT_WITH_CURVE_ON_RIGHT;
-                    } else {
-                        bgShape = DRAW_RECT_WITH_CURVE_ON_LEFT;
-                    }
-                } else if (mActivatedDays.isStartingDayOfRange(day)) {
-                    bgShape = DRAW_RECT_WITH_CURVE_ON_LEFT;
-                } else if (mActivatedDays.isEndingDayOfRange(day)) {
-                    bgShape = DRAW_RECT_WITH_CURVE_ON_RIGHT;
-                }
-
-                // Use height to constrain the protrusion of the arc
-                boolean constrainProtrusion = colWidth > (rowHeight - (2 * mPaddingRangeIndicator));
-                float horDistFromCenter = constrainProtrusion ?
-                        rowHeight / 2f - mPaddingRangeIndicator
-                        : colWidth / 2f;
-
-                switch (bgShape) {
-                    case DRAW_RECT_WITH_CURVE_ON_LEFT:
-                        int leftRectArcLeft = (int)(colCenterRtl - horDistFromCenter) % 2 == 1 ?
-                                (int)(colCenterRtl - horDistFromCenter) + 1
-                                : (int)(colCenterRtl - horDistFromCenter);
-
-                        int leftRectArcRight = (int)(colCenterRtl + horDistFromCenter) % 2 == 1 ?
-                                (int)(colCenterRtl + horDistFromCenter) + 1
-                                : (int)(colCenterRtl + horDistFromCenter);
-
-                        RectF leftArcRect = new RectF(leftRectArcLeft,
-                                rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
-                                leftRectArcRight,
-                                rowCenter + rowHeight / 2f - mPaddingRangeIndicator);
-
-                        canvas.drawArc(leftArcRect, 90, 180, true, mDayRangeSelectorPaint);
-
-                        canvas.drawRect(new RectF(leftArcRect.centerX(),
-                                        rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
-                                        colCenterRtl + colWidth / 2f,
-                                        rowCenter + rowHeight / 2f - mPaddingRangeIndicator),
-                                mDayRangeSelectorPaint);
-                        break;
-                    case DRAW_RECT_WITH_CURVE_ON_RIGHT:
-                        int rightRectArcLeft = (int)(colCenterRtl - horDistFromCenter) % 2 == 1 ?
-                                (int)(colCenterRtl - horDistFromCenter) + 1
-                                : (int)(colCenterRtl - horDistFromCenter);
-
-                        int rightRectArcRight = (int)(colCenterRtl + horDistFromCenter) % 2 == 1 ?
-                                (int)(colCenterRtl + horDistFromCenter) + 1
-                                : (int)(colCenterRtl + horDistFromCenter);
-
-                        RectF rightArcRect = new RectF(rightRectArcLeft,
-                                rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
-                                rightRectArcRight,
-                                rowCenter + rowHeight / 2f - mPaddingRangeIndicator);
-
-                        canvas.drawArc(rightArcRect, 270, 180, true, mDayRangeSelectorPaint);
-
-                        canvas.drawRect(new RectF(colCenterRtl - colWidth / 2f,
-                                        rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
-                                        rightArcRect.centerX(),
-                                        rowCenter + rowHeight / 2f - mPaddingRangeIndicator),
-                                mDayRangeSelectorPaint);
-                        break;
-                    default:
-                        canvas.drawRect(new RectF(colCenterRtl - colWidth / 2f,
-                                        rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
-                                        colCenterRtl + colWidth / 2f,
-                                        rowCenter + rowHeight / 2f - mPaddingRangeIndicator),
-                                mDayRangeSelectorPaint);
-                        break;
-                }
             }
 
-            if (mTouchedItem == day) {
+            final boolean isSelected = mActivatedDays.isValid() && mActivatedDays.isActivated(day);
+
+            final int[] bgStateSet = SUtils.resolveStateSet(stateMask);
+            int dayBgColor = mDayBgColor.getColorForState(bgStateSet, 0);
+            Paint dayBgPaint = new Paint();
+            dayBgPaint.setColor(dayBgColor);
+            canvas.drawRect(new RectF(colCenterRtl - colWidth / 2f,
+                            rowCenter - rowHeight / 2f,
+                            colCenterRtl + colWidth / 2f,
+                            rowCenter + rowHeight / 2f),
+                    dayBgPaint);
+
+            if (isSelected && isDayEnabled) {
+                stateMask |= SUtils.STATE_ACTIVATED;
+                canvas.drawRect(new RectF(colCenterRtl - colWidth / 2f,
+                        rowCenter - rowHeight / 2f + mPaddingRangeIndicator,
+                        colCenterRtl + colWidth / 2f,
+                        rowCenter + rowHeight / 2f - mPaddingRangeIndicator), mDaySelectorPaint);
+            }
+
+            if (mTouchedItem != -1 && mTouchedItem == day) {
                 stateMask |= SUtils.STATE_PRESSED;
 
                 if (isDayEnabled) {
@@ -647,18 +589,29 @@ class SimpleMonthView extends View {
                 }
             }
 
-            final boolean isDayToday = mToday == day;
+            final boolean isDayToday = mToday != -1 && mToday == day;
             final int dayTextColor;
 
-            if (isDayToday && !isDayInActivatedRange) {
+            boolean isSunday = col == DAYS_IN_WEEK - 1;
+            final int[] stateSet = SUtils.resolveStateSet(stateMask);
+            if (isDayToday && !isSelected) {
                 dayTextColor = mDaySelectorPaint.getColor();
+            } else if (isSunday) {
+                dayTextColor = mSundayTextColor.getColorForState(stateSet, 0);
             } else {
-                final int[] stateSet = SUtils.resolveStateSet(stateMask);
                 dayTextColor = mDayTextColor.getColorForState(stateSet, 0);
             }
-            p.setColor(dayTextColor);
 
-            canvas.drawText(mDayFormatter.format(day), colCenterRtl, rowCenter - halfLineHeight, p);
+            TextPaint paint;
+            if (isSunday) {
+                paint = s;
+            } else {
+                paint = p;
+            }
+            paint.setColor(dayTextColor);
+
+            int dayNum = getDayForOtherMonth(day);
+            canvas.drawText(mDayFormatter.format(dayNum), colCenterRtl, rowCenter - halfLineHeight, paint);
 
             col++;
 
@@ -669,8 +622,30 @@ class SimpleMonthView extends View {
         }
     }
 
+    private int getDayForOtherMonth(int day) {
+        int dayNum = day;
+        if (dayNum < 1) {
+            int daysInMonth = SUtils.getDaysInMonth(mMonth - 1 == 0 ? 11 : mMonth - 1, mYear);
+            dayNum = dayNum + daysInMonth;
+        } else if (dayNum > mDaysInMonth) {
+            dayNum -= mDaysInMonth;
+        }
+        return dayNum;
+    }
+
     private boolean isDayEnabled(int day) {
-        return day >= mEnabledDayStart && day <= mEnabledDayEnd;
+        return day >= mEnabledDayStart && day <= mEnabledDayEnd && !mDisabledDays.contains(getCalendarForDay(day));
+    }
+
+    private boolean isDayDisabled(Calendar day) {
+        return mDisabledDays.contains(day);
+    }
+
+    private Calendar getCalendarForDay(int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.clear();
+        cal.set(mYear, mMonth, day);
+        return cal;
     }
 
     private boolean isValidDayOfMonth(int day) {
@@ -724,20 +699,20 @@ class SimpleMonthView extends View {
      * included, except for focus month, which will always default to no focus
      * month if no value is passed in. The only required parameter is the week
      * start.
-     *
-     * @param month            the month
+     *  @param month            the month
      * @param year             the year
      * @param weekStart        which day the week should start on, valid values are
-     *                         {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
+ *                         {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
      * @param enabledDayStart  the first enabled day
      * @param enabledDayEnd    the last enabled day
      * @param selectedDayStart the start of the selected date range, or -1 for no selection
      * @param selectedDayEnd   the end of the selected date range, or -1 for no selection
      * @param selectedDateType RANGE or SINGLE
+     * @param disabledDays     the array of disabled days in month
      */
     void setMonthParams(int month, int year, int weekStart, int enabledDayStart,
                         int enabledDayEnd, int selectedDayStart, int selectedDayEnd,
-                        SelectedDate.Type selectedDateType) {
+                        SelectedDate.Type selectedDateType, ArrayList<Calendar> disabledDays) {
         if (isValidMonth(month)) {
             mMonth = month;
         }
@@ -774,9 +749,28 @@ class SimpleMonthView extends View {
         mActivatedDays.startingDay = selectedDayStart;
         mActivatedDays.endingDay = selectedDayEnd;
         mActivatedDays.selectedDateType = selectedDateType;
+        mDisabledDays = disabledDays;
 
         // Invalidate cached accessibility information.
         mTouchHelper.invalidateRoot();
+    }
+
+    public void setTitleFormatter(Locale locale) {
+        String titleFormat;
+
+        if (SUtils.isApi_18_OrHigher()) {
+            titleFormat = DateFormat.getBestDateTimePattern(locale, DEFAULT_TITLE_FORMAT);
+        } else {
+            titleFormat = DateTimePatternHelper.getBestDateTimePattern(locale,
+                    DateTimePatternHelper.PATTERN_MMMMy);
+        }
+
+        mTitleFormatter = new SimpleDateFormat(titleFormat, locale);
+    }
+
+    public void setDaysFormatter(Locale locale) {
+        mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
+        mDayFormatter = NumberFormat.getIntegerInstance(locale);
     }
 
     private boolean sameDay(int day, Calendar today) {
@@ -869,7 +863,6 @@ class SimpleMonthView extends View {
      * @return the day of the month at (x, y), or -1 if the position wasn't in
      * a valid day
      */
-    //private int getDayAtLocation(int x, int y) {
     public int getDayAtLocation(int x, int y) {
         final int paddedX = x - getPaddingLeft();
         if (paddedX < 0 || paddedX >= mPaddedWidth) {
@@ -894,9 +887,6 @@ class SimpleMonthView extends View {
         final int col = (paddedXRtl * DAYS_IN_WEEK) / mPaddedWidth;
         final int index = col + row * DAYS_IN_WEEK;
         final int day = index + 1 - findDayOffset();
-        if (!isValidDayOfMonth(day)) {
-            return -1;
-        }
 
         return day;
     }
@@ -942,15 +932,25 @@ class SimpleMonthView extends View {
      * @param day the day that was clicked
      */
     private boolean onDayClicked(int day) {
-        if (!isValidDayOfMonth(day) || !isDayEnabled(day)) {
+        int dayNum = day;
+        if (!isValidDayOfMonth(day)) {
+            dayNum = getDayForOtherMonth(day);
+        } else if (!isDayEnabled(day)) {
             return false;
         }
 
         if (mOnDayClickListener != null) {
             final Calendar date = Calendar.getInstance();
-            date.set(mYear, mMonth, day);
+            date.clear();
+            date.set(mYear, mMonth, dayNum);
 
-            mOnDayClickListener.onDayClick(this, date);
+            if (!isValidDayOfMonth(day)) {
+                date.add(Calendar.MONTH, day < 1 ? -1 : 1);
+            }
+
+            if (!isDayDisabled(date)) {
+                mOnDayClickListener.onDayClick(this, date);
+            }
         }
 
         // This is a no-op if accessibility is turned off.

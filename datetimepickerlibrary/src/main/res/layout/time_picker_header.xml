@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2013 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,55 +20,55 @@
     android:id="@+id/time_header"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
     android:background="@color/white"
+    android:orientation="horizontal"
     android:padding="@dimen/sp_timepicker_separator_padding"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp">
 
     <!-- The hour should always be to the left of the separator,
          regardless of the current locale's layout direction. -->
     <TextView
         android:id="@+id/hours"
+        style="@style/TimePickerTimeTextBig"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/separator"
         android:layout_alignBaseline="@+id/separator"
-        android:textAppearance="@style/SPTimeLabelTextAppearance"
-        style="@style/TimePickerTimeTextBig"
-        android:textColor="@color/black"
-        android:text="Hour"
-        android:singleLine="true"
+        android:layout_toLeftOf="@+id/separator"
         android:ellipsize="none"
-        android:gravity="right" />
+        android:gravity="right"
+        android:singleLine="true"
+        android:text="Hour"
+        android:textAppearance="@style/SPTimeLabelTextAppearance"
+        android:textColor="@color/black" />
 
     <TextView
         android:id="@+id/separator"
+        style="@style/TimePickerTimeTextBig"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_marginLeft="@dimen/sp_timepicker_separator_padding"
         android:layout_marginRight="@dimen/sp_timepicker_separator_padding"
-        android:layout_centerInParent="true"
-        style="@style/TimePickerTimeTextBig"
+        android:importantForAccessibility="no"
         android:text=":"
-        android:textColor="@color/black"
         android:textAppearance="@style/SPTimeLabelTextAppearance"
-        android:importantForAccessibility="no" />
+        android:textColor="@color/black" />
 
     <!-- The minutes should always be to the left of the separator,
          regardless of the current locale's layout direction. -->
     <TextView
         android:id="@+id/minutes"
+        style="@style/TimePickerTimeTextBig"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/separator"
         android:layout_alignBaseline="@+id/separator"
-        android:textAppearance="@style/SPTimeLabelTextAppearance"
-        style="@style/TimePickerTimeTextBig"
-        android:text="Minute"
-        android:singleLine="true"
+        android:layout_toRightOf="@+id/separator"
         android:ellipsize="none"
-        android:gravity="left" />
+        android:gravity="left"
+        android:singleLine="true"
+        android:text="Minute"
+        android:textAppearance="@style/SPTimeLabelTextAppearance" />
 
     <!-- The layout alignment of this view will switch between toRightOf
          @id/minutes and toLeftOf @id/hours depending on the locale. -->
@@ -77,30 +76,32 @@
         android:id="@+id/ampm_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/minutes"
         android:layout_alignBaseline="@+id/minutes"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
+        android:layout_toRightOf="@+id/minutes"
+        android:baselineAlignedChildIndex="1"
         android:orientation="vertical"
-        android:baselineAlignedChildIndex="1">
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp">
+
         <CheckedTextView
             android:id="@+id/am_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/sp_timepicker_am_top_padding"
-            android:textAppearance="@style/SPAmPmLabelTextAppearance"
+            android:ellipsize="none"
             android:lines="1"
+            android:paddingTop="@dimen/sp_timepicker_am_top_padding"
             android:text="am"
-            android:ellipsize="none" />
+            android:textAppearance="@style/SPAmPmLabelTextAppearance" />
+
         <CheckedTextView
             android:id="@+id/pm_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/sp_timepicker_pm_top_padding"
-            android:textAppearance="@style/SPAmPmLabelTextAppearance"
+            android:ellipsize="none"
             android:lines="1"
+            android:paddingTop="@dimen/sp_timepicker_pm_top_padding"
             android:text="pm"
-            android:ellipsize="none" />
+            android:textAppearance="@style/SPAmPmLabelTextAppearance" />
     </LinearLayout>
 
     <ImageView
@@ -109,5 +110,5 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true" />
 </RelativeLayout>

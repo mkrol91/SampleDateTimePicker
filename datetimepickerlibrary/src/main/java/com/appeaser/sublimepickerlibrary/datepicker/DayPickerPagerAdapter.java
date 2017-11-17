@@ -34,7 +34,9 @@ import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * An adapter for a list of {@link SimpleMonthView} items.
@@ -53,30 +55,39 @@ class DayPickerPagerAdapter extends PagerAdapter {
     private final LayoutInflater mInflater;
     private final int mLayoutResId;
     private final int mCalendarViewId;
-
+    private final ColorStateList mDayHighlightColor;
+    // used in resolving start/end dates during range selection
+    private final SelectedDate mTempSelectedDay = new SelectedDate(Calendar.getInstance());
     private SelectedDate mSelectedDay = null;
-
     private int mMonthTextAppearance;
     private int mDayOfWeekTextAppearance;
     private int mDayTextAppearance;
-
+    private int mSundayTextAppearance;
     private ColorStateList mCalendarTextColor;
+    private ColorStateList mDayBgColor;
     private ColorStateList mDaySelectorColor;
-    private final ColorStateList mDayHighlightColor;
-
     private DaySelectionEventListener mDaySelectionEventListener;
-
+    private final SimpleMonthView.OnDayClickListener mOnDayClickListener = new SimpleMonthView.OnDayClickListener() {
+        @Override
+        public void onDayClick(SimpleMonthView view, Calendar day) {
+            if (day != null) {
+                if (mDaySelectionEventListener != null) {
+                    mDaySelectionEventListener.onDaySelected(DayPickerPagerAdapter.this, day);
+                }
+            }
+        }
+    };
     private int mCount;
     private int mFirstDayOfWeek;
-
-    // used in resolving start/end dates during range selection
-    private final SelectedDate mTempSelectedDay = new SelectedDate(Calendar.getInstance());
+    private ArrayList<Calendar> mDisabledDays = new ArrayList<>();
+    private Locale mCalendarLocale;
 
     public DayPickerPagerAdapter(@NonNull Context context, @LayoutRes int layoutResId,
                                  @IdRes int calendarViewId) {
         mInflater = LayoutInflater.from(context);
         mLayoutResId = layoutResId;
         mCalendarViewId = calendarViewId;
+        mCalendarLocale = context.getResources().getConfiguration().locale;
 
         final TypedArray ta = context.obtainStyledAttributes(new int[]{
                 R.attr.colorControlHighlight});
@@ -96,6 +107,10 @@ class DayPickerPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
     }
 
+    public int getFirstDayOfWeek() {
+        return mFirstDayOfWeek;
+    }
+
     /**
      * Sets the first day of the week.
      *
@@ -111,10 +126,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
             final SimpleMonthView monthView = mItems.valueAt(i).calendar;
             monthView.setFirstDayOfWeek(weekStart);
         }
-    }
-
-    public int getFirstDayOfWeek() {
-        return mFirstDayOfWeek;
     }
 
     /**
@@ -210,24 +221,36 @@ class DayPickerPagerAdapter extends PagerAdapter {
         mDaySelectorColor = selectorColor;
     }
 
-    void setMonthTextAppearance(int resId) {
-        mMonthTextAppearance = resId;
+    void setDayBgColor(ColorStateList bgColor) {
+        mDayBgColor = bgColor;
     }
 
-    void setDayOfWeekTextAppearance(int resId) {
-        mDayOfWeekTextAppearance = resId;
+    void setMonthTextAppearance(int resId) {
+        mMonthTextAppearance = resId;
     }
 
     int getDayOfWeekTextAppearance() {
         return mDayOfWeekTextAppearance;
     }
 
-    void setDayTextAppearance(int resId) {
-        mDayTextAppearance = resId;
+    void setDayOfWeekTextAppearance(int resId) {
+        mDayOfWeekTextAppearance = resId;
     }
 
     int getDayTextAppearance() {
         return mDayTextAppearance;
+    }
+
+    void setDayTextAppearance(int resId) {
+        mDayTextAppearance = resId;
+    }
+
+    public int getSundayTextAppearance() {
+        return mSundayTextAppearance;
+    }
+
+    public void setSundayTextAppearance(int resId) {
+        this.mSundayTextAppearance = resId;
     }
 
     @Override
@@ -292,12 +315,16 @@ class DayPickerPagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         final View itemView = mInflater.inflate(mLayoutResId, container, false);
 
-        final SimpleMonthView v = (SimpleMonthView) itemView.findViewById(mCalendarViewId);
+        final SimpleMonthView v = itemView.findViewById(mCalendarViewId);
         v.setOnDayClickListener(mOnDayClickListener);
         v.setMonthTextAppearance(mMonthTextAppearance);
         v.setDayOfWeekTextAppearance(mDayOfWeekTextAppearance);
         v.setDayTextAppearance(mDayTextAppearance);
+        v.setSundayTextAppearance(mSundayTextAppearance);
 
+        if (mDayBgColor != null) {
+            v.setDayBgColor(mDayBgColor);
+        }
         if (mDaySelectorColor != null) {
             v.setDaySelectorColor(mDaySelectorColor);
         }
@@ -337,7 +364,9 @@ class DayPickerPagerAdapter extends PagerAdapter {
 
         v.setMonthParams(month, year, mFirstDayOfWeek,
                 enabledDayRangeStart, enabledDayRangeEnd, selectedDay[0], selectedDay[1],
-                mSelectedDay != null ? mSelectedDay.getType() : null);
+                mSelectedDay != null ? mSelectedDay.getType() : null, mDisabledDays);
+        v.setTitleFormatter(mCalendarLocale);
+        v.setDaysFormatter(mCalendarLocale);
 
         final ViewHolder holder = new ViewHolder(position, itemView, v);
         mItems.put(position, holder);
@@ -370,27 +399,12 @@ class DayPickerPagerAdapter extends PagerAdapter {
         return null;
     }
 
-    private final SimpleMonthView.OnDayClickListener mOnDayClickListener = new SimpleMonthView.OnDayClickListener() {
-        @Override
-        public void onDayClick(SimpleMonthView view, Calendar day) {
-            if (day != null) {
-                if (mDaySelectionEventListener != null) {
-                    mDaySelectionEventListener.onDaySelected(DayPickerPagerAdapter.this, day);
-                }
-            }
-        }
-    };
+    void setDisabledDays(ArrayList<Calendar> disabledDays) {
+        this.mDisabledDays = disabledDays;
+    }
 
-    private static class ViewHolder {
-        public final int position;
-        public final View container;
-        public final SimpleMonthView calendar;
-
-        public ViewHolder(int position, View container, SimpleMonthView calendar) {
-            this.position = position;
-            this.container = container;
-            this.calendar = calendar;
-        }
+    void setCalendarLocale(Locale locale) {
+        mCalendarLocale = locale;
     }
 
     public SelectedDate resolveStartDateForRange(int x, int y, int position) {
@@ -506,5 +520,17 @@ class DayPickerPagerAdapter extends PagerAdapter {
         void onDateRangeSelectionEnded(@Nullable SelectedDate selectedDate);
 
         void onDateRangeSelectionUpdated(@NonNull SelectedDate selectedDate);
+    }
+
+    private static class ViewHolder {
+        public final int position;
+        public final View container;
+        public final SimpleMonthView calendar;
+
+        public ViewHolder(int position, View container, SimpleMonthView calendar) {
+            this.position = position;
+            this.container = container;
+            this.calendar = calendar;
+        }
     }
 }

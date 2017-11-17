@@ -44,7 +44,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.CheckedTextView;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.appeaser.sublimepickerlibrary.R;
@@ -114,55 +113,16 @@ public class SublimeTimePicker extends FrameLayout
     // Accessibility strings.
     private String mSelectHours;
     private String mSelectMinutes;
-    private final View.OnClickListener mClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v.getId() == R.id.am_label) {
-                setAmOrPm(AM);
-            } else if (v.getId() == R.id.pm_label) {
-                setAmOrPm(PM);
-            } else if (v.getId() == R.id.hours) {
-                setCurrentItemShowing(HOUR_INDEX, true, true);
-            } else if (v.getId() == R.id.minutes) {
-                setCurrentItemShowing(MINUTE_INDEX, true, true);
-            } else if (v.getId() == R.id.am_pm_switch) {
-                mRadialTimePickerView.toggleAmPm();
-            } else {
-                // Failed to handle this click, don't vibrate.
-                return;
-            }
 
-            SUtils.vibrateForTimePicker(SublimeTimePicker.this);
-        }
-    };
     // Most recent time announcement values for accessibility.
     private CharSequence mLastAnnouncedText;
     private boolean mLastAnnouncedIsHour;
+
     private Calendar mTempCalendar;
+
     // Callbacks
     private OnTimeChangedListener mOnTimeChangedListener;
     private TimePickerValidationCallback mValidationCallback;
-    private final View.OnKeyListener mKeyListener = new View.OnKeyListener() {
-        @Override
-        public boolean onKey(View v, int keyCode, KeyEvent event) {
-            return event.getAction() == KeyEvent.ACTION_UP && processKeyUp(keyCode);
-        }
-    };
-    private final View.OnFocusChangeListener mFocusListener = new View.OnFocusChangeListener() {
-        @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            if (!hasFocus && mInKbMode && isTypedTimeFullyLegal()) {
-                finishKbMode();
-
-                if (mOnTimeChangedListener != null) {
-                    mOnTimeChangedListener.onTimeChanged(SublimeTimePicker.this,
-                            mRadialTimePickerView.getCurrentHour(),
-                            mRadialTimePickerView.getCurrentMinute());
-                }
-            }
-        }
-    };
-    private Switch amPmSwitch;
 
     public SublimeTimePicker(Context context) {
         this(context, null);
@@ -185,29 +145,6 @@ public class SublimeTimePicker extends FrameLayout
                 R.style.SublimePickerStyleLight, R.attr.spTimePickerStyle,
                 R.style.SublimeTimePickerStyle), attrs, defStyleAttr, defStyleRes);
         initializeLayout();
-    }
-
-    private static int modulo12(int n, boolean startWithZero) {
-        int value = n % 12;
-        if (value == 0 && !startWithZero) {
-            value = 12;
-        }
-        return value;
-    }
-
-    static private int lastIndexOfAny(String str, char[] any) {
-        final int lengthAny = any.length;
-        if (lengthAny > 0) {
-            for (int i = str.length() - 1; i >= 0; i--) {
-                char c = str.charAt(i);
-                for (char anyChar : any) {
-                    if (c == anyChar) {
-                        return i;
-                    }
-                }
-            }
-        }
-        return -1;
     }
 
     private void initializeLayout() {
@@ -270,7 +207,6 @@ public class SublimeTimePicker extends FrameLayout
         mPmLabel.setText(obtainVerbatim(amPmStrings[1]));
         mPmLabel.setOnClickListener(mClickListener);
 
-
         ColorStateList headerTextColor = a.getColorStateList(R.styleable.SublimeTimePicker_spHeaderTextColor);
 
         if (headerTextColor != null) {
@@ -297,8 +233,6 @@ public class SublimeTimePicker extends FrameLayout
         a.recycle();
 
         mRadialTimePickerView = (RadialTimePickerView) mainView.findViewById(R.id.radial_picker);
-        amPmSwitch = mainView.findViewById(R.id.am_pm_switch);
-        amPmSwitch.setOnClickListener(mClickListener);
 
         setupListeners();
 
@@ -324,6 +258,22 @@ public class SublimeTimePicker extends FrameLayout
                 new SpannableStringBuilder().append(text,
                         new TtsSpan.VerbatimBuilder(text).build(), 0)
                 : text;
+    }
+
+    private static class ClickActionDelegate extends AccessibilityDelegateCompat {
+        private final AccessibilityNodeInfoCompat.AccessibilityActionCompat mClickAction;
+
+        public ClickActionDelegate(Context context, int resId) {
+            CharSequence label = context.getString(resId);
+            mClickAction = new AccessibilityNodeInfoCompat.AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    label);
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(host, info);
+            info.addAction(mClickAction);
+        }
     }
 
     private int computeStableWidth(TextView v, int maxNumber) {
@@ -425,6 +375,22 @@ public class SublimeTimePicker extends FrameLayout
     }
 
     /**
+     * Set the current hour.
+     */
+    public void setCurrentHour(int currentHour) {
+        if (mInitialHourOfDay == currentHour) {
+            return;
+        }
+        mInitialHourOfDay = currentHour;
+        updateHeaderHour(currentHour, true);
+        updateHeaderAmPm();
+        mRadialTimePickerView.setCurrentHour(currentHour);
+        mRadialTimePickerView.setAmOrPm(mInitialHourOfDay < 12 ? AM : PM);
+        invalidate();
+        onTimeChanged();
+    }
+
+    /**
      * @return The current hour in the range (0-23).
      */
     public int getCurrentHour() {
@@ -443,29 +409,6 @@ public class SublimeTimePicker extends FrameLayout
     }
 
     /**
-     * Set the current hour.
-     */
-    public void setCurrentHour(int currentHour) {
-        if (mInitialHourOfDay == currentHour) {
-            return;
-        }
-        mInitialHourOfDay = currentHour;
-        updateHeaderHour(currentHour, true);
-        updateHeaderAmPm();
-        mRadialTimePickerView.setCurrentHour(currentHour);
-        mRadialTimePickerView.setAmOrPm(mInitialHourOfDay < 12 ? AM : PM);
-        invalidate();
-        onTimeChanged();
-    }
-
-    /**
-     * @return The current minute.
-     */
-    public int getCurrentMinute() {
-        return mRadialTimePickerView.getCurrentMinute();
-    }
-
-    /**
      * Set the current minute (0-59).
      */
     public void setCurrentMinute(int currentMinute) {
@@ -477,6 +420,13 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView.setCurrentMinute(currentMinute);
         invalidate();
         onTimeChanged();
+    }
+
+    /**
+     * @return The current minute.
+     */
+    public int getCurrentMinute() {
+        return mRadialTimePickerView.getCurrentMinute();
     }
 
     /**
@@ -511,11 +461,6 @@ public class SublimeTimePicker extends FrameLayout
     }
 
     @Override
-    public boolean isEnabled() {
-        return mIsEnabled;
-    }
-
-    @Override
     public void setEnabled(boolean enabled) {
         mHourView.setEnabled(enabled);
         mMinuteView.setEnabled(enabled);
@@ -523,6 +468,11 @@ public class SublimeTimePicker extends FrameLayout
         mPmLabel.setEnabled(enabled);
         mRadialTimePickerView.setEnabled(enabled);
         mIsEnabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return mIsEnabled;
     }
 
     @Override
@@ -601,15 +551,15 @@ public class SublimeTimePicker extends FrameLayout
         return mInKbMode;
     }
 
+    private void setTypedTimes(ArrayList<Integer> typeTimes) {
+        mTypedTimes = typeTimes;
+    }
+
     /**
      * @return an array of typed times
      */
     private ArrayList<Integer> getTypedTimes() {
         return mTypedTimes;
-    }
-
-    private void setTypedTimes(ArrayList<Integer> typeTimes) {
-        mTypedTimes = typeTimes;
     }
 
     /**
@@ -628,6 +578,88 @@ public class SublimeTimePicker extends FrameLayout
             mOnTimeChangedListener.onTimeChanged(this,
                     getCurrentHour(), getCurrentMinute());
         }
+    }
+
+    /**
+     * Used to save / restore state of time picker
+     */
+    private static class SavedState extends View.BaseSavedState {
+
+        private final int mHour;
+        private final int mMinute;
+        private final boolean mIs24HourMode;
+        private final boolean mInKbMode;
+        private final ArrayList<Integer> mTypedTimes;
+        private final int mCurrentItemShowing;
+
+        private SavedState(Parcelable superState, int hour, int minute, boolean is24HourMode,
+                           boolean isKbMode, ArrayList<Integer> typedTimes,
+                           int currentItemShowing) {
+            super(superState);
+            mHour = hour;
+            mMinute = minute;
+            mIs24HourMode = is24HourMode;
+            mInKbMode = isKbMode;
+            mTypedTimes = typedTimes;
+            mCurrentItemShowing = currentItemShowing;
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            mHour = in.readInt();
+            mMinute = in.readInt();
+            mIs24HourMode = (in.readInt() == 1);
+            mInKbMode = (in.readInt() == 1);
+            //noinspection unchecked
+            mTypedTimes = in.readArrayList(getClass().getClassLoader());
+            mCurrentItemShowing = in.readInt();
+        }
+
+        public int getHour() {
+            return mHour;
+        }
+
+        public int getMinute() {
+            return mMinute;
+        }
+
+        public boolean is24HourMode() {
+            return mIs24HourMode;
+        }
+
+        public boolean inKbMode() {
+            return mInKbMode;
+        }
+
+        public ArrayList<Integer> getTypesTimes() {
+            return mTypedTimes;
+        }
+
+        public int getCurrentItemShowing() {
+            return mCurrentItemShowing;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(mHour);
+            dest.writeInt(mMinute);
+            dest.writeInt(mIs24HourMode ? 1 : 0);
+            dest.writeInt(mInKbMode ? 1 : 0);
+            dest.writeList(mTypedTimes);
+            dest.writeInt(mCurrentItemShowing);
+        }
+
+        @SuppressWarnings({"unused", "hiding"})
+        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
     private void updateAmPmLabelStates(int amOrPm) {
@@ -733,6 +765,14 @@ public class SublimeTimePicker extends FrameLayout
         }
     }
 
+    private static int modulo12(int n, boolean startWithZero) {
+        int value = n % 12;
+        if (value == 0 && !startWithZero) {
+            value = 12;
+        }
+        return value;
+    }
+
     /**
      * The time separator is defined in the Unicode CLDR and cannot be supposed to be ":".
      * <p/>
@@ -765,6 +805,21 @@ public class SublimeTimePicker extends FrameLayout
             separatorText = Character.toString(timePattern.charAt(hIndex + 1));
         }
         mSeparatorView.setText(separatorText);
+    }
+
+    static private int lastIndexOfAny(String str, char[] any) {
+        final int lengthAny = any.length;
+        if (lengthAny > 0) {
+            for (int i = str.length() - 1; i >= 0; i--) {
+                char c = str.charAt(i);
+                for (char anyChar : any) {
+                    if (c == anyChar) {
+                        return i;
+                    }
+                }
+            }
+        }
+        return -1;
     }
 
     private void updateHeaderMinute(int value, boolean announceForAccessibility) {
@@ -1254,124 +1309,6 @@ public class SublimeTimePicker extends FrameLayout
     }
 
     /**
-     * The callback interface used to indicate the time has been adjusted.
-     */
-    public interface OnTimeChangedListener {
-
-        /**
-         * @param view      The view associated with this listener.
-         * @param hourOfDay The current hour.
-         * @param minute    The current minute.
-         */
-        void onTimeChanged(SublimeTimePicker view, int hourOfDay, int minute);
-    }
-
-    /**
-     * A callback interface for updating input validity when the TimePicker
-     * when included into a Dialog.
-     */
-    public interface TimePickerValidationCallback {
-        void onTimePickerValidationChanged(boolean valid);
-    }
-
-    private static class ClickActionDelegate extends AccessibilityDelegateCompat {
-        private final AccessibilityNodeInfoCompat.AccessibilityActionCompat mClickAction;
-
-        public ClickActionDelegate(Context context, int resId) {
-            CharSequence label = context.getString(resId);
-            mClickAction = new AccessibilityNodeInfoCompat.AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CLICK,
-                    label);
-        }
-
-        @Override
-        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
-            super.onInitializeAccessibilityNodeInfo(host, info);
-            info.addAction(mClickAction);
-        }
-    }
-
-    /**
-     * Used to save / restore state of time picker
-     */
-    private static class SavedState extends View.BaseSavedState {
-
-        @SuppressWarnings({"unused", "hiding"})
-        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-        private final int mHour;
-        private final int mMinute;
-        private final boolean mIs24HourMode;
-        private final boolean mInKbMode;
-        private final ArrayList<Integer> mTypedTimes;
-        private final int mCurrentItemShowing;
-
-        private SavedState(Parcelable superState, int hour, int minute, boolean is24HourMode,
-                           boolean isKbMode, ArrayList<Integer> typedTimes,
-                           int currentItemShowing) {
-            super(superState);
-            mHour = hour;
-            mMinute = minute;
-            mIs24HourMode = is24HourMode;
-            mInKbMode = isKbMode;
-            mTypedTimes = typedTimes;
-            mCurrentItemShowing = currentItemShowing;
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            mHour = in.readInt();
-            mMinute = in.readInt();
-            mIs24HourMode = (in.readInt() == 1);
-            mInKbMode = (in.readInt() == 1);
-            //noinspection unchecked
-            mTypedTimes = in.readArrayList(getClass().getClassLoader());
-            mCurrentItemShowing = in.readInt();
-        }
-
-        public int getHour() {
-            return mHour;
-        }
-
-        public int getMinute() {
-            return mMinute;
-        }
-
-        public boolean is24HourMode() {
-            return mIs24HourMode;
-        }
-
-        public boolean inKbMode() {
-            return mInKbMode;
-        }
-
-        public ArrayList<Integer> getTypesTimes() {
-            return mTypedTimes;
-        }
-
-        public int getCurrentItemShowing() {
-            return mCurrentItemShowing;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(mHour);
-            dest.writeInt(mMinute);
-            dest.writeInt(mIs24HourMode ? 1 : 0);
-            dest.writeInt(mInKbMode ? 1 : 0);
-            dest.writeList(mTypedTimes);
-            dest.writeInt(mCurrentItemShowing);
-        }
-    }
-
-    /**
      * Simple node class to be used for traversal to check for legal times.
      * mLegalKeys represents the keys that can be typed to get to the node.
      * mChildren are the children that can be reached from this node.
@@ -1410,5 +1347,68 @@ public class SublimeTimePicker extends FrameLayout
             }
             return null;
         }
+    }
+
+    private final View.OnClickListener mClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.am_label) {
+                setAmOrPm(AM);
+            } else if (v.getId() == R.id.pm_label) {
+                setAmOrPm(PM);
+            } else if (v.getId() == R.id.hours) {
+                setCurrentItemShowing(HOUR_INDEX, true, true);
+            } else if (v.getId() == R.id.minutes) {
+                setCurrentItemShowing(MINUTE_INDEX, true, true);
+            } else {
+                // Failed to handle this click, don't vibrate.
+                return;
+            }
+
+            SUtils.vibrateForTimePicker(SublimeTimePicker.this);
+        }
+    };
+
+    private final View.OnKeyListener mKeyListener = new View.OnKeyListener() {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            return event.getAction() == KeyEvent.ACTION_UP && processKeyUp(keyCode);
+        }
+    };
+
+    private final View.OnFocusChangeListener mFocusListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (!hasFocus && mInKbMode && isTypedTimeFullyLegal()) {
+                finishKbMode();
+
+                if (mOnTimeChangedListener != null) {
+                    mOnTimeChangedListener.onTimeChanged(SublimeTimePicker.this,
+                            mRadialTimePickerView.getCurrentHour(),
+                            mRadialTimePickerView.getCurrentMinute());
+                }
+            }
+        }
+    };
+
+    /**
+     * The callback interface used to indicate the time has been adjusted.
+     */
+    public interface OnTimeChangedListener {
+
+        /**
+         * @param view      The view associated with this listener.
+         * @param hourOfDay The current hour.
+         * @param minute    The current minute.
+         */
+        void onTimeChanged(SublimeTimePicker view, int hourOfDay, int minute);
+    }
+
+    /**
+     * A callback interface for updating input validity when the TimePicker
+     * when included into a Dialog.
+     */
+    public interface TimePickerValidationCallback {
+        void onTimePickerValidationChanged(boolean valid);
     }
 }

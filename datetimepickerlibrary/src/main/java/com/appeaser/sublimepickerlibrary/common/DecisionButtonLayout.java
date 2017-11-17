@@ -78,11 +78,11 @@ public class DecisionButtonLayout extends LinearLayout implements View.OnClickLi
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.decision_button_layout, this, true);
 
-        Button bPositive = (Button) findViewById(R.id.buttonPositive);
-        Button bNegative = (Button) findViewById(R.id.buttonNegative);
+        Button bPositive = findViewById(R.id.buttonPositive);
+        Button bNegative = findViewById(R.id.buttonNegative);
 
-        ImageView ivPositive = (ImageView) findViewById(R.id.imageViewPositive);
-        ImageView ivNegative = (ImageView) findViewById(R.id.imageViewNegative);
+        ImageView ivPositive = findViewById(R.id.imageViewPositive);
+        ImageView ivNegative = findViewById(R.id.imageViewNegative);
 
         try {
             // obtain float value held by android.R.attr.disabledAlpha

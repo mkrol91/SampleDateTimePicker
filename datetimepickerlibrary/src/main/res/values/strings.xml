@@ -128,6 +128,16 @@
     <string name="recurrence_monthly">every month</string>
     <string name="recurrence_yearly">every year</string>
     <string name="recurrence_custom">custom&#8230;</string>
+    <string name="rental">RENTAL:</string>
+    <string name="twelve_hours">12 Hours</string>
+    <plurals name="days">
+        <!-- Singular form [CHAR LIMIT=30] -->
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> Day</item>
+        <!-- Plural form [CHAR LIMIT=30] -->
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> Days</item>
+    </plurals>
+    <string name="time">Zeit</string>
+    <string name="date">Datum</string>
 
     <!-- Description of the button to move to the previous month. [CHAR LIMIT=NONE] -->
     <string name="sp_date_picker_prev_month_button">Previous month</string>
