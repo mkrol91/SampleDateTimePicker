@@ -1022,7 +1022,7 @@ public class RadialTimePickerView extends View {
             type = MINUTES;
             newValue = getCurrentMinute();
         }
-
+ 
         if (valueChanged || forceSelection || autoAdvance) {
             // Fire the listener even if we just need to auto-advance.
             if (mListener != null) {
