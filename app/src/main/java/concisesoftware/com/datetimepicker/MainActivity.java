@@ -12,6 +12,7 @@ import com.appeaser.sublimepickerlibrary.helpers.SublimeListenerAdapter;
 import com.appeaser.sublimepickerlibrary.helpers.SublimeOptions;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -19,8 +20,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SublimePicker picker;
     private LinearLayout timeButtonDate;
     private LinearLayout dateButtonDate;
-    private LinearLayout timeButtonTimer;
-    private LinearLayout dateButtonTimer;
 
     private SublimeListenerAdapter pickerListner = new SublimeListenerAdapter() {
         @Override
@@ -40,19 +39,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         picker = findViewById(R.id.picker);
-        timeButtonDate = picker.findViewById(R.id.time_button_date);
-        dateButtonDate = picker.findViewById(R.id.date_button_date);
-        timeButtonTimer = picker.findViewById(R.id.time_button_timer);
-        dateButtonTimer = picker.findViewById(R.id.date_button_timer);
+        timeButtonDate = picker.findViewById(R.id.tab_button_time);
+        dateButtonDate = picker.findViewById(R.id.tab_button_date);
 
         SublimeOptions options = new SublimeOptions();
 
-        Calendar calendar = Calendar.getInstance();
-        int currentHourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-        int currentMinute = calendar.get(Calendar.MINUTE);
+        Calendar startCal = Calendar.getInstance();
+        int currentHourOfDay = startCal.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = startCal.get(Calendar.MINUTE);
 
-        options.setTimeParams(currentHourOfDay, currentMinute, false);
-        options.setDateParams(calendar);
+        Calendar endCal = Calendar.getInstance();
+        endCal.add(Calendar.YEAR, 1);
+
+        options.setTimeParams(currentHourOfDay, currentMinute, true);
+        options.setDateRange(startCal.getTimeInMillis(), endCal.getTimeInMillis());
+        options.setDisabledDays(getDisabledDays());
+        options.setSubsequentDays(SublimeOptions.RentalSpan.TWO_DAYS);
 
         int displayOptions = 0;
         displayOptions |= SublimeOptions.ACTIVATE_TIME_PICKER;
@@ -64,17 +66,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         timeButtonDate.setOnClickListener(this);
         dateButtonDate.setOnClickListener(this);
-        timeButtonTimer.setOnClickListener(this);
-        dateButtonTimer.setOnClickListener(this);
+    }
+
+    private ArrayList<Calendar> getDisabledDays() {
+        ArrayList<Calendar> cals = new ArrayList<>();
+        Calendar date1 = Calendar.getInstance();
+        date1.clear();
+        date1.set(2017,10,17);
+        cals.add(date1);
+        Calendar date2 = Calendar.getInstance();
+        date2.clear();
+        date2.set(2017,10,18);
+        cals.add(date2);
+        Calendar date3 = Calendar.getInstance();
+        date3.clear();
+        date3.set(2017,10,27);
+        cals.add(date3);
+        Calendar date4 = Calendar.getInstance();
+        date4.clear();
+        date4.set(2017,11,1);
+        cals.add(date4);
+        return cals;
     }
 
     @Override
     public void onClick(View v) {
         ButtonHandler.Callback callback = picker.getmButtonLayoutCallback();
         if (picker != null && callback != null) {
-            if (v.getId() == R.id.time_button_timer || v.getId() == R.id.time_button_date) {
+            if (v.getId() == R.id.tab_button_time) {
                 picker.getmButtonLayoutCallback().onSwitch(SublimeOptions.Picker.TIME_PICKER);
-            } else if (v.getId() == R.id.date_button_timer || v.getId() == R.id.date_button_date) {
+            } else if (v.getId() == R.id.tab_button_date) {
                 picker.getmButtonLayoutCallback().onSwitch(SublimeOptions.Picker.DATE_PICKER);
             }
         }

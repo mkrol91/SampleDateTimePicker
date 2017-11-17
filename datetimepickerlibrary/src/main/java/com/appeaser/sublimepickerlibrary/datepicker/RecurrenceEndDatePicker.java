@@ -162,11 +162,11 @@ public class RecurrenceEndDatePicker extends FrameLayout {
 
         a.recycle();
 
-        mDecisionButtonLayout = (DecisionButtonLayout) mContainer.findViewById(R.id.redp_decision_button_layout);
+        mDecisionButtonLayout = mContainer.findViewById(R.id.redp_decision_button_layout);
         mDecisionButtonLayout.applyOptions(mDecisionButtonLayoutCallback);
 
         // Set up day picker view.
-        mDayPickerView = (DayPickerView) mContainer.findViewById(R.id.redp_day_picker);
+        mDayPickerView = mContainer.findViewById(R.id.redp_day_picker);
         setFirstDayOfWeek(firstDayOfWeek);
         mDayPickerView.setMinDate(mMinDate.getTimeInMillis());
         mDayPickerView.setMaxDate(mMaxDate.getTimeInMillis());

@@ -22,6 +22,7 @@
     <attr name="spDayPickerStyle" format="reference" />
     <attr name="spHeaderBackgroundPtr" format="color|reference" />
     <attr name="spCalendarDayTextColorPtr" format="color|reference" />
+    <attr name="spCalendarSundayTextColorPtr" format="color|reference" />
     <attr name="spPrimaryTextSecondaryWhenActivatedMaterialInversePtr" format="reference" />
 
     <!-- SublimeTimePicker -->
@@ -67,15 +68,16 @@
         <attr name="spRadialTimePickerStyle" />
         <attr name="spHeaderBackgroundPtr" />
         <attr name="spCalendarDayTextColorPtr" />
+        <attr name="spCalendarSundayTextColorPtr" />
         <attr name="spPrimaryTextSecondaryWhenActivatedMaterialInversePtr" />
         <attr name="spNumbersTextColorPtr" />
         <attr name="spNumbersBackgroundColorPtr" />
         <attr name="spNumbersInnerTextColorPtr" />
         <attr name="spButtonLayoutStyle" />
-        <attr name="spLandscapeOkActionDrawable" />
-        <attr name="spLandscapeCancelActionDrawable" />
-        <attr name="spLandscapeButtonModeOkCancelButtonStyle" />
-        <attr name="spLandscapeButtonModeSwitcherButtonStyle" />
+        <attr name="spLandscapeOkActionDrawable"/>
+        <attr name="spLandscapeCancelActionDrawable"/>
+        <attr name="spLandscapeButtonModeOkCancelButtonStyle"/>
+        <attr name="spLandscapeButtonModeSwitcherButtonStyle"/>
         <attr name="spRecurrenceOptionCreatorStyle" />
         <attr name="spRecurrencePickerStyle" />
         <attr name="spOverflowIconColor" />
@@ -162,7 +164,7 @@
              For 'icon' presentation mode, 'OK' & 'CANCEL' action
              drawables are assignable using 'okActionDrawable'
              & 'cancelActionDrawable' (see below) -->
-        <attr name="spPresentation" format="enum">
+        <attr name="spPresentation" format="enum" >
             <enum name="spButton" value="0" />
             <enum name="spIcon" value="1" />
         </attr>
@@ -243,8 +245,12 @@
         <attr name="spMonthTextAppearance" format="reference" />
         <!-- The text appearance for the week day abbreviation in the calendar header. -->
         <attr name="spWeekDayTextAppearance" format="reference" />
+        <!-- @hide The background color used for day cell. -->
+        <attr name="spDayBgColor" format="color" />
         <!-- The text appearance for the day numbers in the calendar grid. -->
         <attr name="spDateTextAppearance" format="reference" />
+        <!-- The text appearance for Sunday numbers in the calendar grid. -->
+        <attr name="spSundayDateTextAppearance" format="reference" />
         <!-- @hide The background color used for the day selection indicator. -->
         <attr name="spDaySelectorColor" format="color" />
         <!-- @hide The background color used for the day highlight indicator. -->
@@ -262,10 +268,6 @@
              should be a color state list where the activated state will be
              used when the number is active.-->
         <attr name="spNumbersInnerTextColor" format="color" />
-
-        <attr name="activeHoursBackgroundColor" format="color" />
-        <attr name="inactiveHoursBackgroundColor" format="color" />
-        <attr name="inactiveDigitsColor" format="color" />
     </declare-styleable>
 
 </resources>

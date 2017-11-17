@@ -18,17 +18,17 @@
     <item
         android:state_enabled="false"
         android:state_activated="true"
-        android:color="#42ffffff" />
+        android:color="#4C616A79" />
 
     <item
         android:state_enabled="false"
-        android:color="#3A000000" />
+        android:color="#398F8F8F" />
 
     <item
         android:state_activated="true"
-        android:color="#ffffffff" />
+        android:color="#FFFFFFFF" />
 
     <item
-        android:color="#de000000" />
+        android:color="#616a79" />
 
 </selector>

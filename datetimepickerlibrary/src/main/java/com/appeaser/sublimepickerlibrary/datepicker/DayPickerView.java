@@ -34,7 +34,9 @@ import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * This displays a list of months in a calendar format with selectable days.
@@ -96,8 +98,15 @@ class DayPickerView extends ViewGroup {
                 R.styleable.DayPickerView_spDateTextAppearance,
                 R.style.SPDayTextAppearance);
 
+        final int sundayTextAppearanceResId = a.getResourceId(
+                R.styleable.DayPickerView_spSundayDateTextAppearance,
+                R.style.SPSundayTextAppearance);
+
         final ColorStateList daySelectorColor = a.getColorStateList(
                 R.styleable.DayPickerView_spDaySelectorColor);
+
+        final ColorStateList dayBgColor = a.getColorStateList(
+                R.styleable.DayPickerView_spDayBgColor);
 
         a.recycle();
 
@@ -113,6 +122,8 @@ class DayPickerView extends ViewGroup {
         mAdapter.setMonthTextAppearance(monthTextAppearanceResId);
         mAdapter.setDayOfWeekTextAppearance(dayOfWeekTextAppearanceResId);
         mAdapter.setDayTextAppearance(dayTextAppearanceResId);
+        mAdapter.setSundayTextAppearance(sundayTextAppearanceResId);
+        mAdapter.setDayBgColor(dayBgColor);
         mAdapter.setDaySelectorColor(daySelectorColor);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -153,10 +164,10 @@ class DayPickerView extends ViewGroup {
             }
         };
 
-        mPrevButton = (ImageButton) findViewById(R.id.prev);
+        mPrevButton = findViewById(R.id.prev);
         mPrevButton.setOnClickListener(onClickListener);
 
-        mNextButton = (ImageButton) findViewById(R.id.next);
+        mNextButton = findViewById(R.id.next);
         mNextButton.setOnClickListener(onClickListener);
 
         ViewPager.OnPageChangeListener onPageChangedListener = new ViewPager.OnPageChangeListener() {
@@ -177,7 +188,7 @@ class DayPickerView extends ViewGroup {
             }
         };
 
-        mViewPager = (DayPickerViewPager) findViewById(viewPagerIdToUse);
+        mViewPager = findViewById(viewPagerIdToUse);
         mViewPager.setAdapter(mAdapter);
         mViewPager.addOnPageChangeListener(onPageChangedListener);
 
@@ -232,8 +243,8 @@ class DayPickerView extends ViewGroup {
     private void updateButtonVisibility(int position) {
         final boolean hasPrev = position > 0;
         final boolean hasNext = position < (mAdapter.getCount() - 1);
-        mPrevButton.setVisibility(hasPrev ? View.VISIBLE : View.INVISIBLE);
-        mNextButton.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
+        mPrevButton.setVisibility(View.GONE);
+        mNextButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -276,7 +287,7 @@ class DayPickerView extends ViewGroup {
         final int height = bottom - top;
         mViewPager.layout(0, 0, width, height);
 
-        final SimpleMonthView monthView = (SimpleMonthView) mViewPager.getChildAt(0)
+        final SimpleMonthView monthView = mViewPager.getChildAt(0)
                 .findViewById(R.id.month_view);
         final int monthHeight = monthView.getMonthHeight();
         final int cellWidth = monthView.getCellWidth();
@@ -313,6 +324,16 @@ class DayPickerView extends ViewGroup {
     @SuppressWarnings("unused")
     public int getDayTextAppearance() {
         return mAdapter.getDayTextAppearance();
+    }
+
+    @SuppressWarnings("unused")
+    public void setSundayTextAppearance(int resId) {
+        mAdapter.setSundayTextAppearance(resId);
+    }
+
+    @SuppressWarnings("unused")
+    public int getSundayTextAppearance() {
+        return mAdapter.getSundayTextAppearance();
     }
 
     /**
@@ -457,6 +478,14 @@ class DayPickerView extends ViewGroup {
 
     public void setPosition(int position) {
         mViewPager.setCurrentItem(position, false);
+    }
+
+    public void setDisabledDays(ArrayList<Calendar> disabled) {
+        mAdapter.setDisabledDays(disabled);
+    }
+
+    public void setCalendarLocale(Locale locale){
+        mAdapter.setCalendarLocale(locale);
     }
 
     public interface ProxyDaySelectionEventListener {

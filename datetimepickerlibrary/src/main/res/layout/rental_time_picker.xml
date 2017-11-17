@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/rental_panel_bottom_padding"
+    android:paddingEnd="@dimen/rental_panel_right_padding"
+    android:paddingLeft="@dimen/rental_panel_left_padding"
+    android:paddingRight="@dimen/rental_panel_right_padding"
+    android:paddingStart="@dimen/rental_panel_left_padding"
+    android:paddingTop="@dimen/rental_panel_bottom_padding">
+
+    <TextView
+        style="@style/RentalPickerLabelStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/rental" />
+
+    <ImageView
+        android:id="@+id/decrease_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:src="@drawable/remove_btn" />
+
+    <TextView
+        android:id="@+id/rental_hours"
+        style="@style/RentalPickerHoursStyle"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/twelve_hours" />
+
+    <ImageView
+        android:id="@+id/increase_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:src="@drawable/add_btn" />
+
+</LinearLayout>

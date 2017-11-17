@@ -20,7 +20,6 @@ package com.appeaser.sublimepickerlibrary.datepicker;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -42,9 +41,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.appeaser.sublimepickerlibrary.R;
@@ -52,9 +48,9 @@ import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
-import com.appeaser.sublimepickerlibrary.utilities.TextColorHelper;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -67,7 +63,6 @@ public class SublimeDatePicker extends FrameLayout {
 
     private static final int RANGE_ACTIVATED_NONE = 0;
     private static final int RANGE_ACTIVATED_START = 1;
-    private static final int RANGE_ACTIVATED_END = 2;
 
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
@@ -80,15 +75,6 @@ public class SublimeDatePicker extends FrameLayout {
     // Top-level container.
     private ViewGroup mContainer;
 
-    // Header views.
-    private LinearLayout llHeaderDateSingleCont;
-    private TextView mHeaderYear;
-    private TextView mHeaderMonthDay;
-    private LinearLayout llHeaderDateRangeCont;
-    private TextView tvHeaderDateStart;
-    private TextView tvHeaderDateEnd;
-    private ImageView ivHeaderDateReset;
-
     // Picker views.
     private ViewAnimator mAnimator;
     private DayPickerView mDayPickerView;
@@ -100,8 +86,6 @@ public class SublimeDatePicker extends FrameLayout {
 
     private SublimeDatePicker.OnDateChangedListener mDateChangedListener;
 
-    private SublimeDatePicker.CheersDateChangedListener mCheersDateChangedListener;
-
     private int mCurrentView = UNINITIALIZED;
 
     private SelectedDate mCurrentDate;
@@ -110,6 +94,8 @@ public class SublimeDatePicker extends FrameLayout {
     private Calendar mMaxDate;
 
     private int mFirstDayOfWeek;
+    private ArrayList<Calendar> mDisabledDays = new ArrayList<>();
+    private int mSubsequentDays = 0;
 
     private Locale mCurrentLocale;
 
@@ -118,6 +104,93 @@ public class SublimeDatePicker extends FrameLayout {
     private int mCurrentlyActivatedRangeItem = RANGE_ACTIVATED_NONE;
 
     private boolean mIsInLandscapeMode;
+    /**
+     * Listener called when the user selects a day in the day picker view.
+     */
+    private final DayPickerView.ProxyDaySelectionEventListener mProxyDaySelectionEventListener
+            = new DayPickerView.ProxyDaySelectionEventListener() {
+        @Override
+        public void onDaySelected(DayPickerView view, Calendar day) {
+            boolean goToPosition = false;
+            Calendar endDay = Calendar.getInstance();
+            endDay.setTimeInMillis(day.getTimeInMillis());
+            endDay.add(Calendar.DAY_OF_YEAR, mSubsequentDays);
+            if (SelectedDate.compareDates(day, mMinDate) >= 0 && SelectedDate.compareDates(endDay, mMaxDate) <= 0) {
+                if (!isAnyDayFromRangeDisabled(day)) {
+                    mCurrentDate = new SelectedDate(day, endDay);
+                    goToPosition = true;
+                }
+            }
+
+            onDateChanged(true, true, goToPosition);
+        }
+
+        @Override
+        public void onDateRangeSelectionStarted(@NonNull SelectedDate selectedDate) {
+            mCurrentDate = new SelectedDate(selectedDate);
+            onDateChanged(false, false, false);
+        }
+
+        @Override
+        public void onDateRangeSelectionEnded(@Nullable SelectedDate selectedDate) {
+            if (selectedDate != null) {
+                mCurrentDate = new SelectedDate(selectedDate);
+                onDateChanged(false, false, false);
+            }
+        }
+
+        @Override
+        public void onDateRangeSelectionUpdated(@NonNull SelectedDate selectedDate) {
+            if (Config.DEBUG) {
+                Log.i(TAG, "onDateRangeSelectionUpdated: " + selectedDate.toString());
+            }
+
+            mCurrentDate = new SelectedDate(selectedDate);
+            onDateChanged(false, false, false);
+        }
+    };
+
+    private boolean isAnyDayFromRangeDisabled(Calendar startDay) {
+        Calendar day = Calendar.getInstance();
+        day.setTimeInMillis(startDay.getTimeInMillis());
+        if (mDisabledDays.contains(day)) {
+            return true;
+        }
+        for (int i = 0; i < mSubsequentDays; i++) {
+            day.add(Calendar.DAY_OF_YEAR, 1);
+            if (mDisabledDays.contains(day)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Listener called when the user selects a year in the year picker view.
+     */
+    private final YearPickerView.OnYearSelectedListener mOnYearSelectedListener
+            = new YearPickerView.OnYearSelectedListener() {
+        @Override
+        public void onYearChanged(YearPickerView view, int year) {
+            // If the newly selected month / year does not contain the
+            // currently selected day number, change the selected day number
+            // to the last day of the selected month or year.
+            // e.g. Switching from Mar to Apr when Mar 31 is selected -> Apr 30
+            // e.g. Switching from 2012 to 2013 when Feb 29, 2012 is selected -> Feb 28, 2013
+            final int day = mCurrentDate.getStartDate().get(Calendar.DAY_OF_MONTH);
+            final int month = mCurrentDate.getStartDate().get(Calendar.MONTH);
+            final int daysInMonth = SUtils.getDaysInMonth(month, year);
+            if (day > daysInMonth) {
+                mCurrentDate.set(Calendar.DAY_OF_MONTH, daysInMonth);
+            }
+
+            mCurrentDate.set(Calendar.YEAR, year);
+            onDateChanged(true, true, true);
+
+            // Automatically switch to day picker.
+            setCurrentView(VIEW_MONTH_DAY);
+        }
+    };
 
     public SublimeDatePicker(Context context) {
         this(context, null);
@@ -170,60 +243,6 @@ public class SublimeDatePicker extends FrameLayout {
 
         addView(mContainer);
 
-        // Set up header views.
-        final ViewGroup header = (ViewGroup) mContainer.findViewById(R.id.date_picker_header);
-        llHeaderDateSingleCont = (LinearLayout) header.findViewById(R.id.ll_header_date_single_cont);
-        mHeaderYear = (TextView) header.findViewById(R.id.date_picker_header_year);
-        mHeaderYear.setOnClickListener(mOnHeaderClickListener);
-        mHeaderMonthDay = (TextView) header.findViewById(R.id.date_picker_header_date);
-        mHeaderMonthDay.setOnClickListener(mOnHeaderClickListener);
-
-        llHeaderDateRangeCont = (LinearLayout) header.findViewById(R.id.ll_header_date_range_cont);
-        tvHeaderDateStart = (TextView) header.findViewById(R.id.tv_header_date_start);
-        tvHeaderDateStart.setOnClickListener(mOnHeaderClickListener);
-        tvHeaderDateEnd = (TextView) header.findViewById(R.id.tv_header_date_end);
-        tvHeaderDateEnd.setOnClickListener(mOnHeaderClickListener);
-        ivHeaderDateReset = (ImageView) header.findViewById(R.id.iv_header_date_reset);
-        ivHeaderDateReset.setOnClickListener(mOnHeaderClickListener);
-
-        int iconColor, pressedStateBgColor;
-
-        TypedArray typedArray = getContext().obtainStyledAttributes(R.styleable.SublimePicker);
-        try {
-            iconColor = typedArray.getColor(R.styleable.SublimePicker_spOverflowIconColor,
-                    SUtils.COLOR_TEXT_PRIMARY_INVERSE);
-            pressedStateBgColor = typedArray.getColor(R.styleable.SublimePicker_spOverflowIconPressedBgColor,
-                    SUtils.COLOR_TEXT_PRIMARY);
-        } finally {
-            typedArray.recycle();
-        }
-
-        SUtils.setImageTintList(ivHeaderDateReset, ColorStateList.valueOf(iconColor));
-        SUtils.setViewBackground(ivHeaderDateReset, SUtils.createOverflowButtonBg(pressedStateBgColor));
-
-        ColorStateList headerTextColor
-                = a.getColorStateList(R.styleable.SublimeDatePicker_spHeaderTextColor);
-
-        if (headerTextColor == null) {
-            headerTextColor = TextColorHelper.resolveMaterialHeaderTextColor();
-        }
-
-        if (headerTextColor != null) {
-            mHeaderYear.setTextColor(headerTextColor);
-            mHeaderMonthDay.setTextColor(headerTextColor);
-        }
-
-        // Set up header background, if available.
-        if (SUtils.isApi_22_OrHigher()) {
-            if (a.hasValueOrEmpty(R.styleable.SublimeDatePicker_spHeaderBackground)) {
-                SUtils.setViewBackground(header,
-                        a.getDrawable(R.styleable.SublimeDatePicker_spHeaderBackground));
-            }
-        } else {
-            if (a.hasValue(R.styleable.SublimeDatePicker_spHeaderBackground)) {
-                SUtils.setViewBackground(header, a.getDrawable(R.styleable.SublimeDatePicker_spHeaderBackground));
-            }
-        }
 
         int firstDayOfWeek = a.getInt(R.styleable.SublimeDatePicker_spFirstDayOfWeek,
                 mCurrentDate.getFirstDate().getFirstDayOfWeek());
@@ -260,18 +279,19 @@ public class SublimeDatePicker extends FrameLayout {
         a.recycle();
 
         // Set up picker container.
-        mAnimator = (ViewAnimator) mContainer.findViewById(R.id.animator);
+        mAnimator = mContainer.findViewById(R.id.animator);
 
         // Set up day picker view.
-        mDayPickerView = (DayPickerView) mAnimator.findViewById(R.id.date_picker_day_picker);
+        mDayPickerView = mAnimator.findViewById(R.id.date_picker_day_picker);
         setFirstDayOfWeek(firstDayOfWeek);
         mDayPickerView.setMinDate(mMinDate.getTimeInMillis());
         mDayPickerView.setMaxDate(mMaxDate.getTimeInMillis());
         mDayPickerView.setDate(mCurrentDate);
+        mDayPickerView.setDisabledDays(mDisabledDays);
         mDayPickerView.setProxyDaySelectionEventListener(mProxyDaySelectionEventListener);
 
         // Set up year picker view.
-        mYearPickerView = (YearPickerView) mAnimator.findViewById(R.id.date_picker_year_picker);
+        mYearPickerView = mAnimator.findViewById(R.id.date_picker_year_picker);
         mYearPickerView.setRange(mMinDate, mMaxDate);
         mYearPickerView.setOnYearSelectedListener(mOnYearSelectedListener);
 
@@ -286,130 +306,8 @@ public class SublimeDatePicker extends FrameLayout {
         setCurrentView(VIEW_MONTH_DAY);
     }
 
-    /**
-     * Listener called when the user selects a day in the day picker view.
-     */
-    private final DayPickerView.ProxyDaySelectionEventListener mProxyDaySelectionEventListener
-            = new DayPickerView.ProxyDaySelectionEventListener() {
-        @Override
-        public void onDaySelected(DayPickerView view, Calendar day) {
-            if (Config.DEBUG) {
-                Log.i(TAG, "tvHeaderDateStart is activated? " + tvHeaderDateStart.isActivated());
-                Log.i(TAG, "tvHeaderDateEnd is activated? " + tvHeaderDateEnd.isActivated());
-            }
-
-            boolean goToPosition = true;
-
-            if (llHeaderDateRangeCont.getVisibility() == View.VISIBLE) {
-                // We're in Range selection mode
-                if (tvHeaderDateStart.isActivated()) {
-                    if (SelectedDate.compareDates(day, mCurrentDate.getEndDate()) > 0) {
-                        mCurrentDate = new SelectedDate(day);
-                    } else {
-                        goToPosition = false;
-                        mCurrentDate = new SelectedDate(day, mCurrentDate.getEndDate());
-                    }
-                } else if (tvHeaderDateEnd.isActivated()) {
-                    if (SelectedDate.compareDates(day, mCurrentDate.getStartDate()) < 0) {
-                        mCurrentDate = new SelectedDate(day);
-                    } else {
-                        goToPosition = false;
-                        mCurrentDate = new SelectedDate(mCurrentDate.getStartDate(), day);
-                    }
-                } else { // Should never happen
-                    if (Config.DEBUG) {
-                        Log.i(TAG, "onDaySelected: Neither tvDateStart, nor tvDateEnd is activated");
-                    }
-                }
-            } else {
-                mCurrentDate = new SelectedDate(day);
-            }
-
-            onDateChanged(true, false, goToPosition);
-        }
-
-        @Override
-        public void onDateRangeSelectionStarted(@NonNull SelectedDate selectedDate) {
-            mCurrentDate = new SelectedDate(selectedDate);
-            onDateChanged(false, false, false);
-        }
-
-        @Override
-        public void onDateRangeSelectionEnded(@Nullable SelectedDate selectedDate) {
-            if (selectedDate != null) {
-                mCurrentDate = new SelectedDate(selectedDate);
-                onDateChanged(false, false, false);
-            }
-        }
-
-        @Override
-        public void onDateRangeSelectionUpdated(@NonNull SelectedDate selectedDate) {
-            if (Config.DEBUG) {
-                Log.i(TAG, "onDateRangeSelectionUpdated: " + selectedDate.toString());
-            }
-
-            mCurrentDate = new SelectedDate(selectedDate);
-            onDateChanged(false, false, false);
-        }
-    };
-
-    /**
-     * Listener called when the user selects a year in the year picker view.
-     */
-    private final YearPickerView.OnYearSelectedListener mOnYearSelectedListener
-            = new YearPickerView.OnYearSelectedListener() {
-        @Override
-        public void onYearChanged(YearPickerView view, int year) {
-            // If the newly selected month / year does not contain the
-            // currently selected day number, change the selected day number
-            // to the last day of the selected month or year.
-            // e.g. Switching from Mar to Apr when Mar 31 is selected -> Apr 30
-            // e.g. Switching from 2012 to 2013 when Feb 29, 2012 is selected -> Feb 28, 2013
-            final int day = mCurrentDate.getStartDate().get(Calendar.DAY_OF_MONTH);
-            final int month = mCurrentDate.getStartDate().get(Calendar.MONTH);
-            final int daysInMonth = SUtils.getDaysInMonth(month, year);
-            if (day > daysInMonth) {
-                mCurrentDate.set(Calendar.DAY_OF_MONTH, daysInMonth);
-            }
-
-            mCurrentDate.set(Calendar.YEAR, year);
-            onDateChanged(true, true, true);
-
-            // Automatically switch to day picker.
-            setCurrentView(VIEW_MONTH_DAY);
-        }
-    };
-
-    /**
-     * Listener called when the user clicks on a header item.
-     */
-    private final OnClickListener mOnHeaderClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            SUtils.vibrateForDatePicker(SublimeDatePicker.this);
-
-            if (v.getId() == R.id.date_picker_header_year) {
-                setCurrentView(VIEW_YEAR);
-            } else if (v.getId() == R.id.date_picker_header_date) {
-                setCurrentView(VIEW_MONTH_DAY);
-            } else if (v.getId() == R.id.tv_header_date_start) {
-                mCurrentlyActivatedRangeItem = RANGE_ACTIVATED_START;
-                tvHeaderDateStart.setActivated(true);
-                tvHeaderDateEnd.setActivated(false);
-            } else if (v.getId() == R.id.tv_header_date_end) {
-                mCurrentlyActivatedRangeItem = RANGE_ACTIVATED_END;
-                tvHeaderDateStart.setActivated(false);
-                tvHeaderDateEnd.setActivated(true);
-            } else if (v.getId() == R.id.iv_header_date_reset) {
-                mCurrentDate = new SelectedDate(mCurrentDate.getStartDate());
-                onDateChanged(true, false, true);
-            }
-        }
-    };
-
     private void onLocaleChanged(Locale locale) {
-        final TextView headerYear = mHeaderYear;
-        if (headerYear == null) {
+        if (mDayPickerView == null) {
             // Abort, we haven't initialized yet. This method will get called
             // again later after everything has been set up.
             return;
@@ -432,17 +330,11 @@ public class SublimeDatePicker extends FrameLayout {
     }
 
     private void onCurrentDateChanged(boolean announce) {
-        if (mHeaderYear == null) {
+        if (mDayPickerView == null) {
             // Abort, we haven't initialized yet. This method will get called
             // again later after everything has been set up.
             return;
         }
-
-        final String year = mYearFormat.format(mCurrentDate.getStartDate().getTime());
-        mHeaderYear.setText(year);
-
-        final String monthDay = mMonthDayFormat.format(mCurrentDate.getStartDate().getTime());
-        mHeaderMonthDay.setText(monthDay);
 
         final String yearStrStart = mYearFormat.format(mCurrentDate.getStartDate().getTime());
         final String monthDayStrStart = mMonthDayFormat.format(mCurrentDate.getStartDate().getTime());
@@ -467,9 +359,6 @@ public class SublimeDatePicker extends FrameLayout {
             spDateEnd.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
                     0, dateStrEnd.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-
-        tvHeaderDateStart.setText(spDateStart);
-        tvHeaderDateEnd.setText(spDateEnd);
 
         // TODO: This should use live regions.
         if (announce) {
@@ -502,8 +391,6 @@ public class SublimeDatePicker extends FrameLayout {
                 break;
             case VIEW_YEAR:
                 if (mCurrentView != viewIndex) {
-                    mHeaderMonthDay.setActivated(false);
-                    mHeaderYear.setActivated(true);
                     mAnimator.setDisplayedChild(VIEW_YEAR);
                     mCurrentView = viewIndex;
                 }
@@ -523,8 +410,7 @@ public class SublimeDatePicker extends FrameLayout {
      *                     user, can be null.
      */
     //public void init(int year, int monthOfYear, int dayOfMonth, boolean canPickRange,
-    public void init(SelectedDate selectedDate, boolean canPickRange,
-                     SublimeDatePicker.OnDateChangedListener callback, SublimeDatePicker.CheersDateChangedListener cheersDateChangedListener) {
+    public void init(SelectedDate selectedDate, boolean canPickRange, SublimeDatePicker.OnDateChangedListener callback) {
         //mCurrentDate.set(Calendar.YEAR, year);
         //mCurrentDate.set(Calendar.MONTH, monthOfYear);
         //mCurrentDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -532,7 +418,6 @@ public class SublimeDatePicker extends FrameLayout {
 
         mDayPickerView.setCanPickRange(canPickRange);
         mDateChangedListener = callback;
-        mCheersDateChangedListener = cheersDateChangedListener;
 
         onDateChanged(false, false, true);
     }
@@ -560,10 +445,6 @@ public class SublimeDatePicker extends FrameLayout {
 
         if (callbackToClient && mDateChangedListener != null) {
             mDateChangedListener.onDateChanged(this, mCurrentDate);
-        }
-
-        if (mCheersDateChangedListener != null) {
-            mCheersDateChangedListener.cheersDateChangedListener(mCurrentDate);
         }
 
         updateHeaderViews();
@@ -598,28 +479,13 @@ public class SublimeDatePicker extends FrameLayout {
 
     private void switchToSingleDateView() {
         mCurrentlyActivatedRangeItem = RANGE_ACTIVATED_NONE;
-
-        ivHeaderDateReset.setVisibility(View.GONE);
-        llHeaderDateRangeCont.setVisibility(View.GONE);
-        llHeaderDateSingleCont.setVisibility(View.GONE);
-
-        mHeaderMonthDay.setActivated(true);
-        mHeaderYear.setActivated(false);
     }
 
     private void switchToDateRangeView() {
         if (mCurrentlyActivatedRangeItem == RANGE_ACTIVATED_NONE) {
             mCurrentlyActivatedRangeItem = RANGE_ACTIVATED_START;
         }
-
-        llHeaderDateSingleCont.setVisibility(View.GONE);
-        ivHeaderDateReset.setVisibility(View.VISIBLE);
-        llHeaderDateRangeCont.setVisibility(View.GONE);
-
-        tvHeaderDateStart.setActivated(mCurrentlyActivatedRangeItem == RANGE_ACTIVATED_START);
-        tvHeaderDateEnd.setActivated(mCurrentlyActivatedRangeItem == RANGE_ACTIVATED_END);
     }
-
 
     public SelectedDate getSelectedDate() {
         return new SelectedDate(mCurrentDate);
@@ -627,6 +493,19 @@ public class SublimeDatePicker extends FrameLayout {
 
     public long getSelectedDateInMillis() {
         return mCurrentDate.getStartDate().getTimeInMillis();
+    }
+
+    /**
+     * Gets the minimal date supported by this {@link SublimeDatePicker} in
+     * milliseconds since January 1, 1970 00:00:00 in
+     * {@link java.util.TimeZone#getDefault()} time zone.
+     * Note: The default minimal date is 01/01/1900.
+     *
+     * @return The minimal supported date.
+     */
+    @SuppressWarnings("unused")
+    public Calendar getMinDate() {
+        return mMinDate;
     }
 
     /**
@@ -652,16 +531,16 @@ public class SublimeDatePicker extends FrameLayout {
     }
 
     /**
-     * Gets the minimal date supported by this {@link SublimeDatePicker} in
+     * Gets the maximal date supported by this {@link SublimeDatePicker} in
      * milliseconds since January 1, 1970 00:00:00 in
      * {@link java.util.TimeZone#getDefault()} time zone.
-     * Note: The default minimal date is 01/01/1900.
+     * Note: The default maximal date is 12/31/2100.
      *
-     * @return The minimal supported date.
+     * @return The maximal supported date.
      */
     @SuppressWarnings("unused")
-    public Calendar getMinDate() {
-        return mMinDate;
+    public Calendar getMaxDate() {
+        return mMaxDate;
     }
 
     /**
@@ -686,17 +565,8 @@ public class SublimeDatePicker extends FrameLayout {
         mYearPickerView.setRange(mMinDate, mMaxDate);
     }
 
-    /**
-     * Gets the maximal date supported by this {@link SublimeDatePicker} in
-     * milliseconds since January 1, 1970 00:00:00 in
-     * {@link java.util.TimeZone#getDefault()} time zone.
-     * Note: The default maximal date is 12/31/2100.
-     *
-     * @return The maximal supported date.
-     */
-    @SuppressWarnings("unused")
-    public Calendar getMaxDate() {
-        return mMaxDate;
+    public int getFirstDayOfWeek() {
+        return mFirstDayOfWeek;
     }
 
     public void setFirstDayOfWeek(int firstDayOfWeek) {
@@ -713,8 +583,9 @@ public class SublimeDatePicker extends FrameLayout {
         mDayPickerView.setFirstDayOfWeek(firstDayOfWeek);
     }
 
-    public int getFirstDayOfWeek() {
-        return mFirstDayOfWeek;
+    @Override
+    public boolean isEnabled() {
+        return mContainer.isEnabled();
     }
 
     @Override
@@ -726,13 +597,6 @@ public class SublimeDatePicker extends FrameLayout {
         mContainer.setEnabled(enabled);
         mDayPickerView.setEnabled(enabled);
         mYearPickerView.setEnabled(enabled);
-        mHeaderYear.setEnabled(enabled);
-        mHeaderMonthDay.setEnabled(enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return mContainer.isEnabled();
     }
 
     @Override
@@ -830,8 +694,21 @@ public class SublimeDatePicker extends FrameLayout {
         }
     }
 
-    public void setmCheersDateChangedListener(CheersDateChangedListener mCheersDateChangedListener) {
-        this.mCheersDateChangedListener = mCheersDateChangedListener;
+    public ArrayList<Calendar> getDisabledDays() {
+        return mDisabledDays;
+    }
+
+    public void setDisabledDays(ArrayList<Calendar> disabledDays) {
+        this.mDisabledDays = disabledDays;
+        mDayPickerView.setDisabledDays(disabledDays);
+    }
+
+    public void setCalendarLocale(Locale locale) {
+        mDayPickerView.setCalendarLocale(locale);
+    }
+
+    public void setSubsequentDays(int subsequentDays) {
+        this.mSubsequentDays = subsequentDays;
     }
 
     /**
@@ -843,10 +720,36 @@ public class SublimeDatePicker extends FrameLayout {
     }
 
     /**
+     * The callback used to indicate the user changed the date.
+     */
+    public interface OnDateChangedListener {
+
+        /**
+         * Called upon a date change.
+         *
+         * @param view         The view associated with this listener.
+         * @param selectedDate The date that was set.
+         */
+        void onDateChanged(SublimeDatePicker view, SelectedDate selectedDate);
+    }
+
+    /**
      * Class for managing state storing/restoring.
      */
     private static class SavedState extends View.BaseSavedState {
 
+        @SuppressWarnings("all")
+        // suppress unused and hiding
+        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
+
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
         private final int mSelectedYearStart;
         private final int mSelectedMonthStart;
         private final int mSelectedDayStart;
@@ -964,36 +867,5 @@ public class SublimeDatePicker extends FrameLayout {
         public int getCurrentlyActivatedRangeItem() {
             return ssCurrentlyActivatedRangeItem;
         }
-
-        @SuppressWarnings("all")
-        // suppress unused and hiding
-        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
-
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
-
-    /**
-     * The callback used to indicate the user changed the date.
-     */
-    public interface OnDateChangedListener {
-
-        /**
-         * Called upon a date change.
-         *
-         * @param view         The view associated with this listener.
-         * @param selectedDate The date that was set.
-         */
-        void onDateChanged(SublimeDatePicker view, SelectedDate selectedDate);
-    }
-
-    public interface CheersDateChangedListener {
-        void cheersDateChangedListener(SelectedDate selectedDate);
     }
 }
