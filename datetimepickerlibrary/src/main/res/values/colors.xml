@@ -19,7 +19,8 @@
     <color name="calendar_disabled_text_color_light">#23000000</color>
 
     <!-- SublimeTimePicker -->
-    <color name="timepicker_default_numbers_background_color_material">@android:color/transparent
+    <color name="timepicker_default_numbers_background_color_material">
+        @android:color/black
     </color>
 
     <!-- Recurrence Picker -->

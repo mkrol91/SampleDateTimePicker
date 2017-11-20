@@ -1025,8 +1025,6 @@ public class RadialTimePickerView extends View {
             newValue = getCurrentMinute();
         }
 
-        newValue += 12;
-
         if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
             return false;
         }
