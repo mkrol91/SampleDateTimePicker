@@ -146,6 +146,12 @@
     <dimen name="sp_timepicker_header_height">96dp</dimen>
 
     <!--Custom dimens-->
+    <dimen name="time_picker_width">@dimen/common_pickers_width</dimen>
+    <dimen name="time_picker_height">@dimen/common_pickers_height</dimen>
+    <dimen name="date_picker_width">@dimen/common_pickers_width</dimen>
+    <dimen name="date_picker_height">@dimen/common_pickers_height</dimen>
+    <dimen name="common_pickers_width">320dp</dimen>
+    <dimen name="common_pickers_height">370dp</dimen>
     <dimen name="rental_tv_text_size">14sp</dimen>
     <dimen name="rental_hours_text_size">17sp</dimen>
     <dimen name="rental_panel_left_padding">13dp</dimen>

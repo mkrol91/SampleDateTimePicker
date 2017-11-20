@@ -47,6 +47,10 @@
     <color name="purple">#5D56FF</color>
     <color name="grey">#D8D8D8</color>
     <color name="grey_tab">#F7F7F7</color>
+    <color name="picker_blue">#5d56ff</color>
+    <color name="timer_background">#efeeee</color>
+    <color name="timer_background_blocked">#d8d8d8</color>
+    <color name="inactive_digits_color">#838383</color>
 
     <color name="picker_icon_gray">#757575</color>
 </resources>
