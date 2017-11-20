@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Calendar endCal = Calendar.getInstance();
         endCal.add(Calendar.YEAR, 1);
 
-        options.setTimeParams(currentHourOfDay, currentMinute, true);
+        options.setTimeParams(currentHourOfDay, currentMinute, false);
         options.setDateRange(startCal.getTimeInMillis(), endCal.getTimeInMillis());
         options.setDisabledDays(getDisabledDays());
         options.setSubsequentDays(SublimeOptions.RentalSpan.TWO_DAYS);

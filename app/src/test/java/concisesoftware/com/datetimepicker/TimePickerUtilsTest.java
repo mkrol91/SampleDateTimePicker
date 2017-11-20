@@ -1,5 +1,6 @@
 package concisesoftware.com.datetimepicker;
 
+import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
 import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import org.junit.Test;
@@ -79,6 +80,21 @@ public class TimePickerUtilsTest {
         assertEquals(new Integer(22), hoursToCheck.get(23));
         assertEquals(new Integer(1), hoursToCheck.get(2));
         assertEquals(new Integer(23), hoursToCheck.get(0));
+    }
+
+    @Test
+    public void generateTimerStartArcAngles() {
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
+        assertTrue(startArcAngles.get(0) == 345f);
+        assertTrue(startArcAngles.get(1) == 352.5f);
+        assertTrue(startArcAngles.get(2) == 0.0f);
+        assertTrue(startArcAngles.get(3) == 7.5f);
+    }
+
+    @Test
+    public void prepareTimerSections(){
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
     }
 
     @Test

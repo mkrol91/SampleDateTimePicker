@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.appeaser.sublimepickerlibrary.R;
@@ -89,6 +90,7 @@ public class SublimeTimePicker extends FrameLayout
 
     private String mAmText;
     private String mPmText;
+    private Switch amPmSwitch;
 
     private boolean mIsEnabled = true;
     private boolean mAllowAutoAdvance;
@@ -121,6 +123,8 @@ public class SublimeTimePicker extends FrameLayout
                 setCurrentItemShowing(HOUR_INDEX, true, true);
             } else if (v.getId() == R.id.minutes) {
                 setCurrentItemShowing(MINUTE_INDEX, true, true);
+            } else if (v.getId() == R.id.am_pm_switch) {
+                mRadialTimePickerView.toggleAmPm();
             } else {
                 // Failed to handle this click, don't vibrate.
                 return;

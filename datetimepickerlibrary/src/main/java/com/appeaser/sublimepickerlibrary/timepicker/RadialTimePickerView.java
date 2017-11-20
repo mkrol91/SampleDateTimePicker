@@ -33,7 +33,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -697,50 +696,44 @@ public class RadialTimePickerView extends View {
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
 
-        final int hoursCount = 12;
+        final int hoursCount = HOURS_IN_CIRCLE;
         final float fullAngle = 360;
-        final float offset = 15;
-        float unitWidth = fullAngle / hoursCount;
-        ArrayList<Float> startArcAngles = generateTimerStartEndArcAngles(hoursCount, unitWidth, offset);
-        HashMap<Integer, Float> hourStartAngleMap = generateHourToStartAngleMap(hoursCount, startArcAngles);
-        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
+        float unitWidth = fullAngle / hoursCount / 4;
+        int unitsCount = (int) (fullAngle / unitWidth);
 
-        Paint paint = new Paint();
-        // smooths
-        paint.setAntiAlias(true);
-        paint.setColor(activeHoursBackgroundColor);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setStrokeWidth(5);
-        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
-                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
-        canvas.drawOval(rectF, paint);
-
-        paint.setColor(inactiveHoursBackgroundColor);
-        offsetInAngles = hourStartAngleMap.get(12);
-        startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
-        float sweepAngle = unitWidth * hoursToCheck.size();
-        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
-
-        drawHours(canvas, alphaMod, hoursToCheck);
-        drawCenter(canvas, alphaMod);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
+        ArrayList<TimerSection> timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
+//                generateHourToStartAngleMap(hoursCount, startArcAngles);
+//        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
+//
+//        Paint paint = new Paint();
+//        // smooths
+//        paint.setAntiAlias(true);
+//        paint.setColor(activeHoursBackgroundColor);
+//        paint.setStyle(Paint.Style.FILL);
+//        paint.setStrokeWidth(5);
+//        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
+//                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
+//        canvas.drawOval(rectF, paint);
+//
+//        paint.setColor(inactiveHoursBackgroundColor);
+//        offsetInAngles = hourStartAngleMap.get(12);
+//        startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
+//        float sweepAngle = unitWidth * hoursToCheck.size();
+//        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
+//
+//        drawHours(canvas, alphaMod, hoursToCheck);
+//        drawCenter(canvas, alphaMod);
     }
 
-    private HashMap<Integer, Float> generateHourToStartAngleMap(int hoursCount, ArrayList<Float> startArcAngles) {
+    private HashMap<Integer, Float> generateHourToStartAngleMap(int unitsCount, ArrayList<Float> startArcAngles) {
         HashMap<Integer, Float> hourStartAngleMap = new HashMap<>();
         for (int i = 0; i < startArcAngles.size(); i++) {
             Float startArcAngle = startArcAngles.get(i);
-            int hourValue = (i + 3) % hoursCount + 1;
+            int hourValue = (i + 3) % unitsCount + 1;
             hourStartAngleMap.put(hourValue, startArcAngle);
         }
         return hourStartAngleMap;
-    }
-
-    private ArrayList<Float> generateTimerStartEndArcAngles(final int hoursCount, final float unitWidth, final float offset) {
-        ArrayList<Float> startArcAngles = new ArrayList<>(hoursCount);
-        for (int i = 0; i < hoursCount; i++) {
-            startArcAngles.add(i * unitWidth + offset);
-        }
-        return startArcAngles;
     }
 
     private void drawHours(Canvas canvas, float alphaMod, ArrayList<Integer> hoursToCheck) {
@@ -1074,6 +1067,54 @@ public class RadialTimePickerView extends View {
 
         public void setValue(int value) {
             mValue = value;
+        }
+    }
+
+    public static class TimerSection {
+        private int hour;
+        private float firstPartAngle;
+        private float secondPartAngle;
+        private float thirdPartAngle;
+        private float fourthPartAngle;
+
+        public int getHour() {
+            return hour;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public float getFirstPartAngle() {
+            return firstPartAngle;
+        }
+
+        public void setFirstPartAngle(float firstPartAngle) {
+            this.firstPartAngle = firstPartAngle;
+        }
+
+        public float getSecondPartAngle() {
+            return secondPartAngle;
+        }
+
+        public void setSecondPartAngle(float secondPartAngle) {
+            this.secondPartAngle = secondPartAngle;
+        }
+
+        public float getThirdPartAngle() {
+            return thirdPartAngle;
+        }
+
+        public void setThirdPartAngle(float thirdPartAngle) {
+            this.thirdPartAngle = thirdPartAngle;
+        }
+
+        public float getFourthPartAngle() {
+            return fourthPartAngle;
+        }
+
+        public void setFourthPartAngle(float fourthPartAngle) {
+            this.fourthPartAngle = fourthPartAngle;
         }
     }
 
