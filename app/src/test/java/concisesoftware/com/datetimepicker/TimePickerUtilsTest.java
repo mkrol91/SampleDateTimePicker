@@ -92,9 +92,15 @@ public class TimePickerUtilsTest {
     }
 
     @Test
-    public void prepareTimerSections(){
+    public void prepareTimerSections() {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
         ArrayList<RadialTimePickerView.TimerSection> timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
+        assertTrue(timerSections.size() == 12);
+        assertTrue(timerSections.get(11).getSectionStartAngles().get(3) == 337.5f);
+        assertTrue(timerSections.get(0).getSectionStartAngles().get(2) == 0.0f);
+        assertTrue(timerSections.get(0).getHour() == 12);
+        assertTrue(timerSections.get(1).getHour() == 1);
+        assertTrue(timerSections.get(11).getHour() == 11);
     }
 
     @Test

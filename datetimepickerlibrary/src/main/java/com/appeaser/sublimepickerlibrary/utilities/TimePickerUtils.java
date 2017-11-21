@@ -97,17 +97,23 @@ public class TimePickerUtils {
 
     public static ArrayList<RadialTimePickerView.TimerSection> generateTimerSections(ArrayList<Float> startArcAngles) {
         ArrayList<RadialTimePickerView.TimerSection> timerSections = new ArrayList<>(startArcAngles.size() / 4);
-        int hoursCount = HOURS_12;
+        int hour = 0;
         for (int i = 0; i < startArcAngles.size(); i++) {
+            ArrayList<Float> sectionsStartAngles = new ArrayList<>();
             if (i % 4 == 0 && (i + 3) < startArcAngles.size()) {
                 RadialTimePickerView.TimerSection timerSection = new RadialTimePickerView.TimerSection();
-                timerSection.setHour(hoursCount);
-                timerSection.setFirstPartAngle(startArcAngles.get(i));
-                timerSection.setSecondPartAngle(startArcAngles.get(i + 1));
-                timerSection.setThirdPartAngle(startArcAngles.get(i + 2));
-                timerSection.setFourthPartAngle(startArcAngles.get(i + 3));
+
+                for (int j = i; j < i + 4; j++) {
+                    sectionsStartAngles.add(startArcAngles.get(j));
+                }
+                timerSection.setSectionStartAngles(sectionsStartAngles);
+
+                if (i == 0) {
+                    timerSection.setHour(HOURS_12);
+                } else {
+                    timerSection.setHour(++hour);
+                }
                 timerSections.add(timerSection);
-                hoursCount--;
             }
         }
         return timerSections;

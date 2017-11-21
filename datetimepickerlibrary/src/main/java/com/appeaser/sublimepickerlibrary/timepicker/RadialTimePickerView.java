@@ -1072,10 +1072,7 @@ public class RadialTimePickerView extends View {
 
     public static class TimerSection {
         private int hour;
-        private float firstPartAngle;
-        private float secondPartAngle;
-        private float thirdPartAngle;
-        private float fourthPartAngle;
+        private ArrayList<Float> sectionStartAngles;
 
         public int getHour() {
             return hour;
@@ -1085,36 +1082,12 @@ public class RadialTimePickerView extends View {
             this.hour = hour;
         }
 
-        public float getFirstPartAngle() {
-            return firstPartAngle;
+        public void setSectionStartAngles(ArrayList<Float> sectionStartAngles) {
+            this.sectionStartAngles = sectionStartAngles;
         }
 
-        public void setFirstPartAngle(float firstPartAngle) {
-            this.firstPartAngle = firstPartAngle;
-        }
-
-        public float getSecondPartAngle() {
-            return secondPartAngle;
-        }
-
-        public void setSecondPartAngle(float secondPartAngle) {
-            this.secondPartAngle = secondPartAngle;
-        }
-
-        public float getThirdPartAngle() {
-            return thirdPartAngle;
-        }
-
-        public void setThirdPartAngle(float thirdPartAngle) {
-            this.thirdPartAngle = thirdPartAngle;
-        }
-
-        public float getFourthPartAngle() {
-            return fourthPartAngle;
-        }
-
-        public void setFourthPartAngle(float fourthPartAngle) {
-            this.fourthPartAngle = fourthPartAngle;
+        public ArrayList<Float> getSectionStartAngles() {
+            return sectionStartAngles;
         }
     }
 
