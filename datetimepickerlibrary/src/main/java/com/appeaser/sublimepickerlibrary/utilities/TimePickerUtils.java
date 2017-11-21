@@ -118,4 +118,25 @@ public class TimePickerUtils {
         }
         return timerSections;
     }
+
+    public static RadialTimePickerView.TimerSection findSectionForDegrees(@NonNull ArrayList<RadialTimePickerView.TimerSection> timerSections,
+                                                                          int degrees) {
+        for (RadialTimePickerView.TimerSection timerSection : timerSections) {
+            ArrayList<Float> sectionStartAngles = timerSection.getSectionStartAngles();
+
+            Float startAngle = sectionStartAngles.get(0);
+            Float endAngle = sectionStartAngles.get(3) + 7.5f;
+
+            if ((degrees >= startAngle && degrees <= endAngle)) {
+                return timerSection;
+            }
+
+            if ((degrees >= startAngle && degrees <= 360 && endAngle < startAngle) ||
+                    (degrees > 0 && degrees <= endAngle && endAngle < startAngle)) {
+                return timerSection;
+            }
+
+        }
+        return null;
+    }
 }

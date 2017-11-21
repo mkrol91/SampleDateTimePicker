@@ -179,6 +179,7 @@ public class RadialTimePickerView extends View {
     private float offsetInAngles;
     private ArrayList<Integer> hoursToCheck;
     private boolean isPm;
+    private ArrayList<TimerSection> timerSections;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -283,6 +284,26 @@ public class RadialTimePickerView extends View {
      */
     private static int snapOnly30s(int degrees, int forceHigherOrLower) {
         final int stepSize = DEGREES_FOR_ONE_HOUR;
+        int floor = (degrees / stepSize) * stepSize;
+        final int ceiling = floor + stepSize;
+        if (forceHigherOrLower == 1) {
+            degrees = ceiling;
+        } else if (forceHigherOrLower == -1) {
+            if (degrees == floor) {
+                floor -= stepSize;
+            }
+            degrees = floor;
+        } else {
+            if ((degrees - floor) < (ceiling - degrees)) {
+                degrees = floor;
+            } else {
+                degrees = ceiling;
+            }
+        }
+        return degrees;
+    }
+
+    private static int snapOnly(int degrees, final int stepSize, int forceHigherOrLower) {
         int floor = (degrees / stepSize) * stepSize;
         final int ceiling = floor + stepSize;
         if (forceHigherOrLower == 1) {
@@ -702,7 +723,7 @@ public class RadialTimePickerView extends View {
         int unitsCount = (int) (fullAngle / unitWidth);
 
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
-        ArrayList<TimerSection> timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
+        timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
 //                generateHourToStartAngleMap(hoursCount, startArcAngles);
 //        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
 //
@@ -722,8 +743,8 @@ public class RadialTimePickerView extends View {
 //        float sweepAngle = unitWidth * hoursToCheck.size();
 //        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
 //
-//        drawHours(canvas, alphaMod, hoursToCheck);
-//        drawCenter(canvas, alphaMod);
+        drawHours(canvas, alphaMod, hoursToCheck);
+        drawCenter(canvas, alphaMod);
     }
 
     private HashMap<Integer, Float> generateHourToStartAngleMap(int unitsCount, ArrayList<Float> startArcAngles) {
@@ -1003,11 +1024,26 @@ public class RadialTimePickerView extends View {
         final boolean valueChanged;
 
         if (mShowHours) {
-            final int snapDegrees = snapOnly30s(degrees, 0) % 360;
+
+            TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
+            if (sectionForDegrees != null) {
+                Log.i("pickerTest", "sectionForDegrees (hour):" + sectionForDegrees.getHour());
+                Log.i("pickerTest", "hour:" + sectionForDegrees.getHour());
+                //sectionForDegrees.findStartAngleForDegrees(sectionForDegrees);
+            }
+//
+//            Log.i("pickerTest", "degrees:" + degrees);
+//            boolean snapUp = degrees % 15 >= 8;
+//            Log.i("pickerTest", "snapUp:" + snapUp);
+
+            float snapDegrees = snapOnly(degrees, 8, 0) % 360;
+
+//            Log.i("pickerTest", "snapDegrees:" + snapDegrees);
             valueChanged = mIsOnInnerCircle != isOnInnerCircle
                     || mSelectionDegrees[HOURS] != snapDegrees;
+//            Log.i("pickerTest", "valueChanged:" + valueChanged);
             mIsOnInnerCircle = isOnInnerCircle;
-            mSelectionDegrees[HOURS] = snapDegrees;
+            mSelectionDegrees[HOURS] = (int) snapDegrees;
             type = HOURS;
             newValue = getCurrentHour();
         } else {
@@ -1018,9 +1054,9 @@ public class RadialTimePickerView extends View {
             newValue = getCurrentMinute();
         }
 
-        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
-            return false;
-        }
+//        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
+//            return false;
+//        }
 
         if (valueChanged || forceSelection || autoAdvance) {
             // Fire the listener even if we just need to auto-advance.
@@ -1082,12 +1118,12 @@ public class RadialTimePickerView extends View {
             this.hour = hour;
         }
 
-        public void setSectionStartAngles(ArrayList<Float> sectionStartAngles) {
-            this.sectionStartAngles = sectionStartAngles;
-        }
-
         public ArrayList<Float> getSectionStartAngles() {
             return sectionStartAngles;
+        }
+
+        public void setSectionStartAngles(ArrayList<Float> sectionStartAngles) {
+            this.sectionStartAngles = sectionStartAngles;
         }
     }
 

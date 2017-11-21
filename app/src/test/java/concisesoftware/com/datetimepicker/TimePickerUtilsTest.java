@@ -93,14 +93,29 @@ public class TimePickerUtilsTest {
 
     @Test
     public void prepareTimerSections() {
-        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
-        ArrayList<RadialTimePickerView.TimerSection> timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
         assertTrue(timerSections.size() == 12);
         assertTrue(timerSections.get(11).getSectionStartAngles().get(3) == 337.5f);
         assertTrue(timerSections.get(0).getSectionStartAngles().get(2) == 0.0f);
         assertTrue(timerSections.get(0).getHour() == 12);
         assertTrue(timerSections.get(1).getHour() == 1);
         assertTrue(timerSections.get(11).getHour() == 11);
+    }
+
+    private ArrayList<RadialTimePickerView.TimerSection> getTimerSections() {
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
+        return TimePickerUtils.generateTimerSections(startArcAngles);
+    }
+
+    @Test
+    public void findSectionForDegreesTest() {
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
+        RadialTimePickerView.TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,34);
+        assertTrue(sectionForDegrees.getHour() == 1);
+        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,180);
+        assertTrue(sectionForDegrees.getHour() == 6);
+        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,355);
+        assertTrue(sectionForDegrees.getHour() == 12);
     }
 
     @Test
