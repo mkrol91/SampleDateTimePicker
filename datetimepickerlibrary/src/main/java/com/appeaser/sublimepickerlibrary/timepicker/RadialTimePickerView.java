@@ -1024,24 +1024,34 @@ public class RadialTimePickerView extends View {
         final boolean valueChanged;
 
         if (mShowHours) {
-
+            Log.i("pickerTest", "----------------------");
             TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
+            int snapDegrees = 0;
             if (sectionForDegrees != null) {
-                Log.i("pickerTest", "sectionForDegrees (hour):" + sectionForDegrees.getHour());
-                Log.i("pickerTest", "hour:" + sectionForDegrees.getHour());
-                //sectionForDegrees.findStartAngleForDegrees(sectionForDegrees);
+                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, sectionForDegrees);
+                float endAngle = startAngle + 7.5f;
+                boolean isDegreesCloserToStartDegree =
+                        TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
+                if (isDegreesCloserToStartDegree) {
+                    Log.i("pickerTest", "startAngle:" + startAngle);
+                    snapDegrees = (int) startAngle;
+                } else {
+                    Log.i("pickerTest", "degrees:" + degrees);
+                    Log.i("pickerTest", "anglesInSection:" +
+                            sectionForDegrees.getSectionStartAngles().get(0) +
+                            ","
+                            + sectionForDegrees.getSectionStartAngles().get(1) +
+                            "," + sectionForDegrees.getSectionStartAngles().get(2) + "," + sectionForDegrees.getSectionStartAngles().get(3));
+                    Log.i("pickerTest", "endAngle:" + endAngle);
+                    snapDegrees = (int) endAngle;
+                }
             }
-//
-//            Log.i("pickerTest", "degrees:" + degrees);
-//            boolean snapUp = degrees % 15 >= 8;
-//            Log.i("pickerTest", "snapUp:" + snapUp);
 
-            float snapDegrees = snapOnly(degrees, 8, 0) % 360;
+            Log.i("pickerTest", "snap:" + snapDegrees);
 
-//            Log.i("pickerTest", "snapDegrees:" + snapDegrees);
+
             valueChanged = mIsOnInnerCircle != isOnInnerCircle
                     || mSelectionDegrees[HOURS] != snapDegrees;
-//            Log.i("pickerTest", "valueChanged:" + valueChanged);
             mIsOnInnerCircle = isOnInnerCircle;
             mSelectionDegrees[HOURS] = (int) snapDegrees;
             type = HOURS;

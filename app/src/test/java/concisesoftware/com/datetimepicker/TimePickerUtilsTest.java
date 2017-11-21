@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -110,12 +111,63 @@ public class TimePickerUtilsTest {
     @Test
     public void findSectionForDegreesTest() {
         ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
-        RadialTimePickerView.TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,34);
+        RadialTimePickerView.TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, 34);
         assertTrue(sectionForDegrees.getHour() == 1);
-        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,180);
+        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, 180);
         assertTrue(sectionForDegrees.getHour() == 6);
-        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections,355);
+        sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, 355);
         assertTrue(sectionForDegrees.getHour() == 12);
+    }
+
+    @Test
+    public void isDegreesCloserTest() {
+        boolean isDegreesCloserToStartDegree =
+                TimePickerUtils.isDegreeCloserToStartDegree(353,
+                        352.5f, 0f);
+        assertTrue(isDegreesCloserToStartDegree);
+        isDegreesCloserToStartDegree =
+                TimePickerUtils.isDegreeCloserToStartDegree(359,
+                        352.5f, 0f);
+        assertFalse(isDegreesCloserToStartDegree);
+        isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(4,
+                0f, 7.5f);
+        assertFalse(isDegreesCloserToStartDegree);
+        isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(3,
+                0f, 7.5f);
+        assertTrue(isDegreesCloserToStartDegree);
+        isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(29,
+                22.5f, 30f);
+        assertFalse(isDegreesCloserToStartDegree);
+    }
+
+    @Test
+    public void findStartAngleOfSectionWhichContainsDegree() {
+        RadialTimePickerView.TimerSection timerSection = new RadialTimePickerView.TimerSection();
+        timerSection.setHour(12);
+        ArrayList<Float> sectionAngles = new ArrayList<>();
+        sectionAngles.add(345f);
+        sectionAngles.add(352.5f);
+        sectionAngles.add(0f);
+        sectionAngles.add(7.5f);
+        timerSection.setSectionStartAngles(sectionAngles);
+        float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(353, timerSection);
+        assertTrue(startAngle == 352.5);
+        startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(3, timerSection);
+        assertTrue(startAngle == 0f);
+    }
+
+    @Test
+    public void findStartAngleOfSectionErrorCase() {
+        RadialTimePickerView.TimerSection timerSection = new RadialTimePickerView.TimerSection();
+        timerSection.setHour(12);
+        ArrayList<Float> sectionAngles = new ArrayList<>();
+        sectionAngles.add(135f);
+        sectionAngles.add(142.5f);
+        sectionAngles.add(150f);
+        sectionAngles.add(157.5f);
+        timerSection.setSectionStartAngles(sectionAngles);
+        float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(162, timerSection);
+        assertTrue(startAngle == 157.5f);
     }
 
     @Test

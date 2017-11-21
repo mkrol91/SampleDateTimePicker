@@ -139,4 +139,28 @@ public class TimePickerUtils {
         }
         return null;
     }
+
+    public static boolean isDegreeCloserToStartDegree(int degrees, float startDegree, float endDegree) {
+        float distanceToStartDegrees = 0;
+        float distanceToEndDegrees = 0;
+        distanceToStartDegrees = degrees - startDegree;
+        if (endDegree > startDegree) {
+            distanceToEndDegrees = endDegree - degrees;
+        } else if (endDegree < startDegree) {
+            distanceToEndDegrees = 360 - degrees;
+        }
+        return distanceToStartDegrees < distanceToEndDegrees;
+    }
+
+    public static float findStartAngleOfSectionWhichContainsDegree(int degrees, RadialTimePickerView.TimerSection sectionForDegrees) {
+        ArrayList<Float> sectionStartAngles = sectionForDegrees.getSectionStartAngles();
+        if (sectionStartAngles != null) {
+            for (Float startAngle : sectionStartAngles) {
+                if (degrees >= startAngle && degrees <= startAngle + 7.5f) {
+                    return startAngle;
+                }
+            }
+        }
+        return 0;
+    }
 }
