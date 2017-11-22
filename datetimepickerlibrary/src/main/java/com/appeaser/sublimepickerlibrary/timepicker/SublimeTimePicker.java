@@ -288,7 +288,7 @@ public class SublimeTimePicker extends FrameLayout
 
         setupListeners();
 
-        mAllowAutoAdvance = true;
+        mAllowAutoAdvance = false;
 
         // Set up for keyboard mode.
         mDoublePlaceholderText = res.getString(R.string.time_placeholder);
