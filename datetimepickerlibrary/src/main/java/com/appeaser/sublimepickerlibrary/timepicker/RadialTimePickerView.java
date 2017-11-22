@@ -180,6 +180,8 @@ public class RadialTimePickerView extends View {
     private ArrayList<Integer> hoursToCheck;
     private boolean isPm;
     private ArrayList<TimerSection> timerSections;
+    private float selCenterX;
+    private float selCenterY;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -742,7 +744,7 @@ public class RadialTimePickerView extends View {
 //        startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
 //        float sweepAngle = unitWidth * hoursToCheck.size();
 //        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
-//
+
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);
     }
@@ -793,8 +795,8 @@ public class RadialTimePickerView extends View {
         final int selRadius = mSelectorRadius;
         final int selLength = mCircleRadius - mTextInset[index];
         final double selAngleRad = Math.toRadians(mSelectionDegrees[index % 2]);
-        final float selCenterX = mXCenter + selLength * (float) Math.sin(selAngleRad);
-        final float selCenterY = mYCenter - selLength * (float) Math.cos(selAngleRad);
+        selCenterX = mXCenter + selLength * (float) Math.sin(selAngleRad);
+        selCenterY = mYCenter - selLength * (float) Math.cos(selAngleRad);
 
         // Draw the selection circle.
         final Paint paint = mPaintSelector[index % 2][SELECTOR_CIRCLE];
@@ -880,7 +882,12 @@ public class RadialTimePickerView extends View {
             final int stateMask = SUtils.STATE_ENABLED
                     | (showActivated && activated ? SUtils.STATE_ACTIVATED : 0);
             final int color = textColor.getColorForState(SUtils.resolveStateSet(stateMask), 0);
-            paint.setColor(color);
+            double distBetweenDigitAndSelector = Math.sqrt(Math.pow(textX[i] - selCenterX, 2) +
+                    Math.pow(textY[i] - selCenterY, 2));
+            paint.setColor(Color.BLACK);
+            if (distBetweenDigitAndSelector < mSelectorRadius) {
+                paint.setColor(Color.WHITE);
+            }
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
@@ -1024,7 +1031,6 @@ public class RadialTimePickerView extends View {
         final boolean valueChanged;
 
         if (mShowHours) {
-            Log.i("pickerTest", "----------------------");
             TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
             int snapDegrees = 0;
             if (sectionForDegrees != null) {
@@ -1033,22 +1039,11 @@ public class RadialTimePickerView extends View {
                 boolean isDegreesCloserToStartDegree =
                         TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
                 if (isDegreesCloserToStartDegree) {
-                    Log.i("pickerTest", "startAngle:" + startAngle);
                     snapDegrees = (int) startAngle;
                 } else {
-                    Log.i("pickerTest", "degrees:" + degrees);
-                    Log.i("pickerTest", "anglesInSection:" +
-                            sectionForDegrees.getSectionStartAngles().get(0) +
-                            ","
-                            + sectionForDegrees.getSectionStartAngles().get(1) +
-                            "," + sectionForDegrees.getSectionStartAngles().get(2) + "," + sectionForDegrees.getSectionStartAngles().get(3));
-                    Log.i("pickerTest", "endAngle:" + endAngle);
                     snapDegrees = (int) endAngle;
                 }
             }
-
-            Log.i("pickerTest", "snap:" + snapDegrees);
-
 
             valueChanged = mIsOnInnerCircle != isOnInnerCircle
                     || mSelectionDegrees[HOURS] != snapDegrees;
