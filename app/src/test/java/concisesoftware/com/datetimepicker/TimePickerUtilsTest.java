@@ -107,29 +107,67 @@ public class TimePickerUtilsTest {
     }
 
     @Test
-    public void mapToTimeAsPairTest() {
-        Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, true);
+    public void mapToTimeAsPairTest1_12h() {
+        Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, true, false);
         assertTrue(timeAsPair.first == 3);
         assertTrue(timeAsPair.second == 45);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, false);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, false, false);
         assertTrue(timeAsPair.first == 4);
         assertTrue(timeAsPair.second == 0);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, true);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, true, false);
         assertTrue(timeAsPair.first == 12);
         assertTrue(timeAsPair.second == 0);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, false);
-        assertTrue(timeAsPair.first == 12);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, false, false);
+        assertTrue(timeAsPair.first == 0);
         assertTrue(timeAsPair.second == 15);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, true);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, true, false);
         assertTrue(timeAsPair.first == 11);
         assertTrue(timeAsPair.second == 30);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, false);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, false, false);
         assertTrue(timeAsPair.first == 11);
         assertTrue(timeAsPair.second == 45);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, true);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, true, false);
+        assertTrue(timeAsPair.first == 0);
+        assertTrue(timeAsPair.second == 15);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, false, false);
+        assertTrue(timeAsPair.first == 0);
+        assertTrue(timeAsPair.second == 30);
+    }
+
+    @Test
+    public void mapToTimeAsPairTest13_24h() {
+        Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 3, true, true);
+        assertTrue(timeAsPair.first == 24);
+        assertTrue(timeAsPair.second == 0);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 1, true, true);
+        assertTrue(timeAsPair.first == 23);
+        assertTrue(timeAsPair.second == 30);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 3, true, true);
+        assertTrue(timeAsPair.first == 24);
+        assertTrue(timeAsPair.second == 0);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 3, false, true);
         assertTrue(timeAsPair.first == 12);
         assertTrue(timeAsPair.second == 15);
-        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, false);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 4, true, false);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 15);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(24, 4, false, false);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 30);
+
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(13, 1, true, false);
         assertTrue(timeAsPair.first == 12);
         assertTrue(timeAsPair.second == 30);
     }

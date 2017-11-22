@@ -1051,7 +1051,8 @@ public class RadialTimePickerView extends View {
                         sectionForDegrees);
                 Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(hour,
                         unassignedQuarter,
-                        isDegreesCloserToStartDegree);
+                        isDegreesCloserToStartDegree, isPm);
+                Log.i("timerTest", "hour:" + timeAsPair.first + " minute:" + timeAsPair.second);
             }
 
             valueChanged = mIsOnInnerCircle != isOnInnerCircle

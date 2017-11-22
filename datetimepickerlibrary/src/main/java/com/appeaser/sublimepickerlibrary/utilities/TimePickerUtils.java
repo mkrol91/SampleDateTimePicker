@@ -180,14 +180,20 @@ public class TimePickerUtils {
         return -1;
     }
 
-    public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree) {
+    public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree, boolean isPm) {
         if (unassignedQuarter == 1) {
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 30) : new Pair<>(hour - 1, 45);
         } else if (unassignedQuarter == 2) {
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
+            if (hour == 12 || hour == 24) {
+                return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour - 12, 15);
+            }
             return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour, 15);
         } else if (unassignedQuarter == 4) {
+            if (hour == 12 || hour == 24) {
+                return isDegreesCloserToStartDegree ? new Pair<>(hour - 12, 15) : new Pair<>(hour - 12, 30);
+            }
             return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
         }
         return null;
