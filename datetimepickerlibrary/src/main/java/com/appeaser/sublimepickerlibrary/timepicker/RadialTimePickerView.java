@@ -37,6 +37,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.ExploreByTouchHelper;
@@ -1043,6 +1044,14 @@ public class RadialTimePickerView extends View {
                 } else {
                     snapDegrees = (int) endAngle;
                 }
+
+                Log.i("timerTest", "snapDegrees:" + snapDegrees);
+                int hour = sectionForDegrees.getHour();
+                int unassignedQuarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(degrees,
+                        sectionForDegrees);
+                Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(hour,
+                        unassignedQuarter,
+                        isDegreesCloserToStartDegree);
             }
 
             valueChanged = mIsOnInnerCircle != isOnInnerCircle

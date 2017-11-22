@@ -1,5 +1,8 @@
 package concisesoftware.com.datetimepicker;
 
+import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
+
 import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
 import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
@@ -103,6 +106,34 @@ public class TimePickerUtilsTest {
         assertTrue(timerSections.get(11).getHour() == 11);
     }
 
+    @Test
+    public void mapToTimeAsPairTest() {
+        Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, true);
+        assertTrue(timeAsPair.first == 3);
+        assertTrue(timeAsPair.second == 45);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, false);
+        assertTrue(timeAsPair.first == 4);
+        assertTrue(timeAsPair.second == 0);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, true);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 0);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, false);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 15);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, true);
+        assertTrue(timeAsPair.first == 11);
+        assertTrue(timeAsPair.second == 30);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 1, false);
+        assertTrue(timeAsPair.first == 11);
+        assertTrue(timeAsPair.second == 45);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, true);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 15);
+        timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 4, false);
+        assertTrue(timeAsPair.first == 12);
+        assertTrue(timeAsPair.second == 30);
+    }
+
     private ArrayList<RadialTimePickerView.TimerSection> getTimerSections() {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
         return TimePickerUtils.generateTimerSections(startArcAngles);
@@ -141,7 +172,29 @@ public class TimePickerUtilsTest {
     }
 
     @Test
-    public void findStartAngleOfSectionWhichContainsDegree() {
+    public void findStartAngleOfSectionWhichContainsDegreeTest() {
+        RadialTimePickerView.TimerSection timerSection = getTimerSectionForHour12();
+        float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(353, timerSection);
+        assertTrue(startAngle == 352.5);
+        startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(3, timerSection);
+        assertTrue(startAngle == 0f);
+    }
+
+    @Test
+    public void findQuarterOfSectionWhichContainsDegreeTest() {
+        RadialTimePickerView.TimerSection timerSection = getTimerSectionForHour12();
+        int quarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(348, timerSection);
+        assertTrue(quarter == 1);
+        quarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(358, timerSection);
+        assertTrue(quarter == 2);
+        quarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(3, timerSection);
+        assertTrue(quarter == 3);
+        quarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(13, timerSection);
+        assertTrue(quarter == 4);
+    }
+
+    @NonNull
+    private RadialTimePickerView.TimerSection getTimerSectionForHour12() {
         RadialTimePickerView.TimerSection timerSection = new RadialTimePickerView.TimerSection();
         timerSection.setHour(12);
         ArrayList<Float> sectionAngles = new ArrayList<>();
@@ -150,10 +203,7 @@ public class TimePickerUtilsTest {
         sectionAngles.add(0f);
         sectionAngles.add(7.5f);
         timerSection.setSectionStartAngles(sectionAngles);
-        float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(353, timerSection);
-        assertTrue(startAngle == 352.5);
-        startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(3, timerSection);
-        assertTrue(startAngle == 0f);
+        return timerSection;
     }
 
     @Test

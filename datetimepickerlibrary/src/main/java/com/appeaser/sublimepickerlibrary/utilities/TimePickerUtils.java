@@ -1,6 +1,7 @@
 package com.appeaser.sublimepickerlibrary.utilities;
 
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 
 import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
 
@@ -152,7 +153,8 @@ public class TimePickerUtils {
         return distanceToStartDegrees < distanceToEndDegrees;
     }
 
-    public static float findStartAngleOfSectionWhichContainsDegree(int degrees, RadialTimePickerView.TimerSection sectionForDegrees) {
+    public static float findStartAngleOfSectionWhichContainsDegree(int degrees,
+                                                                   RadialTimePickerView.TimerSection sectionForDegrees) {
         ArrayList<Float> sectionStartAngles = sectionForDegrees.getSectionStartAngles();
         if (sectionStartAngles != null) {
             for (Float startAngle : sectionStartAngles) {
@@ -162,5 +164,32 @@ public class TimePickerUtils {
             }
         }
         return 0;
+    }
+
+    public static int findUnasignedQuarterOfSectionWhichContainsDegree(int degrees,
+                                                                       RadialTimePickerView.TimerSection sectionForDegrees) {
+        ArrayList<Float> sectionStartAngles = sectionForDegrees.getSectionStartAngles();
+        if (sectionStartAngles != null) {
+            for (int i = 0; i < sectionStartAngles.size(); i++) {
+                Float angle = sectionStartAngles.get(i);
+                if (degrees >= angle && degrees <= angle + 7.5f) {
+                    return i + 1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree) {
+        if (unassignedQuarter == 1) {
+            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 30) : new Pair<>(hour - 1, 45);
+        } else if (unassignedQuarter == 2) {
+            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
+        } else if (unassignedQuarter == 3) {
+            return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour, 15);
+        } else if (unassignedQuarter == 4) {
+            return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
+        }
+        return null;
     }
 }
