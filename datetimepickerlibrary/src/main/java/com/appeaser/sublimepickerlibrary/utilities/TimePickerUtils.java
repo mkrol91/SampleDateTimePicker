@@ -96,7 +96,7 @@ public class TimePickerUtils {
     }
 
 
-    public static ArrayList<RadialTimePickerView.TimerSection> generateTimerSections(ArrayList<Float> startArcAngles) {
+    public static ArrayList<RadialTimePickerView.TimerSection> generateTimerSections(ArrayList<Float> startArcAngles, boolean isPm) {
         ArrayList<RadialTimePickerView.TimerSection> timerSections = new ArrayList<>(startArcAngles.size() / 4);
         int hour = 0;
         for (int i = 0; i < startArcAngles.size(); i++) {
@@ -110,9 +110,9 @@ public class TimePickerUtils {
                 timerSection.setSectionStartAngles(sectionsStartAngles);
 
                 if (i == 0) {
-                    timerSection.setHour(HOURS_12);
+                    timerSection.setHour(isPm ? HOURS_12 + 12 : HOURS_12);
                 } else {
-                    timerSection.setHour(++hour);
+                    timerSection.setHour(isPm ? ++hour + 12 : ++hour);
                 }
                 timerSections.add(timerSection);
             }

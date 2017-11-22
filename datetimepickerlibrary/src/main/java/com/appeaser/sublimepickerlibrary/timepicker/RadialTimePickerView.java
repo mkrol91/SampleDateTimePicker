@@ -726,7 +726,7 @@ public class RadialTimePickerView extends View {
         int unitsCount = (int) (fullAngle / unitWidth);
 
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
-        timerSections = TimePickerUtils.generateTimerSections(startArcAngles);
+        timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 //                generateHourToStartAngleMap(hoursCount, startArcAngles);
 //        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
 //
@@ -1027,9 +1027,9 @@ public class RadialTimePickerView extends View {
             return false;
         }
 
-        final int type;
-        int newValue;
-        final boolean valueChanged;
+        int type = HOURS;
+        int newValue = -1;
+        boolean valueChanged = false;
 
         if (mShowHours) {
             TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
@@ -1060,12 +1060,6 @@ public class RadialTimePickerView extends View {
             mSelectionDegrees[HOURS] = (int) snapDegrees;
             type = HOURS;
             newValue = getCurrentHour();
-        } else {
-            final int snapDegrees = snapPrefer30s(degrees) % 360;
-            valueChanged = mSelectionDegrees[MINUTES] != snapDegrees;
-            mSelectionDegrees[MINUTES] = snapDegrees;
-            type = MINUTES;
-            newValue = getCurrentMinute();
         }
 
 //        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {

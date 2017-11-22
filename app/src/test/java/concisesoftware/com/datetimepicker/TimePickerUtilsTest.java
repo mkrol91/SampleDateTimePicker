@@ -136,7 +136,7 @@ public class TimePickerUtilsTest {
 
     private ArrayList<RadialTimePickerView.TimerSection> getTimerSections() {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
-        return TimePickerUtils.generateTimerSections(startArcAngles);
+        return TimePickerUtils.generateTimerSections(startArcAngles, false);
     }
 
     @Test

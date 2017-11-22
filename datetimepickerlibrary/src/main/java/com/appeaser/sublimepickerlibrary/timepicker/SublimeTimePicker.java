@@ -285,6 +285,8 @@ public class SublimeTimePicker extends FrameLayout
         a.recycle();
 
         mRadialTimePickerView = (RadialTimePickerView) mainView.findViewById(R.id.radial_picker);
+        amPmSwitch = mainView.findViewById(R.id.am_pm_switch);
+        amPmSwitch.setOnClickListener(mClickListener);
 
         setupListeners();
 
