@@ -173,8 +173,12 @@ public class TimePickerUtilsTest {
     }
 
     private ArrayList<RadialTimePickerView.TimerSection> getTimerSections() {
+        return getTimerSections(false);
+    }
+
+    private ArrayList<RadialTimePickerView.TimerSection> getTimerSections(boolean isPm) {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
-        return TimePickerUtils.generateTimerSections(startArcAngles, false);
+        return TimePickerUtils.generateTimerSections(startArcAngles, isPm);
     }
 
     @Test
@@ -302,6 +306,73 @@ public class TimePickerUtilsTest {
         assertTrue(isAngleBetweenAngles);
         isAngleBetweenAngles = TimePickerUtils.isAngleBetweenAngles(343, 255, 135);
         assertTrue(isAngleBetweenAngles);
+    }
+
+    @Test
+    public void findSectionForHourTest() {
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
+        RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(8, timerSections);
+        assertTrue(timerSection.getHour() == 8);
+
+        timerSection = TimePickerUtils.findSectionForHour(12, timerSections);
+        assertTrue(timerSection.getHour() == 12);
+
+        timerSection = TimePickerUtils.findSectionForHour(0, timerSections);
+        assertTrue(timerSection.getHour() == 12);
+
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
+        assertTrue(timerSection.getHour() == 24);
+    }
+
+    @Test
+    public void findStartAngleInSectionForGivenMinutesTest() {
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
+
+        RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(12, timerSections);
+        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(startAngle == 7.5f);
+
+        timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(startAngle == 7.5f);
+
+        timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(30, timerSection);
+        assertTrue(startAngle == 15);
+
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(30, timerSection);
+        assertTrue(startAngle == 15);
+
+        timerSection = TimePickerUtils.findSectionForHour(1, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(startAngle == 37.5f);
+
+        timerSection = TimePickerUtils.findSectionForHour(11, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(45, timerSection);
+        assertTrue(startAngle == 352.5f);
+
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
+        assertTrue(startAngle == 0);
+
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(45, timerSection);
+        assertTrue(startAngle == 22.5);
+
+        timerSection = TimePickerUtils.findSectionForHour(24, getTimerSections(true));
+        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
+        assertTrue(startAngle == 0);
+    }
+
+    @Test
+    public void mapStartAngleToDrawArcAngleTest() {
+        float mappedAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(90);
+        assertTrue(mappedAngle == 0.0f);
+        mappedAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(180);
+        assertTrue(mappedAngle == 90);
+        mappedAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(10);
+        assertTrue(mappedAngle == 280);
     }
 
 }

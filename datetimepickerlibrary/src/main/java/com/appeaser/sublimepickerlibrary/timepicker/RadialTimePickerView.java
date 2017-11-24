@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -727,24 +728,29 @@ public class RadialTimePickerView extends View {
 
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
-//                generateHourToStartAngleMap(hoursCount, startArcAngles);
-//        hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
+
+        TimerSection timerSection = TimePickerUtils.findSectionForHour(4, timerSections);
+        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
+        Log.i("test", "startAngle:" + startAngle);
+        float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
+
+//        float startAngle = TimePickerUtils.getStartBlockingAngleForTime(11, 15, timerSections);
+//        generateHourToStartAngleMap(hoursCount, startArcAngles);
+        //  TimePickerUtils.getHoursToCheck();
+        // hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
 //
-//        Paint paint = new Paint();
-//        // smooths
-//        paint.setAntiAlias(true);
-//        paint.setColor(activeHoursBackgroundColor);
-//        paint.setStyle(Paint.Style.FILL);
-//        paint.setStrokeWidth(5);
-//        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
-//                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
-//        canvas.drawOval(rectF, paint);
-//
-//        paint.setColor(inactiveHoursBackgroundColor);
-//        offsetInAngles = hourStartAngleMap.get(12);
-//        startDrawingAngle = hourStartAngleMap.get(hoursToCheck.get(0));
-//        float sweepAngle = unitWidth * hoursToCheck.size();
-//        canvas.drawArc(rectF, startDrawingAngle, sweepAngle, true, paint);
+        Paint paint = new Paint();
+        // smooths
+        paint.setColor(activeHoursBackgroundColor);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setStrokeWidth(5);
+        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
+                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
+        canvas.drawOval(rectF, paint);
+
+        paint.setColor(inactiveHoursBackgroundColor);
+        float sweepAngle = unitWidth * 4;
+        canvas.drawArc(rectF, drawArcAngle, sweepAngle, true, paint);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);

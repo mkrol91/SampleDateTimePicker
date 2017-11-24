@@ -198,4 +198,39 @@ public class TimePickerUtils {
         }
         return null;
     }
+
+    public static RadialTimePickerView.TimerSection findSectionForHour(int hour, ArrayList<RadialTimePickerView.TimerSection> timerSections) {
+        if (timerSections != null && timerSections.size() != 0) {
+            for (RadialTimePickerView.TimerSection timerSection : timerSections) {
+                if (timerSection.getHour() == hour || (timerSection.getHour() == 12 && hour == 0) || (timerSection.getHour() == 24 && hour == 12)) {
+                    return timerSection;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static float findStartAngleForGivenMinutesAndHours(int minutes, RadialTimePickerView.TimerSection timerSection) {
+        if (timerSection != null) {
+            switch (minutes) {
+                case 0:
+                    return timerSection.getSectionStartAngles().get(2);
+                case 15:
+                    return timerSection.getSectionStartAngles().get(3);
+                case 30:
+                    return timerSection.getSectionStartAngles().get(3) + 7.5f;
+                case 45:
+                    return timerSection.getSectionStartAngles().get(3) + 15f;
+            }
+        }
+        return -1.0f;
+    }
+
+    public static float mapStartAngleToDrawArcAngle(float startAngle) {
+        if (startAngle < 90) {
+            return 360 - (90 - startAngle);
+        } else {
+            return startAngle - 90;
+        }
+    }
 }
