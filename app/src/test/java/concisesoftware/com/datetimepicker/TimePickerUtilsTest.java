@@ -375,4 +375,15 @@ public class TimePickerUtilsTest {
         assertTrue(mappedAngle == 280);
     }
 
+    @Test
+    public void isEnteredTimePm() {
+        assertTrue(TimePickerUtils.isEnteredTimePm(13, 0));
+        assertTrue(TimePickerUtils.isEnteredTimePm(12, 45));
+        assertFalse(TimePickerUtils.isEnteredTimePm(11, 45));
+        assertFalse(TimePickerUtils.isEnteredTimePm(0, 15));
+        assertFalse(TimePickerUtils.isEnteredTimePm(12, 0));
+        assertFalse(TimePickerUtils.isEnteredTimePm(5, 0));
+        assertTrue(TimePickerUtils.isEnteredTimePm(23, 45));
+    }
+
 }

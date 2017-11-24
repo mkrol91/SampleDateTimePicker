@@ -729,10 +729,13 @@ public class RadialTimePickerView extends View {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
-        TimerSection timerSection = TimePickerUtils.findSectionForHour(4, timerSections);
-        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
+        int startHour = 0;
+        int startMinute = 15;
+        TimerSection timerSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
+        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(startMinute, timerSection);
         Log.i("test", "startAngle:" + startAngle);
         float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
+        boolean isEnteredTimePm = TimePickerUtils.isEnteredTimePm(startHour, startMinute);
 
 //        float startAngle = TimePickerUtils.getStartBlockingAngleForTime(11, 15, timerSections);
 //        generateHourToStartAngleMap(hoursCount, startArcAngles);
@@ -750,7 +753,9 @@ public class RadialTimePickerView extends View {
 
         paint.setColor(inactiveHoursBackgroundColor);
         float sweepAngle = unitWidth * 4;
-        canvas.drawArc(rectF, drawArcAngle, sweepAngle, true, paint);
+        if (isPm == isEnteredTimePm) {
+            canvas.drawArc(rectF, drawArcAngle, sweepAngle, true, paint);
+        }
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);

@@ -233,4 +233,13 @@ public class TimePickerUtils {
             return startAngle - 90;
         }
     }
+
+    public static boolean isEnteredTimePm(int hour, int minute) {
+        if (hour == 12 && minute == 0) {
+            return false;
+        } else if (hour >= 12) {
+            return true;
+        }
+        return false;
+    }
 }
