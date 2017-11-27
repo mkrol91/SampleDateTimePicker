@@ -186,6 +186,7 @@ public class RadialTimePickerView extends View {
     private float selCenterX;
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
+    private int blockNextTouch = 0;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -722,6 +723,7 @@ public class RadialTimePickerView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
+        Log.i("hourTest:", "onDraw");
 
         final int hoursCount = HOURS_IN_CIRCLE;
         final float fullAngle = 360;
@@ -1117,25 +1119,27 @@ public class RadialTimePickerView extends View {
                 }
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
-            }
-        }
+
 
 //        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
 //            return false;
 //        }
 
-        if (valueChanged || forceSelection || autoAdvance) {
-            // Fire the listener even if we just need to auto-advance.
-            if (mListener != null) {
-                mListener.onValueSelected(type, newValue, autoAdvance);
-            }
+                if (valueChanged || forceSelection || autoAdvance) {
+                    // Fire the listener even if we just need to auto-advance.
+                    if (mListener != null) {
+                        mListener.onValueSelected(type, newValue, autoAdvance);
+                    }
 
-            // Only provide feedback if the value actually changed.
-            if (valueChanged || forceSelection) {
-                SUtils.vibrateForTimePicker(this);
-                invalidate();
+                    // Only provide feedback if the value actually changed.
+                    if (valueChanged || forceSelection) {
+                        SUtils.vibrateForTimePicker(this);
+                        invalidate();
+                    }
+                    return true;
+                }
+
             }
-            return true;
         }
 
         return false;

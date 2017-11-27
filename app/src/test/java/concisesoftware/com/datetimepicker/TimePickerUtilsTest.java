@@ -446,6 +446,25 @@ public class TimePickerUtilsTest {
         endTime = new Pair<>(13, 30);
         assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
 
+        selectedTime = new Pair<>(8, 15);
+        startTime = new Pair<>(8, 15);
+        endTime = new Pair<>(11, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(11, 30);
+        startTime = new Pair<>(8, 15);
+        endTime = new Pair<>(11, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(24, 0);
+        startTime = new Pair<>(24, 0);
+        endTime = new Pair<>(14, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(13, 0);
+        startTime = new Pair<>(24, 0);
+        endTime = new Pair<>(24, 0);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
     }
 
 }

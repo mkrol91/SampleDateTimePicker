@@ -287,17 +287,17 @@ public class TimePickerUtils {
         int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
 
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
-            return selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= endTimeMin;
+            return selectedTimeInMin > startTimeInMin && selectedTimeInMin < endTimeMin;
         } else if (isSelectedPm && isStartPm) {
-            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
+            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin < twentyFourInMin) {
                 return true;
             }
         } else if ((!isSelectedPm && isStartPm && !isEndPm) || (isSelectedPm && isEndPm)) {
-            if (selectedTimeInMin <= endTimeMin) {
+            if (selectedTimeInMin < endTimeMin) {
                 return true;
             }
         } else if (!isSelectedPm && !isStartPm) {
-            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twelveInMin) {
+            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin < twelveInMin) {
                 return true;
             }
         }
