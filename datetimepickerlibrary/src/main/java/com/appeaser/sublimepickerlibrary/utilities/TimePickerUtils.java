@@ -210,17 +210,18 @@ public class TimePickerUtils {
         return null;
     }
 
-    public static float findStartAngleForGivenMinutesAndHours(int minutes, RadialTimePickerView.TimerSection timerSection) {
-        if (timerSection != null) {
+    public static float findAngleForGivenMinutesAndHours(int minutes,
+                                                         RadialTimePickerView.TimerSection section) {
+        if (section != null) {
             switch (minutes) {
                 case 0:
-                    return timerSection.getSectionStartAngles().get(2);
+                    return section.getSectionStartAngles().get(2);
                 case 15:
-                    return timerSection.getSectionStartAngles().get(3);
+                    return section.getSectionStartAngles().get(3);
                 case 30:
-                    return timerSection.getSectionStartAngles().get(3) + 7.5f;
+                    return section.getSectionStartAngles().get(3) + 7.5f;
                 case 45:
-                    return timerSection.getSectionStartAngles().get(3) + 15f;
+                    return section.getSectionStartAngles().get(3) + 15f;
             }
         }
         return -1.0f;
@@ -241,5 +242,24 @@ public class TimePickerUtils {
             return true;
         }
         return false;
+    }
+
+    public static Pair<Float, Float> findSweepAngles(float startAngle, float endAngle, boolean isStartTimePm, boolean isEndTimePm) {
+        if (!isStartTimePm && !isEndTimePm) {
+            if (endAngle > startAngle) {
+                float amSweep = endAngle - startAngle;
+                return new Pair<>(amSweep, null);
+            }
+        } else if (isStartTimePm && isEndTimePm) {
+            if (endAngle > startAngle) {
+                float pmSwep = endAngle - startAngle;
+                return new Pair<>(null, pmSwep);
+            }
+        } else if (!isStartTimePm && isEndTimePm) {
+            float amSweep = 360 - startAngle;
+            float pmSweep = endAngle;
+            return new Pair<>(amSweep, endAngle);
+        }
+        return null;
     }
 }

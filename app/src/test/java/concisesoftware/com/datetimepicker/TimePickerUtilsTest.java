@@ -329,40 +329,40 @@ public class TimePickerUtilsTest {
         ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
 
         RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(12, timerSections);
-        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
-        assertTrue(startAngle == 7.5f);
+        float angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(angle == 7.5f);
 
         timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
-        assertTrue(startAngle == 7.5f);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(angle == 7.5f);
 
         timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(30, timerSection);
-        assertTrue(startAngle == 15);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(30, timerSection);
+        assertTrue(angle == 15);
 
         timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(30, timerSection);
-        assertTrue(startAngle == 15);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(30, timerSection);
+        assertTrue(angle == 15);
 
         timerSection = TimePickerUtils.findSectionForHour(1, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(15, timerSection);
-        assertTrue(startAngle == 37.5f);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
+        assertTrue(angle == 37.5f);
 
         timerSection = TimePickerUtils.findSectionForHour(11, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(45, timerSection);
-        assertTrue(startAngle == 352.5f);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(45, timerSection);
+        assertTrue(angle == 352.5f);
 
         timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
-        assertTrue(startAngle == 0);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(0, timerSection);
+        assertTrue(angle == 0);
 
         timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(45, timerSection);
-        assertTrue(startAngle == 22.5);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(45, timerSection);
+        assertTrue(angle == 22.5);
 
         timerSection = TimePickerUtils.findSectionForHour(24, getTimerSections(true));
-        startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(0, timerSection);
-        assertTrue(startAngle == 0);
+        angle = TimePickerUtils.findAngleForGivenMinutesAndHours(0, timerSection);
+        assertTrue(angle == 0);
     }
 
     @Test

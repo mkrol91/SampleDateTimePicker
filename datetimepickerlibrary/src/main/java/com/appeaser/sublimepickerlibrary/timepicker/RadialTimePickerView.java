@@ -729,19 +729,20 @@ public class RadialTimePickerView extends View {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
-        int startHour = 0;
+        int startHour = 9;
         int startMinute = 15;
-        TimerSection timerSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
-        float startAngle = TimePickerUtils.findStartAngleForGivenMinutesAndHours(startMinute, timerSection);
-        Log.i("test", "startAngle:" + startAngle);
-        float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
-        boolean isEnteredTimePm = TimePickerUtils.isEnteredTimePm(startHour, startMinute);
+        int endHour = 22;
+        int endMinute = 45;
 
-//        float startAngle = TimePickerUtils.getStartBlockingAngleForTime(11, 15, timerSections);
-//        generateHourToStartAngleMap(hoursCount, startArcAngles);
-        //  TimePickerUtils.getHoursToCheck();
-        // hoursToCheck = TimePickerUtils.getHoursToCheck(11, 12);
-//
+        TimerSection startSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
+        float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(startMinute, startSection);
+        TimerSection endSection = TimePickerUtils.findSectionForHour(endHour, timerSections);
+        float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(endMinute, endSection);
+        boolean isStartTimePm = TimePickerUtils.isEnteredTimePm(startHour, startMinute);
+        boolean isEndTimePm = TimePickerUtils.isEnteredTimePm(endHour, endMinute);
+        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
+                isStartTimePm, isEndTimePm);
+
         Paint paint = new Paint();
         // smooths
         paint.setColor(activeHoursBackgroundColor);
@@ -752,9 +753,15 @@ public class RadialTimePickerView extends View {
         canvas.drawOval(rectF, paint);
 
         paint.setColor(inactiveHoursBackgroundColor);
-        float sweepAngle = unitWidth * 4;
-        if (isPm == isEnteredTimePm) {
-            canvas.drawArc(rectF, drawArcAngle, sweepAngle, true, paint);
+
+        float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
+        if (sweepAngles != null) {
+            if (!isPm && sweepAngles.first != null) {
+                canvas.drawArc(rectF, drawArcAngle, sweepAngles.first, true, paint);
+            }
+            if (isPm && sweepAngles.second != null) {
+                canvas.drawArc(rectF, drawArcAngle, sweepAngles.second, true, paint);
+            }
         }
 
         drawHours(canvas, alphaMod, hoursToCheck);
