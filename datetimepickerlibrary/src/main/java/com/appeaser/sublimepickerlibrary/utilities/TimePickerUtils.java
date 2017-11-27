@@ -255,10 +255,12 @@ public class TimePickerUtils {
                 float pmSwep = endAngle - startAngle;
                 return new Pair<>(null, pmSwep);
             }
-        } else if (!isStartTimePm && isEndTimePm) {
+        } else if (!isStartTimePm) {
             float amSweep = 360 - startAngle;
-            float pmSweep = endAngle;
             return new Pair<>(amSweep, endAngle);
+        } else {
+            float pmSweep = 360 - startAngle;
+            return new Pair<>(endAngle, pmSweep);
         }
         return null;
     }

@@ -729,9 +729,9 @@ public class RadialTimePickerView extends View {
         ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
-        int startHour = 9;
-        int startMinute = 15;
-        int endHour = 22;
+        int startHour = 18;
+        int startMinute = 0;
+        int endHour = 5;
         int endMinute = 45;
 
         TimerSection startSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
