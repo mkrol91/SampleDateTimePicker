@@ -202,7 +202,8 @@ public class TimePickerUtils {
     public static RadialTimePickerView.TimerSection findSectionForHour(int hour, ArrayList<RadialTimePickerView.TimerSection> timerSections) {
         if (timerSections != null && timerSections.size() != 0) {
             for (RadialTimePickerView.TimerSection timerSection : timerSections) {
-                if (timerSection.getHour() == hour || (timerSection.getHour() == 12 && hour == 0) || (timerSection.getHour() == 24 && hour == 12)) {
+                if (timerSection.getHour() == hour || (timerSection.getHour() == 12 && hour == 0)
+                        || (timerSection.getHour() == 24 && hour == 12)) {
                     return timerSection;
                 }
             }
@@ -235,7 +236,7 @@ public class TimePickerUtils {
         }
     }
 
-    public static boolean isEnteredTimePm(int hour, int minute) {
+    public static boolean isTimePm(int hour, int minute) {
         if (hour == 12 && minute == 0) {
             return false;
         } else if (hour >= 12) {
@@ -263,5 +264,44 @@ public class TimePickerUtils {
             return new Pair<>(endAngle, pmSweep);
         }
         return null;
+    }
+
+    public static int getTimeAsMinutes(int startHour, int startMinute) {
+        return startHour * 60 + startMinute;
+    }
+
+    public static Pair<Integer, Integer> timeInMinutesAsHourAndMin(int timeInMinutes) {
+        return new Pair<>(timeInMinutes / 60, timeInMinutes % 60);
+    }
+
+    public static boolean isTimeBetweenTimes(Pair<Integer, Integer> selectedTime,
+                                             Pair<Integer, Integer> startHourAndMin,
+                                             Pair<Integer, Integer> endHourAndMin) {
+        boolean isSelectedPm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
+        boolean isStartPm = TimePickerUtils.isTimePm(startHourAndMin.first, startHourAndMin.second);
+        boolean isEndPm = TimePickerUtils.isTimePm(endHourAndMin.first, endHourAndMin.second);
+        int selectedTimeInMin = TimePickerUtils.getTimeAsMinutes(selectedTime.first, selectedTime.second);
+        int startTimeInMin = TimePickerUtils.getTimeAsMinutes(startHourAndMin.first, startHourAndMin.second);
+        int endTimeMin = TimePickerUtils.getTimeAsMinutes(endHourAndMin.first, endHourAndMin.second);
+        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, 0);
+        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
+
+        if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
+            return selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= endTimeMin;
+        } else if (isSelectedPm && isStartPm) {
+            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
+                return true;
+            }
+        } else if ((!isSelectedPm && isStartPm && !isEndPm) || (isSelectedPm && isEndPm)) {
+            if (selectedTimeInMin <= endTimeMin) {
+                return true;
+            }
+        } else if (!isSelectedPm && !isStartPm) {
+            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twelveInMin) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

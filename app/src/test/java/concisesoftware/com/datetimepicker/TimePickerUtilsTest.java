@@ -377,13 +377,75 @@ public class TimePickerUtilsTest {
 
     @Test
     public void isEnteredTimePm() {
-        assertTrue(TimePickerUtils.isEnteredTimePm(13, 0));
-        assertTrue(TimePickerUtils.isEnteredTimePm(12, 45));
-        assertFalse(TimePickerUtils.isEnteredTimePm(11, 45));
-        assertFalse(TimePickerUtils.isEnteredTimePm(0, 15));
-        assertFalse(TimePickerUtils.isEnteredTimePm(12, 0));
-        assertFalse(TimePickerUtils.isEnteredTimePm(5, 0));
-        assertTrue(TimePickerUtils.isEnteredTimePm(23, 45));
+        assertTrue(TimePickerUtils.isTimePm(13, 0));
+        assertTrue(TimePickerUtils.isTimePm(12, 45));
+        assertFalse(TimePickerUtils.isTimePm(11, 45));
+        assertFalse(TimePickerUtils.isTimePm(0, 15));
+        assertFalse(TimePickerUtils.isTimePm(12, 0));
+        assertFalse(TimePickerUtils.isTimePm(5, 0));
+        assertTrue(TimePickerUtils.isTimePm(23, 45));
+    }
+
+    @Test
+    public void timeAsMinAndRevert() {
+        int timeAsMinutes = TimePickerUtils.getTimeAsMinutes(12, 45);
+        Pair<Integer, Integer> time = TimePickerUtils.timeInMinutesAsHourAndMin(timeAsMinutes);
+        assertTrue(time.first == 12);
+        assertTrue(time.second == 45);
+
+        timeAsMinutes = TimePickerUtils.getTimeAsMinutes(0, 0);
+        time = TimePickerUtils.timeInMinutesAsHourAndMin(timeAsMinutes);
+        assertTrue(time.first == 0);
+        assertTrue(time.second == 0);
+    }
+
+    @Test
+    public void isTimeBetweenTimesTest() {
+        Pair<Integer, Integer> selectedTime = new Pair<>(6, 15);
+        Pair<Integer, Integer> startTime = new Pair<>(8, 30);
+        Pair<Integer, Integer> endTime = new Pair<>(11, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(8, 15);
+        startTime = new Pair<>(8, 30);
+        endTime = new Pair<>(11, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(8, 45);
+        startTime = new Pair<>(8, 30);
+        endTime = new Pair<>(11, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(18, 45);
+        startTime = new Pair<>(15, 30);
+        endTime = new Pair<>(19, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(23, 45);
+        startTime = new Pair<>(15, 30);
+        endTime = new Pair<>(19, 30);
+        assertFalse(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(23, 45);
+        startTime = new Pair<>(15, 30);
+        endTime = new Pair<>(5, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(0, 45);
+        startTime = new Pair<>(15, 30);
+        endTime = new Pair<>(5, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(12, 30);
+        startTime = new Pair<>(10, 30);
+        endTime = new Pair<>(13, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(11, 30);
+        startTime = new Pair<>(10, 30);
+        endTime = new Pair<>(13, 30);
+        assertTrue(TimePickerUtils.isTimeBetweenTimes(selectedTime, startTime, endTime));
+
     }
 
 }

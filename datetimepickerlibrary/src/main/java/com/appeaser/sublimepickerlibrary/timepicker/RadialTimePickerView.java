@@ -59,6 +59,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * View to show a clock circle picker (with one or two picking circles)
@@ -184,6 +185,7 @@ public class RadialTimePickerView extends View {
     private ArrayList<TimerSection> timerSections;
     private float selCenterX;
     private float selCenterY;
+    private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -742,14 +744,16 @@ public class RadialTimePickerView extends View {
         int startMinute = 15;
         int endHour = 14;
         int endMinute = 45;
-
+        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
+                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
         drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
         startHour = 23;
         startMinute = 0;
         endHour = 4;
         endMinute = 0;
-
+        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
+                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
         drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
         drawHours(canvas, alphaMod, hoursToCheck);
@@ -762,8 +766,8 @@ public class RadialTimePickerView extends View {
         float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(startMinute, startSection);
         TimerSection endSection = TimePickerUtils.findSectionForHour(endHour, timerSections);
         float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(endMinute, endSection);
-        boolean isStartTimePm = TimePickerUtils.isEnteredTimePm(startHour, startMinute);
-        boolean isEndTimePm = TimePickerUtils.isEnteredTimePm(endHour, endMinute);
+        boolean isStartTimePm = TimePickerUtils.isTimePm(startHour, startMinute);
+        boolean isEndTimePm = TimePickerUtils.isTimePm(endHour, endMinute);
         Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
                 isStartTimePm, isEndTimePm);
 
@@ -1079,18 +1083,41 @@ public class RadialTimePickerView extends View {
                 int hour = sectionForDegrees.getHour();
                 int unassignedQuarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(degrees,
                         sectionForDegrees);
-                Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(hour,
+                Pair<Integer, Integer> selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
                         unassignedQuarter,
                         isDegreesCloserToStartDegree, isPm);
-                Log.i("timerTest", "hour:" + timeAsPair.first + " minute:" + timeAsPair.second);
-            }
+                Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
 
-            valueChanged = mIsOnInnerCircle != isOnInnerCircle
-                    || mSelectionDegrees[HOURS] != snapDegrees;
-            mIsOnInnerCircle = isOnInnerCircle;
-            mSelectionDegrees[HOURS] = (int) snapDegrees;
-            type = HOURS;
-            newValue = getCurrentHour();
+
+                valueChanged = mIsOnInnerCircle != isOnInnerCircle
+                        || mSelectionDegrees[HOURS] != snapDegrees;
+                mIsOnInnerCircle = isOnInnerCircle;
+                mSelectionDegrees[HOURS] = (int) snapDegrees;
+                type = HOURS;
+                newValue = getCurrentHour();
+
+                Log.i("hourTest:", "-----------------------------");
+                boolean isInJoinedAreas = false;
+                for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
+                    Integer startTimeInMin = entry.getKey();
+                    Integer endTimeInMin = entry.getValue();
+                    Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
+                    Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
+                    Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
+                    Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
+                    Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
+
+                    isInJoinedAreas |= TimePickerUtils.isTimeBetweenTimes(selectedTime,
+                            startHourAndMin, endHourAndMin);
+                    Log.i("hourTest:", TimePickerUtils.isTimeBetweenTimes(selectedTime,
+                            startHourAndMin, endHourAndMin) + "");
+                }
+                if (isInJoinedAreas) {
+                    return false;
+                }
+
+                Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
+            }
         }
 
 //        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
