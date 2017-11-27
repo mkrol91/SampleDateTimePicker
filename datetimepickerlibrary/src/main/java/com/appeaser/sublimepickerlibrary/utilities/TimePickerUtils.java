@@ -289,7 +289,7 @@ public class TimePickerUtils {
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
             return selectedTimeInMin > startTimeInMin && selectedTimeInMin < endTimeMin;
         } else if (isSelectedPm && isStartPm) {
-            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin < twentyFourInMin) {
+            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
                 return true;
             }
         } else if ((!isSelectedPm && isStartPm && !isEndPm) || (isSelectedPm && isEndPm)) {
@@ -297,7 +297,7 @@ public class TimePickerUtils {
                 return true;
             }
         } else if (!isSelectedPm && !isStartPm) {
-            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin < twelveInMin) {
+            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twelveInMin) {
                 return true;
             }
         }
