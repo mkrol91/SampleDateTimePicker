@@ -169,7 +169,7 @@ public class TimePickerUtilsTest {
         assertTrue(timeAsPair.second == 45);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 2, false, true);
-        assertTrue(timeAsPair.first == 0);
+        assertTrue(timeAsPair.first == 12);
         assertTrue(timeAsPair.second == 0);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(12, 3, true, true);
@@ -215,6 +215,13 @@ public class TimePickerUtilsTest {
         assertTrue(sectionForDegrees.getHour() == 6);
         sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, 355);
         assertTrue(sectionForDegrees.getHour() == 0);
+    }
+
+    @Test
+    public void findSweepAnglesTest() {
+        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(270, 90,
+                false, true);
+        assertTrue(sweepAngles.second == 90);
     }
 
     @Test
@@ -390,6 +397,7 @@ public class TimePickerUtilsTest {
         assertTrue(angle == 0);
     }
 
+
     @Test
     public void mapStartAngleToDrawArcAngleTest() {
         float mappedAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(90);
@@ -406,7 +414,7 @@ public class TimePickerUtilsTest {
         assertTrue(TimePickerUtils.isTimePm(12, 45));
         assertFalse(TimePickerUtils.isTimePm(11, 45));
         assertFalse(TimePickerUtils.isTimePm(0, 15));
-        assertFalse(TimePickerUtils.isTimePm(12, 0));
+        assertTrue(TimePickerUtils.isTimePm(12, 0));
         assertFalse(TimePickerUtils.isTimePm(5, 0));
         assertTrue(TimePickerUtils.isTimePm(23, 45));
     }
@@ -430,15 +438,15 @@ public class TimePickerUtilsTest {
         Pair<Integer, Integer> startTime = new Pair<>(5, 0);
         Pair<Integer, Integer> endTime = new Pair<>(6, 0);
 
-        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(6, 0);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(11, 45);
         startTime = new Pair<>(6, 15);
         endTime = new Pair<>(11, 45);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
     }
 
     @Test
@@ -491,12 +499,12 @@ public class TimePickerUtilsTest {
         selectedTime = new Pair<>(8, 15);
         startTime = new Pair<>(8, 15);
         endTime = new Pair<>(11, 30);
-        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(11, 30);
         startTime = new Pair<>(8, 15);
         endTime = new Pair<>(11, 30);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(24, 0);
         startTime = new Pair<>(24, 0);

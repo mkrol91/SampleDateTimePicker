@@ -82,7 +82,6 @@ public class RadialTimePickerView extends View {
     private static final int ALPHA_TRANSPARENT = 0;
     private static final int HOURS_IN_CIRCLE = 12;
     public static final float UNIT_WIDTH = FULL_ANGLE_FLOAT / HOURS_IN_CIRCLE / 4;
-    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int MINUTES_IN_CIRCLE = 60;
     private static final int DEGREES_FOR_ONE_HOUR = FULL_ANGLE / HOURS_IN_CIRCLE;
     private static final int DEGREES_FOR_ONE_MINUTE = FULL_ANGLE / MINUTES_IN_CIRCLE;
@@ -90,6 +89,7 @@ public class RadialTimePickerView extends View {
     private static final int FADE_OUT_DURATION = 500;
     private static final int FADE_IN_DURATION = 500;
     private static final int[] SNAP_PREFER_30S_MAP = new int[361];
+    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
@@ -759,13 +759,20 @@ public class RadialTimePickerView extends View {
         paint.setColor(inactiveHoursBackgroundColor);
 
         float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
-        if (sweepAngles != null) {
-            if (!isPm && sweepAngles.first != null) {
-                canvas.drawArc(rectF, drawArcAngle, sweepAngles.first, true, paint);
+
+
+        if (!isPm && sweepAngles.first != null) {
+            canvas.drawArc(rectF, drawArcAngle, sweepAngles.first, true, paint);
+        }
+        if (isPm && sweepAngles.second != null) {
+            float finalStartDrawingAngle = drawArcAngle;
+            float finalSweepAngle = sweepAngles.second;
+            if (!isStartTimePm && isEndTimePm && drawArcAngle == 270) {
+                finalStartDrawingAngle = drawArcAngle - UNIT_WIDTH;
+                finalSweepAngle = sweepAngles.second + UNIT_WIDTH;
             }
-            if (isPm && sweepAngles.second != null) {
-                canvas.drawArc(rectF, drawArcAngle, sweepAngles.second, true, paint);
-            }
+
+            canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
         }
     }
 

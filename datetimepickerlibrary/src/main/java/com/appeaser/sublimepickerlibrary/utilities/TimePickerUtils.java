@@ -195,7 +195,7 @@ public class TimePickerUtils {
             if (hour == 0) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 45) : new Pair<>(0, 0);
             } else if (hour == 12) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 45) : new Pair<>(0, 0);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 45) : new Pair<>(HOURS_12, 0);
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
@@ -250,7 +250,7 @@ public class TimePickerUtils {
 
     public static boolean isTimePm(int hour, int minute) {
         if (hour == 12 && minute == 0) {
-            return false;
+            return true;
         } else if (hour == 12 && minute > 0) {
             return true;
         } else if (hour > 12) {
@@ -259,8 +259,9 @@ public class TimePickerUtils {
         return false;
     }
 
-    public static Pair<Float, Float> findSweepAngles(float startAngle, float endAngle,
-                                                     boolean isStartTimePm, boolean isEndTimePm) {
+    public static @NonNull
+    Pair<Float, Float> findSweepAngles(float startAngle, float endAngle,
+                                       boolean isStartTimePm, boolean isEndTimePm) {
         Float amSweep = null;
         Float pmSweep = null;
         if (!isStartTimePm && !isEndTimePm && endAngle > startAngle) {
@@ -305,8 +306,13 @@ public class TimePickerUtils {
         int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, 0);
         int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
 
+        //edge case
+        if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin) {
+            return true;
+        }
+
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
-            return selectedTimeInMin >= startTimeInMin && selectedTimeInMin < endTimeMin;
+            return selectedTimeInMin > startTimeInMin && selectedTimeInMin <= endTimeMin;
         } else if (isSelectedPm && isStartPm) {
             if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
                 return true;
@@ -323,10 +329,4 @@ public class TimePickerUtils {
         return false;
     }
 
-//    public static boolean shouldMidnightBeSelectable(Pair<Integer, Integer> selectedTime) {
-//        boolean isSelectedPm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
-//        int selectedTimeInMin = TimePickerUtils.getTimeAsMinutes(selectedTime.first, selectedTime.second);
-//        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, 0);
-//        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
-//    }
 }
