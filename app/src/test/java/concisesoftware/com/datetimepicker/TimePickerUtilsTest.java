@@ -352,7 +352,7 @@ public class TimePickerUtilsTest {
     public void findStartAngleInSectionForGivenMinutesTest() {
         ArrayList<RadialTimePickerView.TimerSection> timerSections = getTimerSections();
 
-        RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(12, timerSections);
+        RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
         float angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
         assertTrue(angle == 7.5f);
 
@@ -364,7 +364,7 @@ public class TimePickerUtilsTest {
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(30, timerSection);
         assertTrue(angle == 15);
 
-        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(30, timerSection);
         assertTrue(angle == 15);
 
@@ -376,15 +376,15 @@ public class TimePickerUtilsTest {
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(45, timerSection);
         assertTrue(angle == 352.5f);
 
-        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(0, timerSection);
         assertTrue(angle == 0);
 
-        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(false));
+        timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(45, timerSection);
         assertTrue(angle == 22.5);
 
-        timerSection = TimePickerUtils.findSectionForHour(24, getTimerSections(true));
+        timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(0, timerSection);
         assertTrue(angle == 0);
     }
@@ -490,7 +490,7 @@ public class TimePickerUtilsTest {
         selectedTime = new Pair<>(8, 15);
         startTime = new Pair<>(8, 15);
         endTime = new Pair<>(11, 30);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(11, 30);
         startTime = new Pair<>(8, 15);
