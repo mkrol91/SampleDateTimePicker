@@ -110,7 +110,7 @@ public class TimePickerUtils {
                 timerSection.setSectionStartAngles(sectionsStartAngles);
 
                 if (i == 0) {
-                    timerSection.setHour(isPm ? HOURS_12 + 12 : HOURS_12);
+                    timerSection.setHour(isPm ? HOURS_12 : 0);
                 } else {
                     timerSection.setHour(isPm ? ++hour + 12 : ++hour);
                 }
@@ -182,17 +182,26 @@ public class TimePickerUtils {
 
     public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree, boolean isPm) {
         if (unassignedQuarter == 1) {
+            if (hour == 0) {
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 30) : new Pair<>(HOURS_12 - 1, 45);
+            } else if (hour == 12) {
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 30) : new Pair<>(HOURS_24 - 1, 45);
+            }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 30) : new Pair<>(hour - 1, 45);
         } else if (unassignedQuarter == 2) {
+            if (hour == 0) {
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 45) : new Pair<>(0, 0);
+            } else if (hour == 12) {
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 45) : new Pair<>(0, 0);
+            }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
-            if (hour == 12 || hour == 24) {
-                return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour - 12, 15);
-            }
             return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour, 15);
         } else if (unassignedQuarter == 4) {
-            if (hour == 12 || hour == 24) {
-                return isDegreesCloserToStartDegree ? new Pair<>(hour - 12, 15) : new Pair<>(hour - 12, 30);
+            if (hour == 0) {
+                return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
+            } else if (hour == 12) {
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12, 15) : new Pair<>(HOURS_12, 30);
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
         }
@@ -239,13 +248,17 @@ public class TimePickerUtils {
     public static boolean isTimePm(int hour, int minute) {
         if (hour == 12 && minute == 0) {
             return false;
-        } else if (hour >= 12) {
+        } else if (hour == 12 && minute > 0) {
+            return true;
+        } else if (hour > 12) {
             return true;
         }
         return false;
     }
 
     public static Pair<Float, Float> findSweepAngles(float startAngle, float endAngle, boolean isStartTimePm, boolean isEndTimePm) {
+//        final float donAllowSelectUpperBoundaryOffset = 7.5f;
+//        endAngle += donAllowSelectUpperBoundaryOffset;
         if (!isStartTimePm && !isEndTimePm) {
             if (endAngle > startAngle) {
                 float amSweep = endAngle - startAngle;
@@ -274,9 +287,9 @@ public class TimePickerUtils {
         return new Pair<>(timeInMinutes / 60, timeInMinutes % 60);
     }
 
-    public static boolean isTimeBetweenTimes(Pair<Integer, Integer> selectedTime,
-                                             Pair<Integer, Integer> startHourAndMin,
-                                             Pair<Integer, Integer> endHourAndMin) {
+    public static boolean isSelectedInBlockedArea(Pair<Integer, Integer> selectedTime,
+                                                  Pair<Integer, Integer> startHourAndMin,
+                                                  Pair<Integer, Integer> endHourAndMin) {
         boolean isSelectedPm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
         boolean isStartPm = TimePickerUtils.isTimePm(startHourAndMin.first, startHourAndMin.second);
         boolean isEndPm = TimePickerUtils.isTimePm(endHourAndMin.first, endHourAndMin.second);
@@ -287,7 +300,7 @@ public class TimePickerUtils {
         int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
 
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
-            return selectedTimeInMin > startTimeInMin && selectedTimeInMin < endTimeMin;
+            return selectedTimeInMin >= startTimeInMin && selectedTimeInMin < endTimeMin;
         } else if (isSelectedPm && isStartPm) {
             if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
                 return true;
@@ -301,7 +314,13 @@ public class TimePickerUtils {
                 return true;
             }
         }
-
         return false;
     }
+
+//    public static boolean shouldMidnightBeSelectable(Pair<Integer, Integer> selectedTime) {
+//        boolean isSelectedPm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
+//        int selectedTimeInMin = TimePickerUtils.getTimeAsMinutes(selectedTime.first, selectedTime.second);
+//        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, 0);
+//        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
+//    }
 }

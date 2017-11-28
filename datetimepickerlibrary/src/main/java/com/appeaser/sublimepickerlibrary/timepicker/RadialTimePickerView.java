@@ -750,13 +750,13 @@ public class RadialTimePickerView extends View {
                 TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
         drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
-        startHour = 23;
-        startMinute = 0;
-        endHour = 4;
-        endMinute = 0;
-        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
+//        startHour = 23;
+//        startMinute = 0;
+//        endHour = 4;
+//        endMinute = 0;
+//        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
+//                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
+//        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);
@@ -1109,9 +1109,9 @@ public class RadialTimePickerView extends View {
                     Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
                     Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
 
-                    isInJoinedAreas |= TimePickerUtils.isTimeBetweenTimes(selectedTime,
+                    isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
                             startHourAndMin, endHourAndMin);
-                    Log.i("hourTest:", TimePickerUtils.isTimeBetweenTimes(selectedTime,
+                    Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
                             startHourAndMin, endHourAndMin) + "");
                 }
                 if (isInJoinedAreas) {
