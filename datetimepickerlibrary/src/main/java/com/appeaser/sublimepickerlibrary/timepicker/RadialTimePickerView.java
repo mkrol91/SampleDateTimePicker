@@ -719,21 +719,23 @@ public class RadialTimePickerView extends View {
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, paint);
 
-        int startHour = 6;
-        int startMinute = 15;
-        int endHour = 14;
-        int endMinute = 45;
-        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
-
-//       startHour = 23;
-//       startMinute = 0;
-//       endHour = 4;
-//       endMinute = 0;
+        //this case works fine
+//        int startHour = 6;
+//        int startMinute = 15;
+//        int endHour = 14;
+//        int endMinute = 45;
 //        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
 //                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
 //        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
+
+        //TODO: fight with this case:
+       int startHour = 23;
+       int startMinute = 0;
+       int endHour = 4;
+       int endMinute = 0;
+        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
+                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
+        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);
