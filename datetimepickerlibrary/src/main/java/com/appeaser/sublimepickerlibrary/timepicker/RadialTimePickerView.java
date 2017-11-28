@@ -86,8 +86,9 @@ public class RadialTimePickerView extends View {
 
     private static final int HOURS_IN_CIRCLE = 12;
     private static final int MINUTES_IN_CIRCLE = 60;
-    private static final int DEGREES_FOR_ONE_HOUR = 360 / HOURS_IN_CIRCLE;
-    private static final int DEGREES_FOR_ONE_MINUTE = 360 / MINUTES_IN_CIRCLE;
+    public static final int FULL_ANGLE = 360;
+    private static final int DEGREES_FOR_ONE_HOUR = FULL_ANGLE / HOURS_IN_CIRCLE;
+    private static final int DEGREES_FOR_ONE_MINUTE = FULL_ANGLE / MINUTES_IN_CIRCLE;
 
     private static final int[] HOURS_NUMBERS_AM = {12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
@@ -99,6 +100,7 @@ public class RadialTimePickerView extends View {
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
+    private static final int ANGLE_NOT_FOUND = -1;
 
     static {
         // Prepare mapping to snap touchable degrees to selectable degrees.
@@ -251,7 +253,7 @@ public class RadialTimePickerView extends View {
             // the next expected count.
             if (count == expectedCount) {
                 snappedOutputDegrees += 6;
-                if (snappedOutputDegrees == 360) {
+                if (snappedOutputDegrees == FULL_ANGLE) {
                     expectedCount = 7;
                 } else if (snappedOutputDegrees % 30 == 0) {
                     expectedCount = 14;
@@ -726,7 +728,7 @@ public class RadialTimePickerView extends View {
         Log.i("hourTest:", "onDraw");
 
         final int hoursCount = HOURS_IN_CIRCLE;
-        final float fullAngle = 360;
+        final float fullAngle = FULL_ANGLE;
         float unitWidth = fullAngle / hoursCount / 4;
         int unitsCount = (int) (fullAngle / unitWidth);
 
@@ -750,10 +752,10 @@ public class RadialTimePickerView extends View {
                 TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
         drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
-//        startHour = 23;
-//        startMinute = 0;
-//        endHour = 4;
-//        endMinute = 0;
+//       startHour = 23;
+//       startMinute = 0;
+//       endHour = 4;
+//       endMinute = 0;
 //        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
 //                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
 //        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
@@ -766,8 +768,14 @@ public class RadialTimePickerView extends View {
                                   int startHour, int startMinute, int endHour, int endMinute) {
         TimerSection startSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
         float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(startMinute, startSection);
+        if (startAngle == ANGLE_NOT_FOUND) {
+            startAngle = 0;
+        }
         TimerSection endSection = TimePickerUtils.findSectionForHour(endHour, timerSections);
         float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(endMinute, endSection);
+        if (endAngle == ANGLE_NOT_FOUND) {
+            endAngle = 0;
+        }
         boolean isStartTimePm = TimePickerUtils.isTimePm(startHour, startMinute);
         boolean isEndTimePm = TimePickerUtils.isTimePm(endHour, endMinute);
         Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
@@ -1006,7 +1014,7 @@ public class RadialTimePickerView extends View {
         // Convert to degrees.
         final int degrees = (int) (Math.toDegrees(Math.atan2(dY, dX) + Math.PI / 2) + 0.5);
         if (degrees < 0) {
-            return degrees + 360;
+            return degrees + FULL_ANGLE;
         } else {
             return degrees;
         }
@@ -1361,7 +1369,7 @@ public class RadialTimePickerView extends View {
             final int id;
             final int degrees = getDegreesFromXY(x, y, true);
             if (degrees != -1) {
-                final int snapDegrees = snapOnly30s(degrees, 0) % 360;
+                final int snapDegrees = snapOnly30s(degrees, 0) % FULL_ANGLE;
                 if (mShowHours) {
                     final boolean isOnInnerCircle = getInnerCircleFromXY(x, y);
                     final int hour24 = getHourForDegrees(snapDegrees, isOnInnerCircle);

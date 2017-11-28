@@ -256,27 +256,30 @@ public class TimePickerUtils {
         return false;
     }
 
-    public static Pair<Float, Float> findSweepAngles(float startAngle, float endAngle, boolean isStartTimePm, boolean isEndTimePm) {
-//        final float donAllowSelectUpperBoundaryOffset = 7.5f;
-//        endAngle += donAllowSelectUpperBoundaryOffset;
-        if (!isStartTimePm && !isEndTimePm) {
-            if (endAngle > startAngle) {
-                float amSweep = endAngle - startAngle;
-                return new Pair<>(amSweep, null);
-            }
-        } else if (isStartTimePm && isEndTimePm) {
-            if (endAngle > startAngle) {
-                float pmSwep = endAngle - startAngle;
-                return new Pair<>(null, pmSwep);
-            }
+    public static Pair<Float, Float> findSweepAngles(float startAngle, float endAngle,
+                                                     boolean isStartTimePm, boolean isEndTimePm) {
+        Float amSweep = null;
+        Float pmSweep = null;
+        if (!isStartTimePm && !isEndTimePm && endAngle > startAngle) {
+            amSweep = endAngle - startAngle;
+        } else if (isStartTimePm && isEndTimePm && endAngle > startAngle) {
+            pmSweep = endAngle - startAngle;
         } else if (!isStartTimePm) {
-            float amSweep = 360 - startAngle;
-            return new Pair<>(amSweep, endAngle);
+            amSweep = FULL_ANGLE - startAngle;
+            pmSweep = endAngle;
         } else {
-            float pmSweep = 360 - startAngle;
-            return new Pair<>(endAngle, pmSweep);
+            amSweep = endAngle;
+            pmSweep = FULL_ANGLE - startAngle;
         }
-        return null;
+
+        return new Pair<>(amSweep, pmSweep);
+
+//        if (!isStartTimePm && isEndTimePm) {
+//            if (sweepAngles.first == FULL_ANGLE) {
+//                sweepAngles.first -= 7.5f;
+//            }
+//        }
+
     }
 
     public static int getTimeAsMinutes(int startHour, int startMinute) {
