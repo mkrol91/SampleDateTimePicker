@@ -65,38 +65,31 @@ import java.util.Map;
  * View to show a clock circle picker (with one or two picking circles)
  */
 public class RadialTimePickerView extends View {
+    public static final int FULL_ANGLE = 360;
+    public static final float FULL_ANGLE_FLOAT = FULL_ANGLE;
     private static final String TAG = RadialTimePickerView.class.getSimpleName();
-
     private static final int HOURS = 0;
     private static final int MINUTES = 1;
     private static final int HOURS_INNER = 2;
-
     private static final int SELECTOR_CIRCLE = 0;
     private static final int SELECTOR_DOT = 1;
     private static final int SELECTOR_LINE = 2;
-
     private static final int AM = 0;
     private static final int PM = 1;
-
     // Opaque alpha level
     private static final int ALPHA_OPAQUE = 255;
-
     // Transparent alpha level
     private static final int ALPHA_TRANSPARENT = 0;
-
     private static final int HOURS_IN_CIRCLE = 12;
+    public static final float UNIT_WIDTH = FULL_ANGLE_FLOAT / HOURS_IN_CIRCLE / 4;
+    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int MINUTES_IN_CIRCLE = 60;
-    public static final int FULL_ANGLE = 360;
     private static final int DEGREES_FOR_ONE_HOUR = FULL_ANGLE / HOURS_IN_CIRCLE;
     private static final int DEGREES_FOR_ONE_MINUTE = FULL_ANGLE / MINUTES_IN_CIRCLE;
-
     private static final int[] HOURS_NUMBERS_AM = {12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-
     private static final int FADE_OUT_DURATION = 500;
     private static final int FADE_IN_DURATION = 500;
-
     private static final int[] SNAP_PREFER_30S_MAP = new int[361];
-
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
@@ -117,14 +110,10 @@ public class RadialTimePickerView extends View {
 
     private final InvalidateUpdateListener mInvalidateUpdateListener =
             new InvalidateUpdateListener();
-
     private final String[] mHours12Texts = new String[12];
-
     private final Paint[] mPaint = new Paint[2];
     private final IntHolder[] mAlpha = new IntHolder[2];
-
     private final Paint mPaintCenter = new Paint();
-
     private final Paint[][] mPaintSelector = new Paint[2][3];
     private final Paint mPaintBackground = new Paint();
     private final ColorStateList[] mTextColor = new ColorStateList[3];
@@ -144,35 +133,26 @@ public class RadialTimePickerView extends View {
     private RadialPickerTouchHelper mTouchHelper;
     private boolean mIs24HourMode;
     private boolean mShowHours;
-
     /**
      * When in 24-hour mode, indicates that the current hour is between
      * 1 and 12 (inclusive).
      */
     private boolean mIsOnInnerCircle;
-
     private int mSelectorRadius;
     private int mSelectorStroke;
     private int mSelectorDotRadius;
     private int mCenterDotRadius;
-
     private int mXCenter;
     private int mYCenter;
     private int mCircleRadius;
-
     private int mMinDistForInnerNumber;
     private int mMaxDistForOuterNumber;
     private int mHalfwayDist;
-
     private String[] mOuterTextHours;
     private AnimatorSet mTransition;
-
     private int mAmOrPm;
-
     private float mDisabledAlpha;
-
     private OnValueSelectedListener mListener;
-
     private boolean mInputEnabled = true;
     private boolean mChangedDuringTouch = false;
     private int activeHoursBackgroundColor;
@@ -727,12 +707,7 @@ public class RadialTimePickerView extends View {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
         Log.i("hourTest:", "onDraw");
 
-        final int hoursCount = HOURS_IN_CIRCLE;
-        final float fullAngle = FULL_ANGLE;
-        float unitWidth = fullAngle / hoursCount / 4;
-        int unitsCount = (int) (fullAngle / unitWidth);
-
-        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(unitsCount, unitWidth);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(UNITS_COUNT, UNIT_WIDTH);
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
         Paint paint = new Paint();
