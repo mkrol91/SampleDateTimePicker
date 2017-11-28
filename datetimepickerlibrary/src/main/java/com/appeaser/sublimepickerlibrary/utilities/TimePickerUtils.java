@@ -7,6 +7,9 @@ import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
 
 import java.util.ArrayList;
 
+import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNITS_COUNT;
+import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNIT_WIDTH;
+
 /**
  * Created by Mirek on 07.11.2017.
  */
@@ -80,16 +83,16 @@ public class TimePickerUtils {
                 degrees >= startDrawingAngle && endDrawingAngle < startDrawingAngle;
     }
 
-    public static ArrayList<Float> generateTimerStartArcAngles(int unitsCount, float unitWidth) {
-        ArrayList<Float> startArcAngles = new ArrayList<>(unitsCount);
-        for (int i = 0; i < unitsCount; i++) {
-            float angle = i * unitWidth;
+    public static ArrayList<Float> generateTimerStartArcAngles() {
+        ArrayList<Float> startArcAngles = new ArrayList<>(UNITS_COUNT);
+        for (int i = 0; i < UNITS_COUNT; i++) {
+            float angle = i * UNIT_WIDTH;
             if (i == 0) {
-                startArcAngles.add(FULL_ANGLE - 2 * unitWidth);
+                startArcAngles.add(FULL_ANGLE - 2 * UNIT_WIDTH);
             } else if (i == 1) {
-                startArcAngles.add(FULL_ANGLE - unitWidth);
+                startArcAngles.add(FULL_ANGLE - UNIT_WIDTH);
             } else {
-                startArcAngles.add(angle - 2 * unitWidth);
+                startArcAngles.add(angle - 2 * UNIT_WIDTH);
             }
         }
         return startArcAngles;
@@ -126,7 +129,7 @@ public class TimePickerUtils {
             ArrayList<Float> sectionStartAngles = timerSection.getSectionStartAngles();
 
             Float startAngle = sectionStartAngles.get(0);
-            Float endAngle = sectionStartAngles.get(3) + 7.5f;
+            Float endAngle = sectionStartAngles.get(3) + UNIT_WIDTH;
 
             if ((degrees >= startAngle && degrees <= endAngle)) {
                 return timerSection;
@@ -158,7 +161,7 @@ public class TimePickerUtils {
         ArrayList<Float> sectionStartAngles = sectionForDegrees.getSectionStartAngles();
         if (sectionStartAngles != null) {
             for (Float startAngle : sectionStartAngles) {
-                if (degrees >= startAngle && degrees <= startAngle + 7.5f) {
+                if (degrees >= startAngle && degrees <= startAngle + UNIT_WIDTH) {
                     return startAngle;
                 }
             }
@@ -172,7 +175,7 @@ public class TimePickerUtils {
         if (sectionStartAngles != null) {
             for (int i = 0; i < sectionStartAngles.size(); i++) {
                 Float angle = sectionStartAngles.get(i);
-                if (degrees >= angle && degrees <= angle + 7.5f) {
+                if (degrees >= angle && degrees <= angle + UNIT_WIDTH) {
                     return i + 1;
                 }
             }
@@ -229,7 +232,7 @@ public class TimePickerUtils {
                 case 15:
                     return section.getSectionStartAngles().get(3);
                 case 30:
-                    return section.getSectionStartAngles().get(3) + 7.5f;
+                    return section.getSectionStartAngles().get(3) + UNIT_WIDTH;
                 case 45:
                     return section.getSectionStartAngles().get(3) + 15f;
             }
@@ -276,7 +279,7 @@ public class TimePickerUtils {
 
 //        if (!isStartTimePm && isEndTimePm) {
 //            if (sweepAngles.first == FULL_ANGLE) {
-//                sweepAngles.first -= 7.5f;
+//                sweepAngles.first -= UNIT_WIDTH;
 //            }
 //        }
 

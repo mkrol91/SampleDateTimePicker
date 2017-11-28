@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNIT_WIDTH;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -88,11 +89,11 @@ public class TimePickerUtilsTest {
 
     @Test
     public void generateTimerStartArcAngles() {
-        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles();
         assertTrue(startArcAngles.get(0) == 345f);
         assertTrue(startArcAngles.get(1) == 352.5f);
         assertTrue(startArcAngles.get(2) == 0.0f);
-        assertTrue(startArcAngles.get(3) == 7.5f);
+        assertTrue(startArcAngles.get(3) == UNIT_WIDTH);
     }
 
     @Test
@@ -193,7 +194,7 @@ public class TimePickerUtilsTest {
     }
 
     private ArrayList<RadialTimePickerView.TimerSection> getTimerSections(boolean isPm) {
-        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(48, 7.5f);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles();
         return TimePickerUtils.generateTimerSections(startArcAngles, isPm);
     }
 
@@ -227,10 +228,10 @@ public class TimePickerUtilsTest {
                         352.5f, 0f);
         assertFalse(isDegreesCloserToStartDegree);
         isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(4,
-                0f, 7.5f);
+                0f, UNIT_WIDTH);
         assertFalse(isDegreesCloserToStartDegree);
         isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(3,
-                0f, 7.5f);
+                0f, UNIT_WIDTH);
         assertTrue(isDegreesCloserToStartDegree);
         isDegreesCloserToStartDegree = TimePickerUtils.isDegreeCloserToStartDegree(29,
                 22.5f, 30f);
@@ -267,7 +268,7 @@ public class TimePickerUtilsTest {
         sectionAngles.add(345f);
         sectionAngles.add(352.5f);
         sectionAngles.add(0f);
-        sectionAngles.add(7.5f);
+        sectionAngles.add(UNIT_WIDTH);
         timerSection.setSectionStartAngles(sectionAngles);
         return timerSection;
     }
@@ -354,11 +355,11 @@ public class TimePickerUtilsTest {
 
         RadialTimePickerView.TimerSection timerSection = TimePickerUtils.findSectionForHour(12, getTimerSections(true));
         float angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
-        assertTrue(angle == 7.5f);
+        assertTrue(angle == UNIT_WIDTH);
 
         timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(15, timerSection);
-        assertTrue(angle == 7.5f);
+        assertTrue(angle == UNIT_WIDTH);
 
         timerSection = TimePickerUtils.findSectionForHour(0, getTimerSections(false));
         angle = TimePickerUtils.findAngleForGivenMinutesAndHours(30, timerSection);

@@ -707,7 +707,7 @@ public class RadialTimePickerView extends View {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
         Log.i("hourTest:", "onDraw");
 
-        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles(UNITS_COUNT, UNIT_WIDTH);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles();
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
         Paint paint = new Paint();
@@ -1055,7 +1055,7 @@ public class RadialTimePickerView extends View {
             int snapDegrees = 0;
             if (sectionForDegrees != null) {
                 float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, sectionForDegrees);
-                float endAngle = startAngle + 7.5f;
+                float endAngle = startAngle + UNIT_WIDTH;
                 boolean isDegreesCloserToStartDegree =
                         TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
                 if (isDegreesCloserToStartDegree) {
