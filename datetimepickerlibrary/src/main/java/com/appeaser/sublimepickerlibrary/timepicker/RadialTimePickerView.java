@@ -163,7 +163,8 @@ public class RadialTimePickerView extends View {
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
     private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
-    private boolean lockSelectorDrawing;
+    private boolean lockSelectorDrawing = true;
+    private boolean wasSomeCorrectTouch = false;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -356,7 +357,9 @@ public class RadialTimePickerView extends View {
         isPm = !isPm;
         initHoursAndMinutesText();
         mOuterTextHours = mHours12Texts;
-        lockSelectorDrawing = !lockSelectorDrawing;
+        if (wasSomeCorrectTouch) {
+            lockSelectorDrawing = !lockSelectorDrawing;
+        }
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -1019,14 +1022,15 @@ public class RadialTimePickerView extends View {
 
                 Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
                 Log.i("hourTest:", "-----------------------------");
-                boolean isInJoinedAreas = isInJoinedAreas(selectedTime);
-                if (isInJoinedAreas) {
+                boolean isInJoinedBlockedAreas = isInJoinedBlockedAreas(selectedTime);
+                if (isInJoinedBlockedAreas) {
                     return false;
                 }
+                wasSomeCorrectTouch = true;
 
                 valueChanged = setParamsOnAllowedTimeSelected(isOnInnerCircle, snapDegrees);
 
-                Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
+                Log.i("hourTest:", "inJoinedAreas:" + isInJoinedBlockedAreas);
 
                 if (notifyNewTimeAndInvalidate(forceSelection, autoAdvance, valueChanged, selectedTime))
                     return true;
@@ -1065,7 +1069,7 @@ public class RadialTimePickerView extends View {
         return false;
     }
 
-    private boolean isInJoinedAreas(Pair<Integer, Integer> selectedTime) {
+    private boolean isInJoinedBlockedAreas(Pair<Integer, Integer> selectedTime) {
         boolean isInJoinedAreas = false;
         for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
             Integer startTimeInMin = entry.getKey();
