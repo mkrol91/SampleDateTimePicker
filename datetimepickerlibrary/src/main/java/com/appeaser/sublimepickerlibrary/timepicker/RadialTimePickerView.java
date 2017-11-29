@@ -1017,22 +1017,17 @@ public class RadialTimePickerView extends View {
                         unassignedQuarter,
                         isDegreesCloserToStartDegree, isPm);
 
-
                 Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
-
-
-                valueChanged = mIsOnInnerCircle != isOnInnerCircle
-                        || mSelectionDegrees[HOURS] != snapDegrees;
-                mIsOnInnerCircle = isOnInnerCircle;
-                mSelectionDegrees[HOURS] = (int) snapDegrees;
-                type = HOURS;
-
-
                 Log.i("hourTest:", "-----------------------------");
                 boolean isInJoinedAreas = isInJoinedAreas(selectedTime);
                 if (isInJoinedAreas) {
                     return false;
                 }
+
+                valueChanged = mIsOnInnerCircle != isOnInnerCircle
+                        || mSelectionDegrees[HOURS] != snapDegrees;
+                mIsOnInnerCircle = isOnInnerCircle;
+                mSelectionDegrees[HOURS] = (int) snapDegrees;
                 lockSelectorDrawing = false;
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
