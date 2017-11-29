@@ -646,15 +646,6 @@ public class SublimeTimePicker extends FrameLayout
         } else {
             format = "%d";
         }
-        if (mIs24HourView) {
-            // 'k' means 1-24 hour
-            if (hourFormat == 'k' && value == 0) {
-                value = 24;
-            }
-        } else {
-            // 'K' means 0-11 hour
-            value = modulo12(value, hourFormat == 'K');
-        }
         CharSequence text = String.format(format, value);
         mHourView.setText(text);
         if (announce) {

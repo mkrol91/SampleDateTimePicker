@@ -157,16 +157,11 @@ public class RadialTimePickerView extends View {
     private int activeHoursBackgroundColor;
     private int inactiveHoursBackgroundColor;
     private int inactiveDigitsColor;
-    private boolean shouldBlock = true;
-    private Float startDrawingAngle;
-    private Float endDrawingAngle;
-    private float offsetInAngles;
     private boolean isPm;
     private ArrayList<TimerSection> timerSections;
     private float selCenterX;
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
-    private int blockNextTouch = 0;
     private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
 
     @SuppressWarnings("unused")
