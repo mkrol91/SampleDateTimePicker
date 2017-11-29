@@ -92,8 +92,8 @@ public class RadialTimePickerView extends View {
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
-    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int ANGLE_NOT_FOUND = -1;
+    public static int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
 
     static {
         // Prepare mapping to snap touchable degrees to selectable degrees.
@@ -1071,6 +1071,8 @@ public class RadialTimePickerView extends View {
                 Pair<Integer, Integer> selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
                         unassignedQuarter,
                         isDegreesCloserToStartDegree, isPm);
+
+
                 Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
 
 
@@ -1082,31 +1084,12 @@ public class RadialTimePickerView extends View {
                 newValue = getCurrentHour();
 
                 Log.i("hourTest:", "-----------------------------");
-                boolean isInJoinedAreas = false;
-                for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
-                    Integer startTimeInMin = entry.getKey();
-                    Integer endTimeInMin = entry.getValue();
-                    Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
-                    Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
-                    Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
-                    Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
-                    Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
-
-                    isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
-                            startHourAndMin, endHourAndMin);
-                    Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
-                            startHourAndMin, endHourAndMin) + "");
-                }
+                boolean isInJoinedAreas = isInJoinedAreas(selectedTime);
                 if (isInJoinedAreas) {
                     return false;
                 }
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
-
-
-//        if (hoursToCheck.contains(newValue) || (hoursToCheck.contains(12) && newValue == 0)) {
-//            return false;
-//        }
 
                 if (valueChanged || forceSelection || autoAdvance) {
                     // Fire the listener even if we just need to auto-advance.
@@ -1126,6 +1109,25 @@ public class RadialTimePickerView extends View {
         }
 
         return false;
+    }
+
+    private boolean isInJoinedAreas(Pair<Integer, Integer> selectedTime) {
+        boolean isInJoinedAreas = false;
+        for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
+            Integer startTimeInMin = entry.getKey();
+            Integer endTimeInMin = entry.getValue();
+            Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
+            Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
+            Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
+            Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
+            Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
+
+            isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+                    startHourAndMin, endHourAndMin);
+            Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+                    startHourAndMin, endHourAndMin) + "");
+        }
+        return isInJoinedAreas;
     }
 
     @Override
