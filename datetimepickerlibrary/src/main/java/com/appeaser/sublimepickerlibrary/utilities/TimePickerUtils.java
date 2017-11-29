@@ -318,7 +318,7 @@ public class TimePickerUtils {
                 return true;
             }
         } else if ((!isSelectedPm && isStartPm && !isEndPm) || (isSelectedPm && isEndPm)) {
-            if (selectedTimeInMin < endTimeMin) {
+            if (selectedTimeInMin <= endTimeMin) {
                 return true;
             }
         } else if (!isSelectedPm && !isStartPm) {

@@ -447,6 +447,11 @@ public class TimePickerUtilsTest {
         startTime = new Pair<>(6, 15);
         endTime = new Pair<>(11, 45);
         assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(4, 0);
+        startTime = new Pair<>(23, 0);
+        endTime = new Pair<>(4, 0);
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
     }
 
     @Test

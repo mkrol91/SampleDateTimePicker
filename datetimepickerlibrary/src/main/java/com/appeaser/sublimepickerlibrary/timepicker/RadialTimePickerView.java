@@ -67,6 +67,7 @@ import java.util.Map;
 public class RadialTimePickerView extends View {
     public static final int FULL_ANGLE = 360;
     public static final float FULL_ANGLE_FLOAT = FULL_ANGLE;
+    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final String TAG = RadialTimePickerView.class.getSimpleName();
     private static final int HOURS = 0;
     private static final int MINUTES = 1;
@@ -82,7 +83,6 @@ public class RadialTimePickerView extends View {
     private static final int ALPHA_TRANSPARENT = 0;
     private static final int HOURS_IN_CIRCLE = 12;
     public static final float UNIT_WIDTH = FULL_ANGLE_FLOAT / HOURS_IN_CIRCLE / 4;
-    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int MINUTES_IN_CIRCLE = 60;
     private static final int DEGREES_FOR_ONE_HOUR = FULL_ANGLE / HOURS_IN_CIRCLE;
     private static final int DEGREES_FOR_ONE_MINUTE = FULL_ANGLE / MINUTES_IN_CIRCLE;
@@ -719,7 +719,7 @@ public class RadialTimePickerView extends View {
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, paint);
 
-        //this case works fine
+
 //        int startHour = 6;
 //        int startMinute = 15;
 //        int endHour = 14;
@@ -728,7 +728,6 @@ public class RadialTimePickerView extends View {
 //                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
 //        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
-        //TODO: fight with this case:
         int startHour = 23;
         int startMinute = 0;
         int endHour = 4;
@@ -762,27 +761,25 @@ public class RadialTimePickerView extends View {
 
         float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
 
-        float finalStartDrawingAngle;
-        float finalSweepAngle;
+        float finalStartDrawingAngle = 0;
+        float finalSweepAngle = 0;
         if (!isPm && sweepAngles.first != null) {
             finalStartDrawingAngle = drawArcAngle;
-            finalSweepAngle = sweepAngles.second;
-            if (isStartTimePm && !isEndTimePm && drawArcAngle == 270) {
-                finalStartDrawingAngle = drawArcAngle - UNIT_WIDTH;
-                finalSweepAngle = sweepAngles.first + UNIT_WIDTH;
-            }
-            canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
+            finalSweepAngle = sweepAngles.first;
         }
         if (isPm && sweepAngles.second != null) {
             finalStartDrawingAngle = drawArcAngle;
             finalSweepAngle = sweepAngles.second;
-            if (!isStartTimePm && isEndTimePm && drawArcAngle == 270) {
-                finalStartDrawingAngle = drawArcAngle - UNIT_WIDTH;
-                finalSweepAngle = sweepAngles.second + UNIT_WIDTH;
-            }
-
-            canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
         }
+
+        if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
+            finalStartDrawingAngle -= UNIT_WIDTH;
+            finalSweepAngle += 2 * UNIT_WIDTH;
+        } else if (!isStartTimePm && isEndTimePm) {
+            finalSweepAngle += UNIT_WIDTH;
+        }
+
+        canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
     }
 
     private HashMap<Integer, Float> generateHourToStartAngleMap(int unitsCount, ArrayList<Float> startArcAngles) {
