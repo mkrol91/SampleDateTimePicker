@@ -169,6 +169,7 @@ public class RadialTimePickerView extends View {
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
     private int blockNextTouch = 0;
+    private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -367,6 +368,10 @@ public class RadialTimePickerView extends View {
 
     private void init(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         Context context = getContext();
+
+        lockedIntervals.add(new LockedInterval(6, 15, 14, 45));
+        lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
+        // new LockedInterval(23, 0, 4, 0);// new LockedInterval(2, 0, 7, 0);// new LockedInterval(16, 15, 19, 0);
 
         // Pull disabled alpha from theme.
         final TypedValue outValue = new TypedValue();
@@ -719,48 +724,34 @@ public class RadialTimePickerView extends View {
                 mXCenter + mCircleRadius, mYCenter + mCircleRadius);
         canvas.drawOval(rectF, paint);
 
-//        int startHour = 6;
-//        int startMinute = 15;
-//        int endHour = 14;
-//        int endMinute = 45;
-//        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-//                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-//        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
-//
-//        startHour = 23;
-//        startMinute = 0;
-//        endHour = 4;
-//        endMinute = 0;
-//        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-//                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-//        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
-
-        int startHour = 2;
-        int startMinute = 0;
-        int endHour = 7;
-        int endMinute = 0;
-        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
+        for (LockedInterval lockedInterval : lockedIntervals) {
+            addLockedInterval(canvas, paint, rectF, lockedInterval);
+        }
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);
     }
 
+    private void addLockedInterval(Canvas canvas, Paint paint, RectF rectF, LockedInterval lockedInterval) {
+        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(lockedInterval.getStartHour(), lockedInterval.getStartMinute()),
+                TimePickerUtils.getTimeAsMinutes(lockedInterval.getEndHour(), lockedInterval.getEndMinute()));
+        drawBlockedHours(canvas, paint, rectF, lockedInterval);
+    }
+
     private void drawBlockedHours(Canvas canvas, Paint paint, RectF rectF,
-                                  int startHour, int startMinute, int endHour, int endMinute) {
-        TimerSection startSection = TimePickerUtils.findSectionForHour(startHour, timerSections);
-        float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(startMinute, startSection);
+                                  LockedInterval lockedInterval) {
+        TimerSection startSection = TimePickerUtils.findSectionForHour(lockedInterval.getStartHour(), timerSections);
+        float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(lockedInterval.getStartMinute(), startSection);
         if (startAngle == ANGLE_NOT_FOUND) {
             startAngle = 0;
         }
-        TimerSection endSection = TimePickerUtils.findSectionForHour(endHour, timerSections);
-        float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(endMinute, endSection);
+        TimerSection endSection = TimePickerUtils.findSectionForHour(lockedInterval.getEndHour(), timerSections);
+        float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(lockedInterval.getEndMinute(), endSection);
         if (endAngle == ANGLE_NOT_FOUND) {
             endAngle = 0;
         }
-        boolean isStartTimePm = TimePickerUtils.isTimePm(startHour, startMinute);
-        boolean isEndTimePm = TimePickerUtils.isTimePm(endHour, endMinute);
+        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
         Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
                 isStartTimePm, isEndTimePm);
 
@@ -1199,6 +1190,52 @@ public class RadialTimePickerView extends View {
 
         public void setSectionStartAngles(ArrayList<Float> sectionStartAngles) {
             this.sectionStartAngles = sectionStartAngles;
+        }
+    }
+
+    class LockedInterval {
+        private int startHour;
+        private int startMinute;
+        private int endHour;
+        private int endMinute;
+
+        public LockedInterval(int startHour, int startMinute, int endHour, int endMinute) {
+            this.startHour = startHour;
+            this.startMinute = startMinute;
+            this.endHour = endHour;
+            this.endMinute = endMinute;
+        }
+
+        public int getStartHour() {
+            return startHour;
+        }
+
+        public void setStartHour(int startHour) {
+            this.startHour = startHour;
+        }
+
+        public int getStartMinute() {
+            return startMinute;
+        }
+
+        public void setStartMinute(int startMinute) {
+            this.startMinute = startMinute;
+        }
+
+        public int getEndHour() {
+            return endHour;
+        }
+
+        public void setEndHour(int endHour) {
+            this.endHour = endHour;
+        }
+
+        public int getEndMinute() {
+            return endMinute;
+        }
+
+        public void setEndMinute(int endMinute) {
+            this.endMinute = endMinute;
         }
     }
 
