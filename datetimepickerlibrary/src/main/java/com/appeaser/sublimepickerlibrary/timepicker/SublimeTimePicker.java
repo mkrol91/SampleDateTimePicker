@@ -26,6 +26,7 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.util.Pair;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -438,7 +439,6 @@ public class SublimeTimePicker extends FrameLayout
         mInitialHourOfDay = currentHour;
         updateHeaderHour(currentHour, true);
         updateHeaderAmPm();
-        mRadialTimePickerView.setCurrentHour(currentHour);
         mRadialTimePickerView.setAmOrPm(mInitialHourOfDay < 12 ? AM : PM);
         invalidate();
         onTimeChanged();
@@ -449,20 +449,6 @@ public class SublimeTimePicker extends FrameLayout
      */
     public int getCurrentMinute() {
         return mRadialTimePickerView.getCurrentMinute();
-    }
-
-    /**
-     * Set the current minute (0-59).
-     */
-    public void setCurrentMinute(int currentMinute) {
-        if (mInitialMinute == currentMinute) {
-            return;
-        }
-        mInitialMinute = currentMinute;
-        updateHeaderMinute(currentMinute, true);
-        mRadialTimePickerView.setCurrentMinute(currentMinute);
-        invalidate();
-        onTimeChanged();
     }
 
     /**
@@ -618,32 +604,11 @@ public class SublimeTimePicker extends FrameLayout
      * Called by the picker for updating the header display.
      */
     @Override
-    public void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance) {
-        switch (pickerIndex) {
-            case HOUR_INDEX:
-                if (mAllowAutoAdvance && autoAdvance) {
-                    updateHeaderHour(newValue, false);
-                    setCurrentItemShowing(MINUTE_INDEX, true, false);
-                    AccessibilityUtils.makeAnnouncement(this, newValue + ". " + mSelectMinutes);
-                } else {
-                    updateHeaderHour(newValue, true);
-                }
-                break;
-            case MINUTE_INDEX:
-                updateHeaderMinute(newValue, true);
-                break;
-            case AMPM_INDEX:
-                break;
-            case ENABLE_PICKER_INDEX:
-                if (!isTypedTimeFullyLegal()) {
-                    mTypedTimes.clear();
-                }
-                finishKbMode();
-                break;
-        }
-
+    public void onValueSelected(Pair<Integer, Integer> selectedTime) {
+        updateHeaderHour(selectedTime.first, true);
+        updateHeaderMinute(selectedTime.second, true);
         if (mOnTimeChangedListener != null) {
-            mOnTimeChangedListener.onTimeChanged(this, getCurrentHour(), getCurrentMinute());
+            mOnTimeChangedListener.onTimeChanged(this, selectedTime.first, selectedTime.second);
         }
     }
 
@@ -917,8 +882,6 @@ public class SublimeTimePicker extends FrameLayout
         mInKbMode = false;
         if (!mTypedTimes.isEmpty()) {
             int values[] = getEnteredTime(null);
-            mRadialTimePickerView.setCurrentHour(values[0]);
-            mRadialTimePickerView.setCurrentMinute(values[1]);
             if (!mIs24HourView) {
                 mRadialTimePickerView.setAmOrPm(values[2]);
             }

@@ -527,7 +527,6 @@ public class SublimePicker extends FrameLayout
         if (mTimePickerEnabled) {
             int[] timeParams = mOptions.getTimeParams();
             mTimePicker.setCurrentHour(timeParams[0] /* hour of day */);
-            mTimePicker.setCurrentMinute(timeParams[1] /* minute */);
             mTimePicker.setIs24HourView(mOptions.is24HourView());
             mTimePicker.setValidationCallback(this);
 

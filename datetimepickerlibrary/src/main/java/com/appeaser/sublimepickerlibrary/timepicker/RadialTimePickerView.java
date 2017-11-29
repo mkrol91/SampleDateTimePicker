@@ -479,9 +479,6 @@ public class RadialTimePickerView extends View {
         final int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         final int currentMinute = calendar.get(Calendar.MINUTE);
 
-        setCurrentHourInternal(currentHour, false, false);
-        setCurrentMinuteInternal(currentMinute, false);
-
         setHapticFeedbackEnabled(true);
     }
 
@@ -491,8 +488,6 @@ public class RadialTimePickerView extends View {
             mOuterTextHours = mHours12Texts;
         }
 
-        setCurrentHourInternal(hour, false, false);
-        setCurrentMinuteInternal(minute, false);
     }
 
     public void setCurrentItemShowing(int item, boolean animate) {
@@ -517,36 +512,6 @@ public class RadialTimePickerView extends View {
     }
 
     /**
-     * Sets the current hour.
-     *
-     * @param hour        The current hour
-     * @param callback    Whether the value listener should be invoked
-     * @param autoAdvance Whether the listener should auto-advance to the next
-     *                    selection mode, e.g. hour to minutes
-     */
-    private void setCurrentHourInternal(int hour, boolean callback, boolean autoAdvance) {
-        final int degrees = (hour % 12) * DEGREES_FOR_ONE_HOUR;
-        mSelectionDegrees[HOURS] = degrees;
-
-        // 0 is 12 AM (midnight) and 12 is 12 PM (noon).
-        final int amOrPm = (hour == 0 || (hour % 24) < 12) ? AM : PM;
-        final boolean isOnInnerCircle = getInnerCircleForHour(hour);
-        if (mAmOrPm != amOrPm || mIsOnInnerCircle != isOnInnerCircle) {
-            mAmOrPm = amOrPm;
-            mIsOnInnerCircle = isOnInnerCircle;
-
-            mOuterTextHours = mHours12Texts;
-            mTouchHelper.invalidateRoot();
-        }
-
-        invalidate();
-
-        if (callback && mListener != null) {
-            mListener.onValueSelected(HOURS, hour, autoAdvance);
-        }
-    }
-
-    /**
      * Returns the current hour in 24-hour time.
      *
      * @return the current hour between 0 and 23 (inclusive)
@@ -555,14 +520,6 @@ public class RadialTimePickerView extends View {
         return getHourForDegrees(mSelectionDegrees[HOURS], mIsOnInnerCircle);
     }
 
-    /**
-     * Sets the current hour in 24-hour time.
-     *
-     * @param hour the current hour between 0 and 23 (inclusive)
-     */
-    public void setCurrentHour(int hour) {
-        setCurrentHourInternal(hour, true, false);
-    }
 
     private int getHourForDegrees(int degrees, boolean innerCircle) {
         int hour = (degrees / DEGREES_FOR_ONE_HOUR) % 12;
@@ -604,23 +561,9 @@ public class RadialTimePickerView extends View {
         return mIs24HourMode && (hour == 0 || hour > 12);
     }
 
-    private void setCurrentMinuteInternal(int minute, boolean callback) {
-        mSelectionDegrees[MINUTES] = (minute % MINUTES_IN_CIRCLE) * DEGREES_FOR_ONE_MINUTE;
-
-        invalidate();
-
-        if (callback && mListener != null) {
-            mListener.onValueSelected(MINUTES, minute, false);
-        }
-    }
-
     // Returns minutes in 0-59 range
     public int getCurrentMinute() {
         return getMinuteForDegrees(mSelectionDegrees[MINUTES]);
-    }
-
-    public void setCurrentMinute(int minute) {
-        setCurrentMinuteInternal(minute, true);
     }
 
     private int getMinuteForDegrees(int degrees) {
@@ -1047,7 +990,6 @@ public class RadialTimePickerView extends View {
         }
 
         int type = HOURS;
-        int newValue = -1;
         boolean valueChanged = false;
 
         if (mShowHours) {
@@ -1081,7 +1023,7 @@ public class RadialTimePickerView extends View {
                 mIsOnInnerCircle = isOnInnerCircle;
                 mSelectionDegrees[HOURS] = (int) snapDegrees;
                 type = HOURS;
-                newValue = getCurrentHour();
+
 
                 Log.i("hourTest:", "-----------------------------");
                 boolean isInJoinedAreas = isInJoinedAreas(selectedTime);
@@ -1094,7 +1036,7 @@ public class RadialTimePickerView extends View {
                 if (valueChanged || forceSelection || autoAdvance) {
                     // Fire the listener even if we just need to auto-advance.
                     if (mListener != null) {
-                        mListener.onValueSelected(type, newValue, autoAdvance);
+                        mListener.onValueSelected(selectedTime);
                     }
 
                     // Only provide feedback if the value actually changed.
@@ -1142,7 +1084,7 @@ public class RadialTimePickerView extends View {
     }
 
     public interface OnValueSelectedListener {
-        void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance);
+        void onValueSelected(Pair<Integer, Integer> selectedTime);
     }
 
     private static class IntHolder {
@@ -1317,10 +1259,8 @@ public class RadialTimePickerView extends View {
                 final int value = getValueFromId(virtualViewId);
                 if (type == TYPE_HOUR) {
                     final int hour = mIs24HourMode ? value : hour12To24(value, mAmOrPm);
-                    setCurrentHour(hour);
                     return true;
                 } else if (type == TYPE_MINUTE) {
-                    setCurrentMinute(value);
                     return true;
                 }
             }
@@ -1380,11 +1320,6 @@ public class RadialTimePickerView extends View {
 
             final int nextValue = (initialStep + step) * stepSize;
             final int clampedValue = SUtils.constrain(nextValue, minValue, maxValue);
-            if (mShowHours) {
-                setCurrentHour(clampedValue);
-            } else {
-                setCurrentMinute(clampedValue);
-            }
         }
 
         @Override
