@@ -67,7 +67,6 @@ import java.util.Map;
 public class RadialTimePickerView extends View {
     public static final int FULL_ANGLE = 360;
     public static final float FULL_ANGLE_FLOAT = FULL_ANGLE;
-    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final String TAG = RadialTimePickerView.class.getSimpleName();
     private static final int HOURS = 0;
     private static final int MINUTES = 1;
@@ -93,6 +92,7 @@ public class RadialTimePickerView extends View {
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
+    public static final int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
     private static final int ANGLE_NOT_FOUND = -1;
 
     static {
@@ -126,7 +126,6 @@ public class RadialTimePickerView extends View {
     private final int[] mSelectionDegrees = new int[2];
     private final ArrayList<Animator> mHoursToMinutesAnims = new ArrayList<>();
     private final ArrayList<Animator> mMinuteToHoursAnims = new ArrayList<>();
-    private final Path mSelectorPath = new Path();
     private int mSelectorColor;
     private int mSelectorDotColor;
     private Typeface mTypeface;
@@ -162,7 +161,6 @@ public class RadialTimePickerView extends View {
     private Float startDrawingAngle;
     private Float endDrawingAngle;
     private float offsetInAngles;
-    private ArrayList<Integer> hoursToCheck;
     private boolean isPm;
     private ArrayList<TimerSection> timerSections;
     private float selCenterX;
@@ -395,7 +393,6 @@ public class RadialTimePickerView extends View {
         inactiveDigitsColor = a.getColor(R.styleable.RadialTimePickerView_inactiveDigitsColor, ContextCompat.getColor(context, R.color.inactive_digits_color));
 
         mTextColor[HOURS] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersTextColor);
-        mTextColor[HOURS_INNER] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersInnerTextColor);
         mTextColor[MINUTES] = mTextColor[HOURS];
 
         mPaint[HOURS] = new Paint();
@@ -728,7 +725,7 @@ public class RadialTimePickerView extends View {
             addLockedInterval(canvas, paint, rectF, lockedInterval);
         }
 
-        drawHours(canvas, alphaMod, hoursToCheck);
+        drawHours(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
     }
 
@@ -792,7 +789,7 @@ public class RadialTimePickerView extends View {
         return hourStartAngleMap;
     }
 
-    private void drawHours(Canvas canvas, float alphaMod, ArrayList<Integer> hoursToCheck) {
+    private void drawHours(Canvas canvas, float alphaMod) {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);
         if (hoursAlpha > 0) {
             // Draw the hour selector under the elements.
@@ -801,7 +798,7 @@ public class RadialTimePickerView extends View {
             // Draw outer hours.
             drawTextElements(canvas, mTextSize[HOURS], mTypeface, mTextColor[HOURS],
                     mOuterTextHours, mOuterTextX[HOURS], mOuterTextY[HOURS], mPaint[HOURS],
-                    hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false, hoursToCheck);
+                    hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
         }
     }
 
@@ -897,7 +894,7 @@ public class RadialTimePickerView extends View {
      */
     private void drawTextElements(Canvas canvas, float textSize, Typeface typeface,
                                   ColorStateList textColor, String[] texts, float[] textX, float[] textY, Paint paint,
-                                  int alpha, boolean showActivated, int activatedDegrees, boolean activatedOnly, ArrayList<Integer> hoursToCheck) {
+                                  int alpha, boolean showActivated, int activatedDegrees, boolean activatedOnly) {
         paint.setTextSize(textSize);
         paint.setTypeface(typeface);
 
@@ -924,16 +921,6 @@ public class RadialTimePickerView extends View {
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
-        }
-
-        if (hoursToCheck != null) {
-            for (int i = 0; i < texts.length; i++) {
-                String text = texts[i];
-                if (containsString(hoursToCheck, text)) {
-                    paint.setColor(inactiveDigitsColor);
-                    canvas.drawText(texts[i], textX[i], textY[i], paint);
-                }
-            }
         }
     }
 

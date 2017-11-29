@@ -38,7 +38,8 @@
         android:layout_gravity="center"
         app:activeHoursBackgroundColor="@color/timer_background"
         app:inactiveDigitsColor="@color/inactive_digits_color"
-        app:inactiveHoursBackgroundColor="@color/timer_background_blocked" />
+        app:inactiveHoursBackgroundColor="@color/timer_background_blocked"
+        app:spNumbersTextColor="@color/white" />
 
     <Switch
         android:id="@+id/am_pm_switch"
