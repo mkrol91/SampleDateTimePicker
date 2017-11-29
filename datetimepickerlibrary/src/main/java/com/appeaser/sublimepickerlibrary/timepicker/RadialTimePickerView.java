@@ -163,6 +163,7 @@ public class RadialTimePickerView extends View {
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
     private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
+    private boolean lockSelectorDrawing;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -355,6 +356,7 @@ public class RadialTimePickerView extends View {
         isPm = !isPm;
         initHoursAndMinutesText();
         mOuterTextHours = mHours12Texts;
+        lockSelectorDrawing = !lockSelectorDrawing;
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -731,7 +733,9 @@ public class RadialTimePickerView extends View {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);
         if (hoursAlpha > 0) {
             // Draw the hour selector under the elements.
-            drawSelector(canvas, mIsOnInnerCircle ? HOURS_INNER : HOURS, null, alphaMod);
+            if (!lockSelectorDrawing) {
+                drawSelector(canvas, mIsOnInnerCircle ? HOURS_INNER : HOURS, null, alphaMod);
+            }
 
             // Draw outer hours.
             drawTextElements(canvas, mTextSize[HOURS], mTypeface, mTextColor[HOURS],
@@ -741,8 +745,10 @@ public class RadialTimePickerView extends View {
     }
 
     private void drawCenter(Canvas canvas, float alphaMod) {
-        mPaintCenter.setAlpha((int) (255 * alphaMod + 0.5f));
-        canvas.drawCircle(mXCenter, mYCenter, mCenterDotRadius, mPaintCenter);
+        if (!lockSelectorDrawing) {
+            mPaintCenter.setAlpha((int) (255 * alphaMod + 0.5f));
+            canvas.drawCircle(mXCenter, mYCenter, mCenterDotRadius, mPaintCenter);
+        }
     }
 
     private int applyAlpha(int argb, int alpha) {
@@ -850,11 +856,13 @@ public class RadialTimePickerView extends View {
             final int stateMask = SUtils.STATE_ENABLED
                     | (showActivated && activated ? SUtils.STATE_ACTIVATED : 0);
             final int color = textColor.getColorForState(SUtils.resolveStateSet(stateMask), 0);
-            double distBetweenDigitAndSelector = Math.sqrt(Math.pow(textX[i] - selCenterX, 2) +
-                    Math.pow(textY[i] - selCenterY, 2));
             paint.setColor(Color.BLACK);
-            if (distBetweenDigitAndSelector < mSelectorRadius) {
-                paint.setColor(Color.WHITE);
+            if (!lockSelectorDrawing) {
+                double distBetweenDigitAndSelector = Math.sqrt(Math.pow(textX[i] - selCenterX, 2) +
+                        Math.pow(textY[i] - selCenterY, 2));
+                if (distBetweenDigitAndSelector < mSelectorRadius) {
+                    paint.setColor(Color.WHITE);
+                }
             }
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
@@ -1025,6 +1033,7 @@ public class RadialTimePickerView extends View {
                 if (isInJoinedAreas) {
                     return false;
                 }
+                lockSelectorDrawing = false;
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
 
