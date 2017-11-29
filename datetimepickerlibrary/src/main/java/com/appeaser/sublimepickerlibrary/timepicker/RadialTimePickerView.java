@@ -720,21 +720,21 @@ public class RadialTimePickerView extends View {
         canvas.drawOval(rectF, paint);
 
 
-//        int startHour = 6;
-//        int startMinute = 15;
-//        int endHour = 14;
-//        int endMinute = 45;
-//        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
-//                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
-//        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
-
-        int startHour = 23;
-        int startMinute = 0;
-        int endHour = 4;
-        int endMinute = 0;
+        int startHour = 6;
+        int startMinute = 15;
+        int endHour = 14;
+        int endMinute = 45;
         timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
                 TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
         drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
+
+//        int startHour = 23;
+//        int startMinute = 0;
+//        int endHour = 4;
+//        int endMinute = 0;
+//        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(startHour, startMinute),
+//                TimePickerUtils.getTimeAsMinutes(endHour, endMinute));
+//        drawBlockedHours(canvas, paint, rectF, startHour, startMinute, endHour, endMinute);
 
         drawHours(canvas, alphaMod, hoursToCheck);
         drawCenter(canvas, alphaMod);
@@ -775,7 +775,7 @@ public class RadialTimePickerView extends View {
         if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
             finalStartDrawingAngle -= UNIT_WIDTH;
             finalSweepAngle += 2 * UNIT_WIDTH;
-        } else if (!isStartTimePm && isEndTimePm) {
+        } else if (!isStartTimePm && isEndTimePm && endAngle != 0) {
             finalSweepAngle += UNIT_WIDTH;
         }
 
