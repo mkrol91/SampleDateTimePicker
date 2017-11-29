@@ -1024,31 +1024,44 @@ public class RadialTimePickerView extends View {
                     return false;
                 }
 
-                valueChanged = mIsOnInnerCircle != isOnInnerCircle
-                        || mSelectionDegrees[HOURS] != snapDegrees;
-                mIsOnInnerCircle = isOnInnerCircle;
-                mSelectionDegrees[HOURS] = (int) snapDegrees;
-                lockSelectorDrawing = false;
+                valueChanged = setParamsOnAllowedTimeSelected(isOnInnerCircle, snapDegrees);
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedAreas);
 
-                if (valueChanged || forceSelection || autoAdvance) {
-                    // Fire the listener even if we just need to auto-advance.
-                    if (mListener != null) {
-                        mListener.onValueSelected(selectedTime);
-                    }
-
-                    // Only provide feedback if the value actually changed.
-                    if (valueChanged || forceSelection) {
-                        SUtils.vibrateForTimePicker(this);
-                        invalidate();
-                    }
+                if (notifyNewTimeAndInvalidate(forceSelection, autoAdvance, valueChanged, selectedTime))
                     return true;
-                }
 
             }
         }
 
+        return false;
+    }
+
+    private boolean setParamsOnAllowedTimeSelected(boolean isOnInnerCircle, int snapDegrees) {
+        boolean valueChanged;
+        valueChanged = mIsOnInnerCircle != isOnInnerCircle
+                || mSelectionDegrees[HOURS] != snapDegrees;
+        mIsOnInnerCircle = isOnInnerCircle;
+        mSelectionDegrees[HOURS] = snapDegrees;
+        lockSelectorDrawing = false;
+        return valueChanged;
+    }
+
+    private boolean notifyNewTimeAndInvalidate(boolean forceSelection, boolean autoAdvance, boolean valueChanged,
+                                               Pair<Integer, Integer> selectedTime) {
+        if (valueChanged || forceSelection || autoAdvance) {
+            // Fire the listener even if we just need to auto-advance.
+            if (mListener != null) {
+                mListener.onValueSelected(selectedTime);
+            }
+
+            // Only provide feedback if the value actually changed.
+            if (valueChanged || forceSelection) {
+                SUtils.vibrateForTimePicker(this);
+                invalidate();
+            }
+            return true;
+        }
         return false;
     }
 
