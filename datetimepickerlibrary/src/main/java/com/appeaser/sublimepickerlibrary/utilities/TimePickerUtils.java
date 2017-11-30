@@ -329,4 +329,10 @@ public class TimePickerUtils {
         return false;
     }
 
+    public static ArrayList<Integer> extractHoursToOvershadow(RadialTimePickerView.LockedInterval lockedInterval) {
+        ArrayList<Integer> hoursToOvershadow = new ArrayList<>();
+        hoursToOvershadow.add(12);
+        hoursToOvershadow.add(12);
+        return hoursToOvershadow;
+    }
 }

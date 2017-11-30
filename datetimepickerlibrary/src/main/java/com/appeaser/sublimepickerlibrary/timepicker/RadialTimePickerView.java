@@ -57,6 +57,7 @@ import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -167,6 +168,7 @@ public class RadialTimePickerView extends View {
     private boolean wasSomeCorrectTouch = false;
     private Pair<Integer, Integer> selectedTime;
     private TimerSection selectedSection;
+    private LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -679,8 +681,28 @@ public class RadialTimePickerView extends View {
     private void addLockedInterval(Canvas canvas, Paint paint, RectF rectF, LockedInterval lockedInterval) {
         timesToBlock.put(TimePickerUtils.getTimeAsMinutes(lockedInterval.getStartHour(), lockedInterval.getStartMinute()),
                 TimePickerUtils.getTimeAsMinutes(lockedInterval.getEndHour(), lockedInterval.getEndMinute()));
+        hoursToOvershadow.addAll(TimePickerUtils.extractHoursToOvershadow(lockedInterval));
         drawBlockedHours(canvas, paint, rectF, lockedInterval);
     }
+
+//    private boolean isInJoinedBlockedAreas(Pair<Integer, Integer> selectedTime) {
+//        boolean isInJoinedAreas = false;
+//        for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
+//            Integer startTimeInMin = entry.getKey();
+//            Integer endTimeInMin = entry.getValue();
+//            Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
+//            Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
+//            Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
+//            Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
+//            Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
+//
+//            isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+//                    startHourAndMin, endHourAndMin);
+//            Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+//                    startHourAndMin, endHourAndMin) + "");
+//        }
+//        return isInJoinedAreas;
+//    }
 
     private void drawBlockedHours(Canvas canvas, Paint paint, RectF rectF,
                                   LockedInterval lockedInterval) {
@@ -869,6 +891,10 @@ public class RadialTimePickerView extends View {
                     paint.setColor(Color.WHITE);
                 }
             }
+            int drawingHour = Integer.parseInt(texts[i]);
+            if (hoursToOvershadow.contains(drawingHour)) {
+                paint.setColor(inactiveDigitsColor);
+            }
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
@@ -877,15 +903,6 @@ public class RadialTimePickerView extends View {
 
     private boolean isSelectedSectionDrawing(int index) {
         return isPm ? selectedSection.getHour() == index + HOURS_IN_CIRCLE : selectedSection.getHour() == index;
-    }
-
-    private boolean containsString(ArrayList<Integer> hoursToCheck, String text) {
-        for (Integer hourToCheck : hoursToCheck) {
-            if (hourToCheck.toString().equals(text)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void startHoursToMinutesAnimation() {
@@ -1146,7 +1163,7 @@ public class RadialTimePickerView extends View {
         }
     }
 
-    class LockedInterval {
+    public class LockedInterval {
         private int startHour;
         private int startMinute;
         private int endHour;
