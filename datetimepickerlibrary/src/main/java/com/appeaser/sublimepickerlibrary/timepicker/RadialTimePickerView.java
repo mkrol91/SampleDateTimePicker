@@ -110,7 +110,7 @@ public class RadialTimePickerView extends View {
 
     private final InvalidateUpdateListener mInvalidateUpdateListener =
             new InvalidateUpdateListener();
-    private final String[] mHours12Texts = new String[12];
+    private final String[] hoursTexts = new String[12];
     private final Paint[] mPaint = new Paint[2];
     private final IntHolder[] mAlpha = new IntHolder[2];
     private final Paint mPaintCenter = new Paint();
@@ -165,6 +165,8 @@ public class RadialTimePickerView extends View {
     private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
     private boolean lockSelectorDrawing = true;
     private boolean wasSomeCorrectTouch = false;
+    private Pair<Integer, Integer> selectedTime;
+    private TimerSection selectedSection;
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -356,7 +358,7 @@ public class RadialTimePickerView extends View {
     public void toggleAmPm() {
         isPm = !isPm;
         initHoursAndMinutesText();
-        mOuterTextHours = mHours12Texts;
+        mOuterTextHours = hoursTexts;
         if (wasSomeCorrectTouch) {
             lockSelectorDrawing = !lockSelectorDrawing;
         }
@@ -472,7 +474,7 @@ public class RadialTimePickerView extends View {
         }
 
         initHoursAndMinutesText();
-        mOuterTextHours = mHours12Texts;
+        mOuterTextHours = hoursTexts;
 
         a.recycle();
 
@@ -487,7 +489,7 @@ public class RadialTimePickerView extends View {
     public void initialize(int hour, int minute, boolean is24HourMode) {
         if (mIs24HourMode != is24HourMode) {
             mIs24HourMode = is24HourMode;
-            mOuterTextHours = mHours12Texts;
+            mOuterTextHours = hoursTexts;
         }
 
     }
@@ -597,7 +599,7 @@ public class RadialTimePickerView extends View {
             startMinutesToHoursAnimation();
         }
 
-        mOuterTextHours = mHours12Texts;
+        mOuterTextHours = hoursTexts;
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -613,7 +615,7 @@ public class RadialTimePickerView extends View {
             startHoursToMinutesAnimation();
         }
 
-        mOuterTextHours = mHours12Texts;
+        mOuterTextHours = hoursTexts;
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -622,9 +624,9 @@ public class RadialTimePickerView extends View {
         // Initialize the hours and minutes numbers.
         for (int i = 0; i < 12; i++) {
             if (isPm) {
-                mHours12Texts[i] = String.format("%d", HOURS_NUMBERS_AM[i] + 12);
+                hoursTexts[i] = String.format("%d", HOURS_NUMBERS_AM[i] + 12);
             } else {
-                mHours12Texts[i] = String.format("%d", HOURS_NUMBERS_AM[i]);
+                hoursTexts[i] = String.format("%d", HOURS_NUMBERS_AM[i]);
             }
         }
     }
@@ -863,9 +865,7 @@ public class RadialTimePickerView extends View {
             final int color = textColor.getColorForState(SUtils.resolveStateSet(stateMask), 0);
             paint.setColor(Color.BLACK);
             if (!lockSelectorDrawing) {
-                double distBetweenDigitAndSelector = Math.sqrt(Math.pow(textX[i] - selCenterX, 2) +
-                        Math.pow(textY[i] - selCenterY, 2));
-                if (distBetweenDigitAndSelector < mSelectorRadius) {
+                if (selectedTime.second != 30 && isSelectedSectionDrawing(i)) {
                     paint.setColor(Color.WHITE);
                 }
             }
@@ -873,6 +873,10 @@ public class RadialTimePickerView extends View {
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
         }
+    }
+
+    private boolean isSelectedSectionDrawing(int index) {
+        return isPm ? selectedSection.getHour() == index + HOURS_IN_CIRCLE : selectedSection.getHour() == index;
     }
 
     private boolean containsString(ArrayList<Integer> hoursToCheck, String text) {
@@ -1001,10 +1005,10 @@ public class RadialTimePickerView extends View {
         boolean valueChanged = false;
 
         if (mShowHours) {
-            TimerSection sectionForDegrees = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
+            selectedSection = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
             int snapDegrees = 0;
-            if (sectionForDegrees != null) {
-                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, sectionForDegrees);
+            if (selectedSection != null) {
+                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, selectedSection);
                 float endAngle = startAngle + UNIT_WIDTH;
                 boolean isDegreesCloserToStartDegree =
                         TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
@@ -1015,10 +1019,10 @@ public class RadialTimePickerView extends View {
                 }
 
                 Log.i("timerTest", "snapDegrees:" + snapDegrees);
-                int hour = sectionForDegrees.getHour();
+                int hour = selectedSection.getHour();
                 int unassignedQuarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(degrees,
-                        sectionForDegrees);
-                Pair<Integer, Integer> selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
+                        selectedSection);
+                selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
                         unassignedQuarter,
                         isDegreesCloserToStartDegree, isPm);
 
