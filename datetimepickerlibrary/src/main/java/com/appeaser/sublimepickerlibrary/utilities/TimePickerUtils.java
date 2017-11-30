@@ -334,22 +334,54 @@ public class TimePickerUtils {
         LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
         boolean istStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
         boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
-        int startTimeInMinutes = TimePickerUtils.getTimeAsMinutes(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
-        int endTimeInMinutes = TimePickerUtils.getTimeAsMinutes(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
 
         if (!istStartTimePm && !isEndTimePm) {
-            for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+            addHourByHourTillEnd(lockedInterval, hoursToOvershadow);
+        } else if (!istStartTimePm) {
+            addHourByHourTillEndCheck12(lockedInterval, hoursToOvershadow);
+        } else if (!isEndTimePm) {
+            addHourByHourTill24Check24(lockedInterval, hoursToOvershadow);
+            addFromOneTillEnd(lockedInterval, hoursToOvershadow);
+        } else {
+            addHourByHourTillEnd(lockedInterval, hoursToOvershadow);
+        }
+
+        return hoursToOvershadow;
+    }
+
+    private static void addFromOneTillEnd(RadialTimePickerView.LockedInterval lockedInterval,
+                                          LinkedHashSet<Integer> hoursToOvershadow) {
+        for (int hour = 1; hour <= lockedInterval.getEndHour(); hour++) {
+            hoursToOvershadow.add(hour);
+        }
+    }
+
+    private static void addHourByHourTill24Check24(RadialTimePickerView.LockedInterval lockedInterval,
+                                                   LinkedHashSet<Integer> hoursToOvershadow) {
+        for (int hour = lockedInterval.getStartHour() + 1; hour <= 24; hour++) {
+            if (hour == 24) {
+                hoursToOvershadow.add(hour - 12);
+            } else {
                 hoursToOvershadow.add(hour);
             }
-        } else if (!istStartTimePm && isEndTimePm) {
-            for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
-                if (hour == 12) {
-                    hoursToOvershadow.add(hour + 12);
-                } else {
-                    hoursToOvershadow.add(hour);
-                }
+        }
+    }
+
+    private static void addHourByHourTillEndCheck12(RadialTimePickerView.LockedInterval lockedInterval,
+                                                    LinkedHashSet<Integer> hoursToOvershadow) {
+        for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+            if (hour == 12) {
+                hoursToOvershadow.add(hour + 12);
+            } else {
+                hoursToOvershadow.add(hour);
             }
         }
-        return hoursToOvershadow;
+    }
+
+    private static void addHourByHourTillEnd(RadialTimePickerView.LockedInterval lockedInterval,
+                                             LinkedHashSet<Integer> hoursToOvershadow) {
+        for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+            hoursToOvershadow.add(hour);
+        }
     }
 }

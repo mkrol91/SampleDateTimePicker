@@ -371,12 +371,13 @@ public class RadialTimePickerView extends View {
     private void init(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         Context context = getContext();
 
-        //        lockedIntervals.add(new LockedInterval(2, 0, 7, 0)); V
-        //lockedIntervals.add(new LockedInterval(2, 15, 7, 0));V
-        lockedIntervals.add(new LockedInterval(6, 15, 14, 45));
-//        lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
-//        lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
-//        lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
+        //lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
+        lockedIntervals.add(new LockedInterval(2, 15, 7, 0));
+        //lockedIntervals.add(new LockedInterval(6, 15, 14, 45));V
+        //lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
+        //lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
+        //lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
+        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
 
         // Pull disabled alpha from theme.
         final TypedValue outValue = new TypedValue();
@@ -663,7 +664,6 @@ public class RadialTimePickerView extends View {
         timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
 
         Paint paint = new Paint();
-        // smooths
         paint.setColor(activeHoursBackgroundColor);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(5);
@@ -685,25 +685,6 @@ public class RadialTimePickerView extends View {
         hoursToOvershadow.addAll(TimePickerUtils.extractHoursToOvershadow(lockedInterval));
         drawBlockedHours(canvas, paint, rectF, lockedInterval);
     }
-
-//    private boolean isInJoinedBlockedAreas(Pair<Integer, Integer> selectedTime) {
-//        boolean isInJoinedAreas = false;
-//        for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
-//            Integer startTimeInMin = entry.getKey();
-//            Integer endTimeInMin = entry.getValue();
-//            Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
-//            Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
-//            Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
-//            Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
-//            Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
-//
-//            isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
-//                    startHourAndMin, endHourAndMin);
-//            Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
-//                    startHourAndMin, endHourAndMin) + "");
-//        }
-//        return isInJoinedAreas;
-//    }
 
     private void drawBlockedHours(Canvas canvas, Paint paint, RectF rectF,
                                   LockedInterval lockedInterval) {

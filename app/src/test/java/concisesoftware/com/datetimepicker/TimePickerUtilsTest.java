@@ -17,77 +17,7 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 public class TimePickerUtilsTest {
-    @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
-    }
-
-    @Test
-    public void hourToCheckOnEdgeTest() {
-        ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(11, 1);
-        assertEquals(3, hoursToCheckTest.size());
-        assertEquals(new Integer(11), hoursToCheckTest.get(0));
-        assertEquals(new Integer(1), hoursToCheckTest.get(2));
-    }
-
-    @Test
-    public void hourstToCheckInTheMiddleTest() {
-        ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(2, 9);
-        assertEquals(8, hoursToCheckTest.size());
-        assertEquals(new Integer(2), hoursToCheckTest.get(0));
-        assertEquals(new Integer(9), hoursToCheckTest.get(7));
-        assertEquals(new Integer(5), hoursToCheckTest.get(3));
-    }
-
-    @Test
-    public void hourstToCheckStartAndEndEqualsTest() {
-        ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(2, 2);
-        assertEquals(1, hoursToCheckTest.size());
-        assertEquals(new Integer(2), hoursToCheckTest.get(0));
-    }
-
-    @Test
-    public void hourstToChangeOutOfRangePositive() {
-        ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(25, 48);
-        assertEquals(0, hoursToCheckTest.size());
-    }
-
-    @Test
-    public void hoursToCheckOutOfRangeNegative() {
-        ArrayList<Integer> hoursToCheckTest = TimePickerUtils.getHoursToCheck(-1, -5);
-        assertEquals(0, hoursToCheckTest.size());
-    }
-
-    @Test
-    public void hoursToCheckOnEdge() {
-        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(11, 15);
-        assertEquals(5, hoursToCheck.size());
-        assertEquals(new Integer(11), hoursToCheck.get(0));
-        assertEquals(new Integer(13), hoursToCheck.get(2));
-        assertEquals(new Integer(15), hoursToCheck.get(4));
-    }
-
-    @Test
-    public void hoursToCheckOnPomTest() {
-        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(22, 13);
-        assertEquals(16, hoursToCheck.size());
-        assertEquals(new Integer(13), hoursToCheck.get(15));
-    }
-
-    @Test
-    public void hoursToCheckOnPomTest24h() {
-        ArrayList<Integer> hoursToCheck = TimePickerUtils.getHoursToCheck(23, 22);
-        assertEquals(24, hoursToCheck.size());
-        assertEquals(new Integer(22), hoursToCheck.get(23));
-        assertEquals(new Integer(1), hoursToCheck.get(2));
-        assertEquals(new Integer(23), hoursToCheck.get(0));
-    }
 
     @Test
     public void generateTimerStartArcAngles() {
@@ -537,11 +467,6 @@ public class TimePickerUtilsTest {
 
     @Test
     public void extractHoursToOvershadowTest() {
-//        //        lockedIntervals.add(new LockedInterval(6, 15, 14, 45));
-//        lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
-////        lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
-//        lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
-//        lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
         LinkedHashSet<Integer> hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(2, 0, 7, 0));
         LinkedHashSet<Integer> result = new LinkedHashSet<>(Arrays.asList(3, 4, 5, 6, 7));
         assertEquals(result, hours);
@@ -552,6 +477,18 @@ public class TimePickerUtilsTest {
 
         hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(6, 15, 14, 45));
         result = new LinkedHashSet<>(Arrays.asList(7, 8, 9, 10, 11, 24, 13, 14));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(22, 15, 2, 0));
+        result = new LinkedHashSet<>(Arrays.asList(23, 12, 1, 2));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(23, 0, 4, 0));
+        result = new LinkedHashSet<>(Arrays.asList(12, 1, 2, 3, 4));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(16, 15, 19, 0));
+        result = new LinkedHashSet<>(Arrays.asList(17, 18, 19));
         assertEquals(result, hours);
     }
 
