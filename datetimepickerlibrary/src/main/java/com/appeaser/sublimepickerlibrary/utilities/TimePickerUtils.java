@@ -6,6 +6,7 @@ import android.support.v4.util.Pair;
 import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNITS_COUNT;
 import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNIT_WIDTH;
@@ -329,10 +330,26 @@ public class TimePickerUtils {
         return false;
     }
 
-    public static ArrayList<Integer> extractHoursToOvershadow(RadialTimePickerView.LockedInterval lockedInterval) {
-        ArrayList<Integer> hoursToOvershadow = new ArrayList<>();
-        hoursToOvershadow.add(12);
-        hoursToOvershadow.add(12);
+    public static LinkedHashSet<Integer> extractHoursToOvershadow(RadialTimePickerView.LockedInterval lockedInterval) {
+        LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
+        boolean istStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
+        int startTimeInMinutes = TimePickerUtils.getTimeAsMinutes(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        int endTimeInMinutes = TimePickerUtils.getTimeAsMinutes(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
+
+        if (!istStartTimePm && !isEndTimePm) {
+            for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+                hoursToOvershadow.add(hour);
+            }
+        } else if (!istStartTimePm && isEndTimePm) {
+            for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+                if (hour == 12) {
+                    hoursToOvershadow.add(hour + 12);
+                } else {
+                    hoursToOvershadow.add(hour);
+                }
+            }
+        }
         return hoursToOvershadow;
     }
 }

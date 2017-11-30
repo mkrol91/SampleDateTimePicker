@@ -9,6 +9,8 @@ import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNIT_WIDTH;
 import static junit.framework.Assert.assertFalse;
@@ -531,6 +533,26 @@ public class TimePickerUtilsTest {
         endTime = new Pair<>(14, 45);
 
         assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+    }
+
+    @Test
+    public void extractHoursToOvershadowTest() {
+//        //        lockedIntervals.add(new LockedInterval(6, 15, 14, 45));
+//        lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
+////        lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
+//        lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
+//        lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
+        LinkedHashSet<Integer> hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(2, 0, 7, 0));
+        LinkedHashSet<Integer> result = new LinkedHashSet<>(Arrays.asList(3, 4, 5, 6, 7));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(2, 15, 7, 0));
+        result = new LinkedHashSet<>(Arrays.asList(3, 4, 5, 6, 7));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(6, 15, 14, 45));
+        result = new LinkedHashSet<>(Arrays.asList(7, 8, 9, 10, 11, 24, 13, 14));
+        assertEquals(result, hours);
     }
 
 }
