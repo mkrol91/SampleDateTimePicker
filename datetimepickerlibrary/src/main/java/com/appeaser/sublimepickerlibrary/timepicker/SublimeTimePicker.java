@@ -145,6 +145,8 @@ public class SublimeTimePicker extends FrameLayout
             }
         }
     };
+    private View amLabel;
+    private View pmLabel;
 
     public SublimeTimePicker(Context context) {
         this(context, null);

@@ -58,6 +58,7 @@
     <item name="timepicker_numbers_radius_multiplier_normal" format="float" type="string">0.81
     </item>
     <item name="timepicker_text_size_multiplier_normal" format="float" type="string">0.17</item>
+    <dimen name="thumb_rounded_rect_width">66dp</dimen>
     <dimen name="timepicker_pm_top_padding">3dp</dimen>
     <dimen name="timepicker_ampm_horizontal_padding">12dp</dimen>
     <dimen name="timepicker_ampm_vertical_padding">16dp</dimen>
@@ -158,4 +159,9 @@
     <dimen name="rental_panel_right_padding">15dp</dimen>
     <dimen name="rental_panel_bottom_padding">16dp</dimen>
     <dimen name="rental_hours_width">85dp</dimen>
+    <dimen name="track_rounded_rect_height">36dp</dimen>
+    <dimen name="track_rounded_rect_width">130dp</dimen>
+    <dimen name="track_rounded_rect_corner">18dp</dimen>
+    <dimen name="thumb_rounded_rect_height">30dp</dimen>
+    <dimen name="thumb_rounded_rect_corner">16dp</dimen>
 </resources>

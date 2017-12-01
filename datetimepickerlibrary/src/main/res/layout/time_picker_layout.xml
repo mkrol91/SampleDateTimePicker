@@ -41,10 +41,47 @@
         app:inactiveHoursBackgroundColor="@color/timer_background_blocked"
         app:spNumbersTextColor="@color/white" />
 
-    <Switch
-        android:id="@+id/am_pm_switch"
-        android:layout_width="match_parent"
+    <FrameLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp">
+
+        <Switch
+            android:id="@+id/am_pm_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:thumb="@drawable/thumb_rounded_rect"
+            android:track="@drawable/switch_background" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/am_label_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="AM"
+                android:textColor="@drawable/switch_color_selector"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/pm_label_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="PM"
+                android:textColor="@drawable/switch_color_selector" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>
