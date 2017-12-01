@@ -83,7 +83,6 @@ public class SublimeTimePicker extends FrameLayout
     private Locale mCurrentLocale;
 
     private View mHeaderView;
-    private TextView mMinuteView;
     private View mAmPmLayout;
     private RadialTimePickerView mRadialTimePickerView;
 
@@ -229,23 +228,10 @@ public class SublimeTimePicker extends FrameLayout
 
         mHeaderView = mainView.findViewById(R.id.time_header);
 
-        mMinuteView = (TextView) mainView.findViewById(R.id.minutes);
-        mMinuteView.setOnClickListener(mClickListener);
-
-        ViewCompat.setAccessibilityDelegate(mMinuteView, new ClickActionDelegate(mContext, R.string.select_minutes));
-
-        // Now that we have text appearances out of the way, make sure the hour
-        // and minute views are correctly sized.
-        mMinuteView.setMinWidth(computeStableWidth(mMinuteView, 60));
-
         // Set up AM/PM labels.
         mAmPmLayout = mainView.findViewById(R.id.ampm_layout);
 
         ColorStateList headerTextColor = a.getColorStateList(R.styleable.SublimeTimePicker_spHeaderTextColor);
-
-        if (headerTextColor != null) {
-            mMinuteView.setTextColor(headerTextColor);
-        }
 
         // Set up header background, if available.
         if (SUtils.isApi_22_OrHigher()) {
@@ -379,7 +365,6 @@ public class SublimeTimePicker extends FrameLayout
                     params.addRule(RelativeLayout.RIGHT_OF, 0);
                 } else {
                     params.addRule(RelativeLayout.LEFT_OF, 0);
-                    params.addRule(RelativeLayout.RIGHT_OF, mMinuteView.getId());
                 }
             }
 
@@ -464,7 +449,6 @@ public class SublimeTimePicker extends FrameLayout
 
     @Override
     public void setEnabled(boolean enabled) {
-        mMinuteView.setEnabled(enabled);
         mRadialTimePickerView.setEnabled(enabled);
         mIsEnabled = enabled;
     }
@@ -697,7 +681,6 @@ public class SublimeTimePicker extends FrameLayout
                 AccessibilityUtils.makeAnnouncement(this, mSelectMinutes);
             }
         }
-        mMinuteView.setActivated(index == MINUTE_INDEX);
     }
 
     private void setAmOrPm(int amOrPm) {
@@ -871,18 +854,7 @@ public class SublimeTimePicker extends FrameLayout
             updateHeaderMinute(minute, false);
             setCurrentItemShowing(mRadialTimePickerView.getCurrentItemShowing(), true, true);
             onValidationChanged(true);
-        } else {
-            boolean[] enteredZeros = {false, false};
-            int[] values = getEnteredTime(enteredZeros);
-            String hourFormat = enteredZeros[0] ? "%02d" : "%2d";
-            String minuteFormat = (enteredZeros[1]) ? "%02d" : "%2d";
-            String hourStr = (values[0] == -1) ? mDoublePlaceholderText :
-                    String.format(hourFormat, values[0]).replace(' ', mPlaceholderText);
-            String minuteStr = (values[1] == -1) ? mDoublePlaceholderText :
-                    String.format(minuteFormat, values[1]).replace(' ', mPlaceholderText);
-            mMinuteView.setText(minuteStr);
-            mMinuteView.setActivated(false);
-        }
+        } 
     }
 
     public void setValidationCallback(TimePickerValidationCallback callback) {
