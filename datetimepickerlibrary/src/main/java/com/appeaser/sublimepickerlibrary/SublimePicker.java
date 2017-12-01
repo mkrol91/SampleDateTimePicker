@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.appeaser.sublimepickerlibrary.common.ButtonHandler;
@@ -63,6 +62,7 @@ import java.util.TimeZone;
  */
 public class SublimePicker extends FrameLayout
         implements SublimeDatePicker.OnDateChangedListener,
+        SublimeTimePicker.OnTimeChangedListener,
         SublimeDatePicker.DatePickerValidationCallback,
         SublimeTimePicker.TimePickerValidationCallback {
     private static final String TAG = SublimePicker.class.getSimpleName();
@@ -517,6 +517,7 @@ public class SublimePicker extends FrameLayout
             mTimePicker.setCurrentHour(timeParams[0] /* hour of day */);
             mTimePicker.setIs24HourView(mOptions.is24HourView());
             mTimePicker.setValidationCallback(this);
+            mTimePicker.setOnTimeChangedListener(this);
 
             ivRecurrenceOptionsTP.setVisibility(View.GONE);
         } else {
@@ -604,6 +605,11 @@ public class SublimePicker extends FrameLayout
 
     public void setDisplayChangedListener(DisplayChangedListener displayChangedListener) {
         this.displayChangedListener = displayChangedListener;
+    }
+
+    @Override
+    public void onTimeChanged(SublimeTimePicker view, String formattedTime) {
+        mTimeTabTv.setText(formattedTime);
     }
 
     public interface SublimePickerDateChangedListener {

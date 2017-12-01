@@ -45,6 +45,7 @@ import android.widget.ViewAnimator;
 
 import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
+import com.appeaser.sublimepickerlibrary.timepicker.SublimeTimePicker;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
@@ -85,6 +86,7 @@ public class SublimeDatePicker extends FrameLayout {
     private String mSelectYear;
 
     private SublimeDatePicker.OnDateChangedListener mDateChangedListener;
+    private SublimeTimePicker.OnTimeChangedListener mTimeChangedListener;
 
     private int mCurrentView = UNINITIALIZED;
 
@@ -149,22 +151,6 @@ public class SublimeDatePicker extends FrameLayout {
             onDateChanged(false, false, false);
         }
     };
-
-    private boolean isAnyDayFromRangeDisabled(Calendar startDay) {
-        Calendar day = Calendar.getInstance();
-        day.setTimeInMillis(startDay.getTimeInMillis());
-        if (mDisabledDays.contains(day)) {
-            return true;
-        }
-        for (int i = 0; i < mSubsequentDays; i++) {
-            day.add(Calendar.DAY_OF_YEAR, 1);
-            if (mDisabledDays.contains(day)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Listener called when the user selects a year in the year picker view.
      */
@@ -210,6 +196,21 @@ public class SublimeDatePicker extends FrameLayout {
                              int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initializeLayout(attrs, defStyleAttr, defStyleRes);
+    }
+
+    private boolean isAnyDayFromRangeDisabled(Calendar startDay) {
+        Calendar day = Calendar.getInstance();
+        day.setTimeInMillis(startDay.getTimeInMillis());
+        if (mDisabledDays.contains(day)) {
+            return true;
+        }
+        for (int i = 0; i < mSubsequentDays; i++) {
+            day.add(Calendar.DAY_OF_YEAR, 1);
+            if (mDisabledDays.contains(day)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void initializeLayout(AttributeSet attrs,

@@ -372,13 +372,13 @@ public class RadialTimePickerView extends View {
         Context context = getContext();
 
         //lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
-        lockedIntervals.add(new LockedInterval(2, 15, 7, 0));
+//        lockedIntervals.add(new LockedInterval(2, 15, 7, 0));
         //lockedIntervals.add(new LockedInterval(6, 15, 14, 45));V
         //lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
         //lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
         //lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
 //        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));V
-        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
+//        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
 
         // Pull disabled alpha from theme.
         final TypedValue outValue = new TypedValue();

@@ -153,11 +153,11 @@ public class SublimeTimePicker extends FrameLayout
             if (!hasFocus && mInKbMode && isTypedTimeFullyLegal()) {
                 finishKbMode();
 
-                if (mOnTimeChangedListener != null) {
-                    mOnTimeChangedListener.onTimeChanged(SublimeTimePicker.this,
-                            mRadialTimePickerView.getCurrentHour(),
-                            mRadialTimePickerView.getCurrentMinute());
-                }
+//                if (mOnTimeChangedListener != null) {
+//                    mOnTimeChangedListener.onTimeChanged(SublimeTimePicker.this,
+//                            mRadialTimePickerView.getCurrentHour(),
+//                            mRadialTimePickerView.getCurrentMinute());
+//                }
             }
         }
     };
@@ -469,7 +469,6 @@ public class SublimeTimePicker extends FrameLayout
         return mIs24HourView;
     }
 
-    @SuppressWarnings("unused")
     public void setOnTimeChangedListener(OnTimeChangedListener callback) {
         mOnTimeChangedListener = callback;
     }
@@ -587,8 +586,8 @@ public class SublimeTimePicker extends FrameLayout
     private void onTimeChanged() {
         sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
         if (mOnTimeChangedListener != null) {
-            mOnTimeChangedListener.onTimeChanged(this,
-                    getCurrentHour(), getCurrentMinute());
+//            mOnTimeChangedListener.onTimeChanged(this,
+//                    getCurrentHour(), getCurrentMinute());
         }
     }
 
@@ -597,15 +596,16 @@ public class SublimeTimePicker extends FrameLayout
      */
     @Override
     public void onValueSelected(Pair<Integer, Integer> selectedTime) {
-        updateHeaderHour(selectedTime.first, true);
-        updateHeaderMinute(selectedTime.second, true);
+        CharSequence formattedHour = updateHeaderHour(selectedTime.first, true);
+        CharSequence formattedMinute = updateHeaderMinute(selectedTime.second, true);
+        String formattedTime = formattedHour + ":" + formattedMinute;
         if (mOnTimeChangedListener != null) {
-            mOnTimeChangedListener.onTimeChanged(this, selectedTime.first, selectedTime.second);
+            mOnTimeChangedListener.onTimeChanged(this, formattedTime);
         }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void updateHeaderHour(int value, boolean announce) {
+    private CharSequence updateHeaderHour(int value, boolean announce) {
         String timePattern;
 
         if (SUtils.isApi_18_OrHigher()) {
@@ -639,10 +639,10 @@ public class SublimeTimePicker extends FrameLayout
             format = "%d";
         }
         CharSequence text = String.format(format, value);
-        mHourView.setText(text);
         if (announce) {
             tryAnnounceForAccessibility(text, true);
         }
+        return text;
     }
 
     private void tryAnnounceForAccessibility(CharSequence text, boolean isHour) {
@@ -688,15 +688,15 @@ public class SublimeTimePicker extends FrameLayout
         mSeparatorView.setText(separatorText);
     }
 
-    private void updateHeaderMinute(int value, boolean announceForAccessibility) {
+    private CharSequence updateHeaderMinute(int value, boolean announceForAccessibility) {
         if (value == 60) {
             value = 0;
         }
         final CharSequence text = String.format(mCurrentLocale, "%02d", value);
-        mMinuteView.setText(text);
         if (announceForAccessibility) {
             tryAnnounceForAccessibility(text, false);
         }
+        return text;
     }
 
     /**
@@ -1171,11 +1171,9 @@ public class SublimeTimePicker extends FrameLayout
     public interface OnTimeChangedListener {
 
         /**
-         * @param view      The view associated with this listener.
-         * @param hourOfDay The current hour.
-         * @param minute    The current minute.
+         * @param view The view associated with this listener.
          */
-        void onTimeChanged(SublimeTimePicker view, int hourOfDay, int minute);
+        void onTimeChanged(SublimeTimePicker view, String formattedTime);
     }
 
     /**
