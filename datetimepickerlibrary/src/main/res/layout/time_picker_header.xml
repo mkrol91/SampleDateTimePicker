@@ -34,26 +34,6 @@
         android:orientation="vertical"
         android:paddingEnd="8dp"
         android:paddingStart="8dp">
-
-        <CheckedTextView
-            android:id="@+id/am_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:paddingTop="@dimen/sp_timepicker_am_top_padding"
-            android:text="am"
-            android:textAppearance="@style/SPAmPmLabelTextAppearance" />
-
-        <CheckedTextView
-            android:id="@+id/pm_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:paddingTop="@dimen/sp_timepicker_pm_top_padding"
-            android:text="pm"
-            android:textAppearance="@style/SPAmPmLabelTextAppearance" />
     </LinearLayout>
 
     <ImageView

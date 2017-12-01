@@ -43,7 +43,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -84,16 +83,11 @@ public class SublimeTimePicker extends FrameLayout
     private Locale mCurrentLocale;
 
     private View mHeaderView;
-    private View mAmPmLayout;
     private RadialTimePickerView mRadialTimePickerView;
     private final View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v.getId() == R.id.am_label) {
-                setAmOrPm(AM);
-            } else if (v.getId() == R.id.pm_label) {
-                setAmOrPm(PM);
-            } else if (v.getId() == R.id.am_pm_switch) {
+            if (v.getId() == R.id.am_pm_switch) {
                 mRadialTimePickerView.toggleAmPm();
             } else {
                 // Failed to handle this click, don't vibrate.
@@ -223,9 +217,6 @@ public class SublimeTimePicker extends FrameLayout
 
         mHeaderView = mainView.findViewById(R.id.time_header);
 
-        // Set up AM/PM labels.
-        mAmPmLayout = mainView.findViewById(R.id.ampm_layout);
-
         ColorStateList headerTextColor = a.getColorStateList(R.styleable.SublimeTimePicker_spHeaderTextColor);
 
         // Set up header background, if available.
@@ -309,8 +300,6 @@ public class SublimeTimePicker extends FrameLayout
     private void updateUI(int index) {
         // Update RadialPicker values
         updateRadialPicker(index);
-        // Enable or disable the AM/PM view.
-        updateHeaderAmPm();
         // Update Hour and Minutes
         updateHeaderHour(mInitialHourOfDay, false);
         // Update time separator
@@ -324,47 +313,6 @@ public class SublimeTimePicker extends FrameLayout
     private void updateRadialPicker(int index) {
         mRadialTimePickerView.initialize(mInitialHourOfDay, mInitialMinute, mIs24HourView);
         setCurrentItemShowing(index, false, true);
-    }
-
-    private void updateHeaderAmPm() {
-        if (mIs24HourView) {
-            mAmPmLayout.setVisibility(View.GONE);
-        } else {
-            // Ensure that AM/PM layout is in the correct position.
-            String timePattern;
-
-            // Available on API >= 18
-            if (SUtils.isApi_18_OrHigher()) {
-                timePattern = DateFormat.getBestDateTimePattern(mCurrentLocale, "hm");
-            } else {
-                timePattern = DateTimePatternHelper.getBestDateTimePattern(mCurrentLocale,
-                        DateTimePatternHelper.PATTERN_hm);
-            }
-
-            final boolean isAmPmAtStart = timePattern.startsWith("a");
-            setAmPmAtStart(isAmPmAtStart);
-        }
-    }
-
-    private void setAmPmAtStart(boolean isAmPmAtStart) {
-        if (mIsAmPmAtStart != isAmPmAtStart) {
-            mIsAmPmAtStart = isAmPmAtStart;
-
-            final RelativeLayout.LayoutParams params =
-                    (RelativeLayout.LayoutParams) mAmPmLayout.getLayoutParams();
-            int[] rules = params.getRules();
-
-            if (rules[RelativeLayout.RIGHT_OF] != 0 ||
-                    rules[RelativeLayout.LEFT_OF] != 0) {
-                if (isAmPmAtStart) {
-                    params.addRule(RelativeLayout.RIGHT_OF, 0);
-                } else {
-                    params.addRule(RelativeLayout.LEFT_OF, 0);
-                }
-            }
-
-            mAmPmLayout.setLayoutParams(params);
-        }
     }
 
     /**
@@ -394,7 +342,6 @@ public class SublimeTimePicker extends FrameLayout
         }
         mInitialHourOfDay = currentHour;
         updateHeaderHour(currentHour, true);
-        updateHeaderAmPm();
         mRadialTimePickerView.setAmOrPm(mInitialHourOfDay < 12 ? AM : PM);
         invalidate();
         onTimeChanged();
@@ -421,7 +368,6 @@ public class SublimeTimePicker extends FrameLayout
         int hour = mRadialTimePickerView.getCurrentHour();
         mInitialHourOfDay = hour;
         updateHeaderHour(hour, false);
-        updateHeaderAmPm();
         updateRadialPicker(mRadialTimePickerView.getCurrentItemShowing());
         invalidate();
     }
@@ -561,7 +507,7 @@ public class SublimeTimePicker extends FrameLayout
         CharSequence formattedSeparator = updateHeaderSeparator();
         CharSequence formattedMinute = updateHeaderMinute(selectedTime.second, true);
         boolean isTimePm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
-        String formattedTime = formattedHour + "" + formattedSeparator + formattedMinute+" ";
+        String formattedTime = formattedHour + "" + formattedSeparator + formattedMinute + " ";
         String am = getStringFromContext(R.string.am);
         String pm = getStringFromContext(R.string.pm);
         String timeWitPmInfo = isTimePm ? formattedTime + pm : formattedTime + am;
