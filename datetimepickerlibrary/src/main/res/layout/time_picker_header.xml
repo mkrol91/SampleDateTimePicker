@@ -26,22 +26,6 @@
     android:paddingEnd="16dp"
     android:paddingStart="16dp">
 
-    <!-- The hour should always be to the left of the separator,
-         regardless of the current locale's layout direction. -->
-    <TextView
-        android:id="@+id/hours"
-        style="@style/TimePickerTimeTextBig"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/separator"
-        android:layout_toLeftOf="@+id/separator"
-        android:ellipsize="none"
-        android:gravity="right"
-        android:singleLine="true"
-        android:text="Hour"
-        android:textAppearance="@style/SPTimeLabelTextAppearance"
-        android:textColor="@color/black" />
-
     <TextView
         android:id="@+id/separator"
         style="@style/TimePickerTimeTextBig"

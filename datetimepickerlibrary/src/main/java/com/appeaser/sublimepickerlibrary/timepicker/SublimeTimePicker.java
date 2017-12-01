@@ -83,11 +83,9 @@ public class SublimeTimePicker extends FrameLayout
     private Locale mCurrentLocale;
 
     private View mHeaderView;
-    private TextView mHourView;
     private TextView mMinuteView;
     private View mAmPmLayout;
     private RadialTimePickerView mRadialTimePickerView;
-    private TextView mSeparatorView;
 
     private String mAmText;
     private String mPmText;
@@ -120,8 +118,6 @@ public class SublimeTimePicker extends FrameLayout
                 setAmOrPm(AM);
             } else if (v.getId() == R.id.pm_label) {
                 setAmOrPm(PM);
-            } else if (v.getId() == R.id.hours) {
-                setCurrentItemShowing(HOUR_INDEX, true, true);
             } else if (v.getId() == R.id.minutes) {
                 setCurrentItemShowing(MINUTE_INDEX, true, true);
             } else if (v.getId() == R.id.am_pm_switch) {
@@ -233,14 +229,6 @@ public class SublimeTimePicker extends FrameLayout
 
         mHeaderView = mainView.findViewById(R.id.time_header);
 
-        // Set up hour/minute labels.
-        mHourView = (TextView) mainView.findViewById(R.id.hours);
-        mHourView.setOnClickListener(mClickListener);
-
-        ViewCompat.setAccessibilityDelegate(mHourView, new ClickActionDelegate(mContext, R.string.select_hours));
-
-        mSeparatorView = (TextView) mainView.findViewById(R.id.separator);
-
         mMinuteView = (TextView) mainView.findViewById(R.id.minutes);
         mMinuteView.setOnClickListener(mClickListener);
 
@@ -248,7 +236,6 @@ public class SublimeTimePicker extends FrameLayout
 
         // Now that we have text appearances out of the way, make sure the hour
         // and minute views are correctly sized.
-        mHourView.setMinWidth(computeStableWidth(mHourView, 24));
         mMinuteView.setMinWidth(computeStableWidth(mMinuteView, 60));
 
         // Set up AM/PM labels.
@@ -257,8 +244,6 @@ public class SublimeTimePicker extends FrameLayout
         ColorStateList headerTextColor = a.getColorStateList(R.styleable.SublimeTimePicker_spHeaderTextColor);
 
         if (headerTextColor != null) {
-            mHourView.setTextColor(headerTextColor);
-            mSeparatorView.setTextColor(headerTextColor);
             mMinuteView.setTextColor(headerTextColor);
         }
 
@@ -392,7 +377,6 @@ public class SublimeTimePicker extends FrameLayout
                     rules[RelativeLayout.LEFT_OF] != 0) {
                 if (isAmPmAtStart) {
                     params.addRule(RelativeLayout.RIGHT_OF, 0);
-                    params.addRule(RelativeLayout.LEFT_OF, mHourView.getId());
                 } else {
                     params.addRule(RelativeLayout.LEFT_OF, 0);
                     params.addRule(RelativeLayout.RIGHT_OF, mMinuteView.getId());
@@ -480,7 +464,6 @@ public class SublimeTimePicker extends FrameLayout
 
     @Override
     public void setEnabled(boolean enabled) {
-        mHourView.setEnabled(enabled);
         mMinuteView.setEnabled(enabled);
         mRadialTimePickerView.setEnabled(enabled);
         mIsEnabled = enabled;
@@ -514,7 +497,6 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView.invalidate();
         if (mInKbMode) {
             tryStartingKbMode(-1);
-            mHourView.invalidate();
         }
     }
 
@@ -597,8 +579,9 @@ public class SublimeTimePicker extends FrameLayout
     @Override
     public void onValueSelected(Pair<Integer, Integer> selectedTime) {
         CharSequence formattedHour = updateHeaderHour(selectedTime.first, true);
+        CharSequence formattedSeparator = updateHeaderSeparator();
         CharSequence formattedMinute = updateHeaderMinute(selectedTime.second, true);
-        String formattedTime = formattedHour + ":" + formattedMinute;
+        String formattedTime = formattedHour + "" + formattedSeparator + formattedMinute;
         if (mOnTimeChangedListener != null) {
             mOnTimeChangedListener.onTimeChanged(this, formattedTime);
         }
@@ -662,7 +645,7 @@ public class SublimeTimePicker extends FrameLayout
      * We pass the correct "skeleton" depending on 12 or 24 hours view and then extract the
      * separator as the character which is just after the hour marker in the returned pattern.
      */
-    private void updateHeaderSeparator() {
+    private CharSequence updateHeaderSeparator() {
         String timePattern;
 
         // Available on API >= 18
@@ -685,7 +668,7 @@ public class SublimeTimePicker extends FrameLayout
         } else {
             separatorText = Character.toString(timePattern.charAt(hIndex + 1));
         }
-        mSeparatorView.setText(separatorText);
+        return separatorText;
     }
 
     private CharSequence updateHeaderMinute(int value, boolean announceForAccessibility) {
@@ -714,8 +697,6 @@ public class SublimeTimePicker extends FrameLayout
                 AccessibilityUtils.makeAnnouncement(this, mSelectMinutes);
             }
         }
-
-        mHourView.setActivated(index == HOUR_INDEX);
         mMinuteView.setActivated(index == MINUTE_INDEX);
     }
 
@@ -899,8 +880,6 @@ public class SublimeTimePicker extends FrameLayout
                     String.format(hourFormat, values[0]).replace(' ', mPlaceholderText);
             String minuteStr = (values[1] == -1) ? mDoublePlaceholderText :
                     String.format(minuteFormat, values[1]).replace(' ', mPlaceholderText);
-            mHourView.setText(hourStr);
-            mHourView.setActivated(false);
             mMinuteView.setText(minuteStr);
             mMinuteView.setActivated(false);
         }
