@@ -88,7 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="none"
-            android:lines="1"
+            android:singleLine="true"
             android:paddingTop="@dimen/sp_timepicker_am_top_padding"
             android:text="am"
             android:textAppearance="@style/SPAmPmLabelTextAppearance" />
@@ -98,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="none"
-            android:lines="1"
+            android:singleLine="true"
             android:paddingTop="@dimen/sp_timepicker_pm_top_padding"
             android:text="pm"
             android:textAppearance="@style/SPAmPmLabelTextAppearance" />

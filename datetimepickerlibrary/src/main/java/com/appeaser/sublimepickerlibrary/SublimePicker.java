@@ -269,18 +269,6 @@ public class SublimePicker extends FrameLayout
         }
     }
 
-    // 'mHiddenPicker' retains the Picker that was active
-    // before 'RecurrencePicker' was shown. On its dismissal,
-    // we have an option to show either 'DatePicker' or 'TimePicker'.
-    // 'mHiddenPicker' helps identify the correct option.
-    private void updateCurrentPicker() {
-        if (mHiddenPicker != SublimeOptions.Picker.INVALID) {
-            mCurrentPicker = mHiddenPicker;
-        } else {
-            throw new RuntimeException("Logic issue: No valid option for mCurrentPicker");
-        }
-    }
-
     private void updateDisplay() {
         CharSequence switchButtonText;
 

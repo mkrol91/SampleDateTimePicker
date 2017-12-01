@@ -377,6 +377,7 @@ public class RadialTimePickerView extends View {
         //lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
         //lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
         //lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
+//        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));V
         lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
 
         // Pull disabled alpha from theme.
@@ -730,15 +731,6 @@ public class RadialTimePickerView extends View {
         canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
     }
 
-    private HashMap<Integer, Float> generateHourToStartAngleMap(int unitsCount, ArrayList<Float> startArcAngles) {
-        HashMap<Integer, Float> hourStartAngleMap = new HashMap<>();
-        for (int i = 0; i < startArcAngles.size(); i++) {
-            Float startArcAngle = startArcAngles.get(i);
-            int hourValue = (i + 3) % unitsCount + 1;
-            hourStartAngleMap.put(hourValue, startArcAngle);
-        }
-        return hourStartAngleMap;
-    }
 
     private void drawHours(Canvas canvas, float alphaMod) {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);

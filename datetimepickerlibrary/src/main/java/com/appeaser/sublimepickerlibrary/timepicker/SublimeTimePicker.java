@@ -185,14 +185,6 @@ public class SublimeTimePicker extends FrameLayout
         initializeLayout();
     }
 
-    private static int modulo12(int n, boolean startWithZero) {
-        int value = n % 12;
-        if (value == 0 && !startWithZero) {
-            value = 12;
-        }
-        return value;
-    }
-
     static private int lastIndexOfAny(String str, char[] any) {
         final int lengthAny = any.length;
         if (lengthAny > 0) {
