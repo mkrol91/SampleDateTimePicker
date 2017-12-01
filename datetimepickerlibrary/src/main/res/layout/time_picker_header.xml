@@ -26,27 +26,10 @@
     android:paddingEnd="16dp"
     android:paddingStart="16dp">
 
-    <TextView
-        android:id="@+id/minutes"
-        style="@style/TimePickerTimeTextBig"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/separator"
-        android:layout_toRightOf="@+id/separator"
-        android:ellipsize="none"
-        android:gravity="left"
-        android:singleLine="true"
-        android:text="Minute"
-        android:textAppearance="@style/SPTimeLabelTextAppearance" />
-
-    <!-- The layout alignment of this view will switch between toRightOf
-         @id/minutes and toLeftOf @id/hours depending on the locale. -->
     <LinearLayout
         android:id="@+id/ampm_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/minutes"
-        android:layout_toRightOf="@+id/minutes"
         android:baselineAlignedChildIndex="1"
         android:orientation="vertical"
         android:paddingEnd="8dp"

@@ -117,9 +117,7 @@ public class SublimeTimePicker extends FrameLayout
                 setAmOrPm(AM);
             } else if (v.getId() == R.id.pm_label) {
                 setAmOrPm(PM);
-            } else if (v.getId() == R.id.minutes) {
-                setCurrentItemShowing(MINUTE_INDEX, true, true);
-            } else if (v.getId() == R.id.am_pm_switch) {
+            }  else if (v.getId() == R.id.am_pm_switch) {
                 mRadialTimePickerView.toggleAmPm();
             } else {
                 // Failed to handle this click, don't vibrate.
@@ -854,7 +852,7 @@ public class SublimeTimePicker extends FrameLayout
             updateHeaderMinute(minute, false);
             setCurrentItemShowing(mRadialTimePickerView.getCurrentItemShowing(), true, true);
             onValidationChanged(true);
-        } 
+        }
     }
 
     public void setValidationCallback(TimePickerValidationCallback callback) {
