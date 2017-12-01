@@ -26,16 +26,6 @@
     android:paddingEnd="16dp"
     android:paddingStart="16dp">
 
-    <LinearLayout
-        android:id="@+id/ampm_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:baselineAlignedChildIndex="1"
-        android:orientation="vertical"
-        android:paddingEnd="8dp"
-        android:paddingStart="8dp">
-    </LinearLayout>
-
     <ImageView
         android:id="@+id/ivRecurrenceOptionsTP"
         android:layout_width="wrap_content"
