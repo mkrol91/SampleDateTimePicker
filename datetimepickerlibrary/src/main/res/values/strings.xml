@@ -2,7 +2,7 @@
 
     <!-- SublimeDatePicker -->
     <!-- Accessibility description for the item that is currently selected. -->
-    <string name="item_is_selected"><xliff:g id="item" example="2013">%1$s</xliff:g> selected</string>
+    <string name="item_is_selected"><xliff:g example="2013" id="item">%1$s</xliff:g> selected</string>
 
     <!--
         Content description for the month and day selector in the date picker, which displays
@@ -36,7 +36,7 @@
     <!-- Accessibility announcement for minute circular picker [CHAR LIMIT=NONE] -->
     <string name="select_minutes">Select minutes</string>
     <!-- Accessibility announcement when a number that had been typed in is deleted [CHAR_LIMIT=NONE] -->
-    <string name="deleted_key"><xliff:g id="key" example="4">%1$s</xliff:g> deleted</string>
+    <string name="deleted_key"><xliff:g example="4" id="key">%1$s</xliff:g> deleted</string>
 
 
     <!-- Recurrence Picker -->
@@ -138,6 +138,8 @@
     </plurals>
     <string name="time">Zeit</string>
     <string name="date">Datum</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
 
     <!-- Description of the button to move to the previous month. [CHAR LIMIT=NONE] -->
     <string name="sp_date_picker_prev_month_button">Previous month</string>

@@ -26,9 +26,9 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -51,6 +51,7 @@ import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
+import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -85,31 +86,6 @@ public class SublimeTimePicker extends FrameLayout
     private View mHeaderView;
     private View mAmPmLayout;
     private RadialTimePickerView mRadialTimePickerView;
-
-    private String mAmText;
-    private String mPmText;
-    private Switch amPmSwitch;
-
-    private boolean mIsEnabled = true;
-    private boolean mAllowAutoAdvance;
-    private int mInitialHourOfDay;
-    private int mInitialMinute;
-    private boolean mIs24HourView;
-    private boolean mIsAmPmAtStart;
-
-    // For hardware IME input.
-    private char mPlaceholderText;
-    private String mDoublePlaceholderText;
-    private String mDeletedKeyFormat;
-    private boolean mInKbMode;
-    private ArrayList<Integer> mTypedTimes = new ArrayList<>();
-    private Node mLegalTimesTree;
-    private int mAmKeyCode;
-    private int mPmKeyCode;
-
-    // Accessibility strings.
-    private String mSelectHours;
-    private String mSelectMinutes;
     private final View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -117,7 +93,7 @@ public class SublimeTimePicker extends FrameLayout
                 setAmOrPm(AM);
             } else if (v.getId() == R.id.pm_label) {
                 setAmOrPm(PM);
-            }  else if (v.getId() == R.id.am_pm_switch) {
+            } else if (v.getId() == R.id.am_pm_switch) {
                 mRadialTimePickerView.toggleAmPm();
             } else {
                 // Failed to handle this click, don't vibrate.
@@ -127,6 +103,27 @@ public class SublimeTimePicker extends FrameLayout
             SUtils.vibrateForTimePicker(SublimeTimePicker.this);
         }
     };
+    private String mAmText;
+    private String mPmText;
+    private Switch amPmSwitch;
+    private boolean mIsEnabled = true;
+    private boolean mAllowAutoAdvance;
+    private int mInitialHourOfDay;
+    private int mInitialMinute;
+    private boolean mIs24HourView;
+    private boolean mIsAmPmAtStart;
+    // For hardware IME input.
+    private char mPlaceholderText;
+    private String mDoublePlaceholderText;
+    private String mDeletedKeyFormat;
+    private boolean mInKbMode;
+    private ArrayList<Integer> mTypedTimes = new ArrayList<>();
+    private Node mLegalTimesTree;
+    private int mAmKeyCode;
+    private int mPmKeyCode;
+    // Accessibility strings.
+    private String mSelectHours;
+    private String mSelectMinutes;
     // Most recent time announcement values for accessibility.
     private CharSequence mLastAnnouncedText;
     private boolean mLastAnnouncedIsHour;
@@ -563,11 +560,21 @@ public class SublimeTimePicker extends FrameLayout
         CharSequence formattedHour = updateHeaderHour(selectedTime.first, true);
         CharSequence formattedSeparator = updateHeaderSeparator();
         CharSequence formattedMinute = updateHeaderMinute(selectedTime.second, true);
-        String formattedTime = formattedHour + "" + formattedSeparator + formattedMinute;
+        boolean isTimePm = TimePickerUtils.isTimePm(selectedTime.first, selectedTime.second);
+        String formattedTime = formattedHour + "" + formattedSeparator + formattedMinute+" ";
+        String am = getStringFromContext(R.string.am);
+        String pm = getStringFromContext(R.string.pm);
+        String timeWitPmInfo = isTimePm ? formattedTime + pm : formattedTime + am;
         if (mOnTimeChangedListener != null) {
-            mOnTimeChangedListener.onTimeChanged(this, formattedTime);
+            mOnTimeChangedListener.onTimeChanged(timeWitPmInfo);
         }
     }
+
+    @NonNull
+    private String getStringFromContext(int am) {
+        return mContext.getResources().getString(am);
+    }
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private CharSequence updateHeaderHour(int value, boolean announce) {
@@ -1118,11 +1125,7 @@ public class SublimeTimePicker extends FrameLayout
      * The callback interface used to indicate the time has been adjusted.
      */
     public interface OnTimeChangedListener {
-
-        /**
-         * @param view The view associated with this listener.
-         */
-        void onTimeChanged(SublimeTimePicker view, String formattedTime);
+        void onTimeChanged(String timeWitPmInfo);
     }
 
     /**

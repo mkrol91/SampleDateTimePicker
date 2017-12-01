@@ -608,7 +608,7 @@ public class SublimePicker extends FrameLayout
     }
 
     @Override
-    public void onTimeChanged(SublimeTimePicker view, String formattedTime) {
+    public void onTimeChanged(String formattedTime) {
         mTimeTabTv.setText(formattedTime);
     }
 
