@@ -42,6 +42,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -84,19 +85,6 @@ public class SublimeTimePicker extends FrameLayout
 
     private View mHeaderView;
     private RadialTimePickerView mRadialTimePickerView;
-    private final View.OnClickListener mClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v.getId() == R.id.am_pm_switch) {
-                mRadialTimePickerView.toggleAmPm();
-            } else {
-                // Failed to handle this click, don't vibrate.
-                return;
-            }
-
-            SUtils.vibrateForTimePicker(SublimeTimePicker.this);
-        }
-    };
     private String mAmText;
     private String mPmText;
     private Switch amPmSwitch;
@@ -236,9 +224,14 @@ public class SublimeTimePicker extends FrameLayout
 
         a.recycle();
 
-        mRadialTimePickerView = (RadialTimePickerView) mainView.findViewById(R.id.radial_picker);
+        mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         amPmSwitch = mainView.findViewById(R.id.am_pm_switch);
-        amPmSwitch.setOnClickListener(mClickListener);
+        amPmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mRadialTimePickerView.toggleAmPm();
+            }
+        });
 
         setupListeners();
 
