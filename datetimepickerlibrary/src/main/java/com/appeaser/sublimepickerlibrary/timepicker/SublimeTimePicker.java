@@ -133,8 +133,9 @@ public class SublimeTimePicker extends FrameLayout
             }
         }
     };
-    private View amLabel;
-    private View pmLabel;
+
+    private TextView pmLabelText;
+    private TextView amLabelText;
 
     public SublimeTimePicker(Context context) {
         this(context, null);
@@ -225,10 +226,15 @@ public class SublimeTimePicker extends FrameLayout
         a.recycle();
 
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
+        amLabelText = mainView.findViewById(R.id.am_label_text);
+        pmLabelText = mainView.findViewById(R.id.pm_label_text);
         amPmSwitch = mainView.findViewById(R.id.am_pm_switch);
+        amLabelText.setSelected(true);
         amPmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                amLabelText.setSelected(!isChecked);
+                pmLabelText.setSelected(isChecked);
                 mRadialTimePickerView.toggleAmPm();
             }
         });
