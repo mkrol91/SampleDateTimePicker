@@ -126,12 +126,6 @@ public class SublimeTimePicker extends FrameLayout
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus && mInKbMode && isTypedTimeFullyLegal()) {
                 finishKbMode();
-
-//                if (mOnTimeChangedListener != null) {
-//                    mOnTimeChangedListener.onTimeChanged(SublimeTimePicker.this,
-//                            mRadialTimePickerView.getCurrentHour(),
-//                            mRadialTimePickerView.getCurrentMinute());
-//                }
             }
         }
     };
@@ -228,14 +222,7 @@ public class SublimeTimePicker extends FrameLayout
         a.recycle();
 
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
-        //new LockedInterval(2, 0, 7, 0);
-        //new LockedInterval(2, 15, 7, 0);
-        //new LockedInterval(6, 15, 14, 45);
-        //new LockedInterval(22, 15, 2, 0);
-        //new LockedInterval(23, 0, 4, 0);
-        //new LockedInterval(16, 15, 19, 0);
-        //new LockedInterval(9, 15, 23, 45);
-        //new LockedInterval(9, 15, 23, 45);
+        //TODO: add locked time intervals
         mRadialTimePickerView.setLockedIntervals(
                 Arrays.asList(new LockedInterval(2,0,7,0),
                 new LockedInterval(22, 15, 1, 30)));
