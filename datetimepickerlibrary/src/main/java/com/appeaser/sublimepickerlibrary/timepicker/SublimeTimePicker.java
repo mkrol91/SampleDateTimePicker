@@ -51,6 +51,7 @@ import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
 import com.appeaser.sublimepickerlibrary.utilities.LockedInterval;
+import com.appeaser.sublimepickerlibrary.utilities.Quarter;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
@@ -224,8 +225,8 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         //TODO: add locked time intervals
         mRadialTimePickerView.setLockedIntervals(
-                Arrays.asList(new LockedInterval(2,0,7,0),
-                new LockedInterval(22, 15, 1, 30)));
+                Arrays.asList(new LockedInterval(2, Quarter.Q0, 7, Quarter.Q0),
+                        new LockedInterval(22, Quarter.Q15, 1, Quarter.Q30)));
         amLabelText = mainView.findViewById(R.id.am_label_text);
         pmLabelText = mainView.findViewById(R.id.pm_label_text);
         amPmSwitch = mainView.findViewById(R.id.am_pm_switch);

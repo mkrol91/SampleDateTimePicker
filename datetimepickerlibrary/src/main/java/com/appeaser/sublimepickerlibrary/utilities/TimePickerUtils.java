@@ -278,13 +278,6 @@ public class TimePickerUtils {
         }
 
         return new Pair<>(amSweep, pmSweep);
-
-//        if (!isStartTimePm && isEndTimePm) {
-//            if (sweepAngles.first == FULL_ANGLE) {
-//                sweepAngles.first -= UNIT_WIDTH;
-//            }
-//        }
-
     }
 
     public static int getTimeAsMinutes(int startHour, int startMinute) {

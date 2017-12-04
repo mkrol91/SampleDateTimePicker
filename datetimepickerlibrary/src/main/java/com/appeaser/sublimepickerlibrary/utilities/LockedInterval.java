@@ -10,7 +10,7 @@ public final class LockedInterval {
     private int endHour;
     private int endMinute;
 
-    public LockedInterval(int startHour, int startMinute, int endHour, int endMinute) {
+    public LockedInterval(int startHour, @Quarter int startMinute, int endHour, @Quarter int endMinute) {
         this.startHour = startHour;
         this.startMinute = startMinute;
         this.endHour = endHour;
@@ -48,4 +48,5 @@ public final class LockedInterval {
     public void setEndMinute(int endMinute) {
         this.endMinute = endMinute;
     }
+
 }
