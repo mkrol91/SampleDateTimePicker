@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SampleDateTimePicker.iml" filepath="$PROJECT_DIR$/SampleDateTimePicker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P.iml" filepath="$PROJECT_DIR$/P.iml" />
+      <module fileurl="file://E:\P\SampleDateTimePicker.iml" filepath="E:\P\SampleDateTimePicker.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/datetimepickerlibrary/datetimepickerlibrary.iml" filepath="$PROJECT_DIR$/datetimepickerlibrary/datetimepickerlibrary.iml" />
     </modules>

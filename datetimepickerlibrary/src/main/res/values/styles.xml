@@ -418,6 +418,7 @@
         <item name="android:textColor">@color/picker_icon_gray</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:paddingLeft">@dimen/sp_tab_picker_content_margin_left</item>
     </style>
 
     <style name="PickerTabText">
@@ -425,6 +426,17 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold</item>
         <item name="android:singleLine">true</item>
+        <item name="android:paddingLeft">@dimen/sp_tab_picker_content_margin_left</item>
+    </style>
+
+    <style name="PickerTabDateArrow">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
+        <item name="android:paddingStart">6dp</item>
     </style>
 
 

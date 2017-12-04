@@ -594,9 +594,7 @@ class SimpleMonthView extends View {
 
             boolean isSunday = col == DAYS_IN_WEEK - 1;
             final int[] stateSet = SUtils.resolveStateSet(stateMask);
-            if (isDayToday && !isSelected) {
-                dayTextColor = mDaySelectorPaint.getColor();
-            } else if (isSunday) {
+            if (isSunday) {
                 dayTextColor = mSundayTextColor.getColorForState(stateSet, 0);
             } else {
                 dayTextColor = mDayTextColor.getColorForState(stateSet, 0);
@@ -625,7 +623,7 @@ class SimpleMonthView extends View {
     private int getDayForOtherMonth(int day) {
         int dayNum = day;
         if (dayNum < 1) {
-            int daysInMonth = SUtils.getDaysInMonth(mMonth - 1 == 0 ? 11 : mMonth - 1, mYear);
+            int daysInMonth = SUtils.getDaysInMonth(mMonth - 1 <= 0 ? 11 : mMonth - 1, mYear);
             dayNum = dayNum + daysInMonth;
         } else if (dayNum > mDaysInMonth) {
             dayNum -= mDaysInMonth;

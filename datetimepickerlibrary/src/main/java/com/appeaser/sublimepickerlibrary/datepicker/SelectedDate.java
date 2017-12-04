@@ -10,25 +10,47 @@ public class SelectedDate {
     public enum Type {SINGLE, RANGE}
 
     private Calendar mFirstDate, mSecondDate;
+    private boolean isSet;
+
+    public SelectedDate() {
+        isSet = false;
+    }
 
     public SelectedDate(Calendar startDate, Calendar endDate) {
         mFirstDate = startDate;
         mSecondDate = endDate;
+        isSet = true;
     }
 
     public SelectedDate(Calendar date) {
         mFirstDate = mSecondDate = date;
+        isSet = true;
+    }
+
+    public SelectedDate(Calendar date, boolean isDefault) {
+        mFirstDate = mSecondDate = date;
+        isSet = !isDefault;
     }
 
     // TODO: Should be requiring Locale
     public SelectedDate(SelectedDate date) {
         mFirstDate = Calendar.getInstance();
         mSecondDate = Calendar.getInstance();
+        isSet = false;
 
-        if (date != null) {
+        if (date != null && date.getFirstDate() != null && date.getSecondDate() != null) {
             mFirstDate.setTimeInMillis(date.getStartDate().getTimeInMillis());
             mSecondDate.setTimeInMillis(date.getEndDate().getTimeInMillis());
+            isSet = date.isSet;
         }
+    }
+
+    public boolean isSet() {
+        return isSet;
+    }
+
+    public void unset() {
+        isSet = false;
     }
 
     public Calendar getFirstDate() {

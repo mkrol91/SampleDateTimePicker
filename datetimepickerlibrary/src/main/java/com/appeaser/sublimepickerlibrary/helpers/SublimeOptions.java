@@ -70,6 +70,7 @@ public class SublimeOptions implements Parcelable {
     // Defaults
     private Picker mPickerToShow = Picker.DATE_PICKER;
     private RentalSpan mSubsequentDays = RentalSpan.HALF_DAY;
+    private Locale mDefaultLocale = Locale.getDefault();
 
     public SublimeOptions() {
         // Nothing
@@ -242,6 +243,10 @@ public class SublimeOptions implements Parcelable {
     }
 
     public SelectedDate getDateParams() {
+        if (mStartYear == -1 && mStartMonth == -1 && mStartDayOfMonth == -1) {
+            return new SelectedDate();
+        }
+
         Calendar startCal = SUtils.getCalendarForLocale(null, Locale.getDefault());
         if (mStartYear == -1 || mStartMonth == -1 || mStartDayOfMonth == -1) {
             mStartYear = startCal.get(Calendar.YEAR);
@@ -330,6 +335,40 @@ public class SublimeOptions implements Parcelable {
         return mCanPickDateRange;
     }
 
+    public RentalSpan getSubsequentDays(){
+        return mSubsequentDays;
+    }
+
+    public int getSubsequentDaysCount() {
+        if (mSubsequentDays == null) {
+            return 0;
+        }
+
+        switch (mSubsequentDays) {
+            case HALF_DAY:
+            case ONE_DAY:
+                return 0;
+            case TWO_DAYS:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    public SublimeOptions setSubsequentDays(RentalSpan days) {
+        this.mSubsequentDays = days;
+        return this;
+    }
+
+    public Locale getDefaultLocale() {
+        return mDefaultLocale;
+    }
+
+    public SublimeOptions setDefaultLocale(Locale locale) {
+        this.mDefaultLocale = locale;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -373,30 +412,6 @@ public class SublimeOptions implements Parcelable {
         dest.writeByte((byte) (mCanPickDateRange ? 1 : 0));
         dest.writeSerializable(disabledDays);
         dest.writeString(mSubsequentDays.name());
-    }
-
-    public RentalSpan getSubsequentDays(){
-        return mSubsequentDays;
-    }
-
-    public int getSubsequentDaysCount() {
-        if (mSubsequentDays == null) {
-            return 0;
-        }
-
-        switch (mSubsequentDays) {
-            case HALF_DAY:
-            case ONE_DAY:
-                return 0;
-            case TWO_DAYS:
-                return 1;
-            default:
-                return 0;
-        }
-    }
-
-    public void setSubsequentDays(RentalSpan days) {
-        this.mSubsequentDays = days;
     }
 
     public enum Picker {DATE_PICKER, TIME_PICKER, REPEAT_OPTION_PICKER, INVALID}

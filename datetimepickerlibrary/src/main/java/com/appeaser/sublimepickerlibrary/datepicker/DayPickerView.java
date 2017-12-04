@@ -28,7 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityManager;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
@@ -45,6 +45,7 @@ class DayPickerView extends ViewGroup {
     private static final String TAG = DayPickerView.class.getSimpleName();
 
     private static final int[] ATTRS_TEXT_COLOR = new int[]{android.R.attr.textColor};
+    private final OnClickListener onArrowClickListener;
 
     private SelectedDate mSelectedDay = null;
     private final Calendar mMinDate = Calendar.getInstance();
@@ -53,8 +54,8 @@ class DayPickerView extends ViewGroup {
     private final AccessibilityManager mAccessibilityManager;
 
     private final DayPickerViewPager mViewPager;
-    private final ImageButton mPrevButton;
-    private final ImageButton mNextButton;
+    private ImageView mPrevButton;
+    private ImageView mNextButton;
 
     private final DayPickerPagerAdapter mAdapter;
 
@@ -64,6 +65,7 @@ class DayPickerView extends ViewGroup {
     private Calendar mTempCalendar;
 
     private ProxyDaySelectionEventListener mProxyDaySelectionEventListener;
+    private ProxyMonthChangeEventListener mProxyMonthChangeEventListener;
 
     public DayPickerView(Context context) {
         this(context, null);
@@ -141,7 +143,7 @@ class DayPickerView extends ViewGroup {
 
         inflater.inflate(layoutIdToUse, this, true);
 
-        OnClickListener onClickListener = new OnClickListener() {
+        onArrowClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 final int direction;
@@ -165,17 +167,14 @@ class DayPickerView extends ViewGroup {
         };
 
         mPrevButton = findViewById(R.id.prev);
-        mPrevButton.setOnClickListener(onClickListener);
+        mPrevButton.setOnClickListener(onArrowClickListener);
 
         mNextButton = findViewById(R.id.next);
-        mNextButton.setOnClickListener(onClickListener);
+        mNextButton.setOnClickListener(onArrowClickListener);
 
         ViewPager.OnPageChangeListener onPageChangedListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                final float alpha = Math.abs(0.5f - positionOffset) * 2.0f;
-                mPrevButton.setAlpha(alpha);
-                mNextButton.setAlpha(alpha);
             }
 
             @Override
@@ -185,6 +184,9 @@ class DayPickerView extends ViewGroup {
             @Override
             public void onPageSelected(int position) {
                 updateButtonVisibility(position);
+                if (mProxyMonthChangeEventListener != null) {
+                    mProxyMonthChangeEventListener.onMonthChanged(getVisibleMonth());
+                }
             }
         };
 
@@ -243,8 +245,8 @@ class DayPickerView extends ViewGroup {
     private void updateButtonVisibility(int position) {
         final boolean hasPrev = position > 0;
         final boolean hasNext = position < (mAdapter.getCount() - 1);
-        mPrevButton.setVisibility(View.GONE);
-        mNextButton.setVisibility(View.GONE);
+        mPrevButton.setEnabled(hasPrev);
+        mNextButton.setEnabled(hasNext);
     }
 
     @Override
@@ -273,39 +275,16 @@ class DayPickerView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final ImageButton leftButton;
-        final ImageButton rightButton;
-        if (SUtils.isLayoutRtlCompat(this)) {
-            leftButton = mNextButton;
-            rightButton = mPrevButton;
-        } else {
-            leftButton = mPrevButton;
-            rightButton = mNextButton;
-        }
-
         final int width = right - left;
         final int height = bottom - top;
         mViewPager.layout(0, 0, width, height);
+    }
 
-        final SimpleMonthView monthView = mViewPager.getChildAt(0)
-                .findViewById(R.id.month_view);
-        final int monthHeight = monthView.getMonthHeight();
-        final int cellWidth = monthView.getCellWidth();
-
-        // Vertically center the previous/next buttons within the month
-        // header, horizontally center within the day cell.
-        final int leftDW = leftButton.getMeasuredWidth();
-        final int leftDH = leftButton.getMeasuredHeight();
-        final int leftIconTop = monthView.getPaddingTop() + (monthHeight - leftDH) / 2;
-        final int leftIconLeft = monthView.getPaddingLeft() + (cellWidth - leftDW) / 2;
-        leftButton.layout(leftIconLeft, leftIconTop, leftIconLeft + leftDW, leftIconTop + leftDH);
-
-        final int rightDW = rightButton.getMeasuredWidth();
-        final int rightDH = rightButton.getMeasuredHeight();
-        final int rightIconTop = monthView.getPaddingTop() + (monthHeight - rightDH) / 2;
-        final int rightIconRight = width - monthView.getPaddingRight() - (cellWidth - rightDW) / 2;
-        rightButton.layout(rightIconRight - rightDW, rightIconTop,
-                rightIconRight, rightIconTop + rightDH);
+    public void setArrowButtons(ImageView prevArrow, ImageView nextArrow) {
+        mPrevButton = prevArrow;
+        mPrevButton.setOnClickListener(onArrowClickListener);
+        mNextButton = nextArrow;
+        mNextButton.setOnClickListener(onArrowClickListener);
     }
 
     public void setDayOfWeekTextAppearance(int resId) {
@@ -488,6 +467,18 @@ class DayPickerView extends ViewGroup {
         mAdapter.setCalendarLocale(locale);
     }
 
+    public void setProxyMonthChangeEventListener(ProxyMonthChangeEventListener proxyMonthChangeEventListener) {
+        this.mProxyMonthChangeEventListener = proxyMonthChangeEventListener;
+    }
+
+    public Calendar getVisibleMonth() {
+        int position =  mViewPager.getCurrentItem();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(getMinDate());
+        cal.add(Calendar.MONTH, position);
+        return cal;
+    }
+
     public interface ProxyDaySelectionEventListener {
         void onDaySelected(DayPickerView view, Calendar day);
 
@@ -496,5 +487,9 @@ class DayPickerView extends ViewGroup {
         void onDateRangeSelectionEnded(@Nullable SelectedDate selectedDate);
 
         void onDateRangeSelectionUpdated(@NonNull SelectedDate selectedDate);
+    }
+
+    public interface ProxyMonthChangeEventListener {
+        void onMonthChanged(Calendar month);
     }
 }

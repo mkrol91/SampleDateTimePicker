@@ -151,7 +151,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
         }
 
         // Set the new position.
-        if (newPosition != null) {
+        if (newPosition != null && day.isSet()) {
             if (newPosition.length == 1) {
                 final ViewHolder newMonthView = mItems.get(newPosition[0], null);
                 if (newMonthView != null) {
@@ -342,8 +342,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
         final int month = getMonthForPosition(position);
         final int year = getYearForPosition(position);
 
-        final int[] selectedDay = resolveSelectedDayBasedOnType(month, year);
-
         final int enabledDayRangeStart;
         if (mMinDate.get(Calendar.MONTH) == month && mMinDate.get(Calendar.YEAR) == year) {
             enabledDayRangeStart = mMinDate.get(Calendar.DAY_OF_MONTH);
@@ -363,7 +361,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
         }
 
         v.setMonthParams(month, year, mFirstDayOfWeek,
-                enabledDayRangeStart, enabledDayRangeEnd, selectedDay[0], selectedDay[1],
+                enabledDayRangeStart, enabledDayRangeEnd, -1,-1,
                 mSelectedDay != null ? mSelectedDay.getType() : null, mDisabledDays);
         v.setTitleFormatter(mCalendarLocale);
         v.setDaysFormatter(mCalendarLocale);
