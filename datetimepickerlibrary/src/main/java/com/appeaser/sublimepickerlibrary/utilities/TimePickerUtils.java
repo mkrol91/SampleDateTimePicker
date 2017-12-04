@@ -10,6 +10,10 @@ import java.util.LinkedHashSet;
 
 import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNITS_COUNT;
 import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.UNIT_WIDTH;
+import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q0;
+import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q15;
+import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q30;
+
 
 /**
  * Created by Mirek on 07.11.2017.
@@ -20,58 +24,6 @@ public class TimePickerUtils {
     public static final int HOURS_12 = 12;
     public static final int HOURS_24 = 24;
     public static final int FULL_ANGLE = 360;
-
-    public static ArrayList<Integer> getHoursToCheck(final int startHour, final int endHour) {
-        ArrayList<Integer> hoursToCheck;
-        int hoursToCheckCount = 0;
-        if (startHour > HOURS_12) {
-            hoursToCheckCount = calculateHoursToCheckCount(startHour, endHour, HOURS_24, hoursToCheckCount);
-            hoursToCheck = addHoursToCheck(startHour, HOURS_24, hoursToCheckCount);
-        } else if (endHour > HOURS_12) {
-            hoursToCheckCount = endHour - startHour + 1;
-            hoursToCheck = addHoursToCheck(startHour, HOURS_24, hoursToCheckCount);
-        } else {
-            hoursToCheckCount = 0;
-            hoursToCheckCount = calculateHoursToCheckCount(startHour, endHour, HOURS_12, hoursToCheckCount);
-            hoursToCheck = addHoursToCheck(startHour, HOURS_12, hoursToCheckCount);
-        }
-        return hoursToCheck;
-    }
-
-    private static int calculateHoursToCheckCount(int startHour, int endHour, int hoursCount,
-                                                  int hoursToCheckCount) {
-        if (startHour <= HOURS_24 && startHour >= HOURS_12
-                && endHour >= HOURS_12 && endHour <= HOURS_24 && endHour < startHour) {
-            hoursToCheckCount = HOURS_24 - startHour + HOURS_12 + (endHour - HOURS_12) + 1;
-        } else {
-            if (endHour < startHour) {
-                if (endHour <= hoursCount) {
-                    hoursToCheckCount = endHour + hoursCount - startHour + 1;
-                }
-            } else if (endHour > startHour) {
-                hoursToCheckCount = endHour - startHour + 1;
-            }
-        }
-        return hoursToCheckCount;
-    }
-
-    @NonNull
-    private static ArrayList<Integer> addHoursToCheck(int startHour, int hoursCount,
-                                                      int hoursToCheckCount) {
-        ArrayList<Integer> hoursToCheck;
-        hoursToCheck = new ArrayList<>(hoursToCheckCount);
-        if (startHour <= hoursCount && startHour >= 1) {
-            hoursToCheck.add(startHour);
-            for (int i = 1; i < hoursToCheckCount; i++) {
-                int nextHourToAdd = startHour + i;
-                if (nextHourToAdd > hoursCount) {
-                    nextHourToAdd %= hoursCount;
-                }
-                hoursToCheck.add(nextHourToAdd);
-            }
-        }
-        return hoursToCheck;
-    }
 
     public static float moveByAngle(Float angleToMove, float sweepAngle) {
         float degreesSum = angleToMove + sweepAngle;
@@ -187,11 +139,11 @@ public class TimePickerUtils {
     public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree, boolean isPm) {
         if (unassignedQuarter == 1) {
             if (hour == 0) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 30) : new Pair<>(HOURS_12 - 1, 45);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q30) : new Pair<>(HOURS_12 - 1, 45);
             } else if (hour == 12) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 30) : new Pair<>(HOURS_24 - 1, 45);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q30) : new Pair<>(HOURS_24 - 1, 45);
             }
-            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 30) : new Pair<>(hour - 1, 45);
+            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q30) : new Pair<>(hour - 1, 45);
         } else if (unassignedQuarter == 2) {
             if (hour == 0) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 45) : new Pair<>(0, 0);
@@ -200,14 +152,14 @@ public class TimePickerUtils {
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
-            return isDegreesCloserToStartDegree ? new Pair<>(hour, 0) : new Pair<>(hour, 15);
+            return isDegreesCloserToStartDegree ? new Pair<>(hour, Q0) : new Pair<>(hour, Q15);
         } else if (unassignedQuarter == 4) {
             if (hour == 0) {
-                return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
+                return isDegreesCloserToStartDegree ? new Pair<>(hour, Q15) : new Pair<>(hour, Q30);
             } else if (hour == 12) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12, 15) : new Pair<>(HOURS_12, 30);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12, Q15) : new Pair<>(HOURS_12, Q30);
             }
-            return isDegreesCloserToStartDegree ? new Pair<>(hour, 15) : new Pair<>(hour, 30);
+            return isDegreesCloserToStartDegree ? new Pair<>(hour, Q15) : new Pair<>(hour, Q30);
         }
         return null;
     }
@@ -228,11 +180,11 @@ public class TimePickerUtils {
                                                          RadialTimePickerView.TimerSection section) {
         if (section != null) {
             switch (minutes) {
-                case 0:
+                case Q0:
                     return section.getSectionStartAngles().get(2);
-                case 15:
+                case Q15:
                     return section.getSectionStartAngles().get(3);
-                case 30:
+                case Q30:
                     return section.getSectionStartAngles().get(3) + UNIT_WIDTH;
                 case 45:
                     return section.getSectionStartAngles().get(3) + 15f;
@@ -297,8 +249,8 @@ public class TimePickerUtils {
         int selectedTimeInMin = TimePickerUtils.getTimeAsMinutes(selectedTime.first, selectedTime.second);
         int startTimeInMin = TimePickerUtils.getTimeAsMinutes(startHourAndMin.first, startHourAndMin.second);
         int endTimeMin = TimePickerUtils.getTimeAsMinutes(endHourAndMin.first, endHourAndMin.second);
-        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, 0);
-        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, 0);
+        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, Q0);
+        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, Q0);
 
         //edge case
         if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin) {

@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
 import com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView;
+import com.appeaser.sublimepickerlibrary.utilities.LockedInterval;
 import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import org.junit.Test;
@@ -467,27 +468,27 @@ public class TimePickerUtilsTest {
 
     @Test
     public void extractHoursToOvershadowTest() {
-        LinkedHashSet<Integer> hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(2, 0, 7, 0));
+        LinkedHashSet<Integer> hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(2, 0, 7, 0));
         LinkedHashSet<Integer> result = new LinkedHashSet<>(Arrays.asList(3, 4, 5, 6, 7));
         assertEquals(result, hours);
 
-        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(2, 15, 7, 0));
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(2, 15, 7, 0));
         result = new LinkedHashSet<>(Arrays.asList(3, 4, 5, 6, 7));
         assertEquals(result, hours);
 
-        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(6, 15, 14, 45));
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(6, 15, 14, 45));
         result = new LinkedHashSet<>(Arrays.asList(7, 8, 9, 10, 11, 24, 13, 14));
         assertEquals(result, hours);
 
-        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(22, 15, 2, 0));
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(22, 15, 2, 0));
         result = new LinkedHashSet<>(Arrays.asList(23, 12, 1, 2));
         assertEquals(result, hours);
 
-        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(23, 0, 4, 0));
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(23, 0, 4, 0));
         result = new LinkedHashSet<>(Arrays.asList(12, 1, 2, 3, 4));
         assertEquals(result, hours);
 
-        hours = TimePickerUtils.extractHoursToOvershadow(new RadialTimePickerView.LockedInterval(16, 15, 19, 0));
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(16, 15, 19, 0));
         result = new LinkedHashSet<>(Arrays.asList(17, 18, 19));
         assertEquals(result, hours);
     }
