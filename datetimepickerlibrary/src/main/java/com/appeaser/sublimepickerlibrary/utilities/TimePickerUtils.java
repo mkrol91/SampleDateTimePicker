@@ -25,6 +25,9 @@ public class TimePickerUtils {
     public static final int HOURS_12 = 12;
     public static final int HOURS_24 = 24;
     public static final int FULL_ANGLE = 360;
+    public static final int MINUTES_60 = 60;
+    public static final int ANGLE_90 = 90;
+    public static final int QUARTERS_COUNT = 4;
 
     public static float moveByAngle(Float angleToMove, float sweepAngle) {
         float degreesSum = angleToMove + sweepAngle;
@@ -54,14 +57,14 @@ public class TimePickerUtils {
 
 
     public static ArrayList<RadialTimePickerView.TimerSection> generateTimerSections(ArrayList<Float> startArcAngles, boolean isPm) {
-        ArrayList<RadialTimePickerView.TimerSection> timerSections = new ArrayList<>(startArcAngles.size() / 4);
+        ArrayList<RadialTimePickerView.TimerSection> timerSections = new ArrayList<>(startArcAngles.size() / QUARTERS_COUNT);
         int hour = 0;
         for (int i = 0; i < startArcAngles.size(); i++) {
             ArrayList<Float> sectionsStartAngles = new ArrayList<>();
-            if (i % 4 == 0 && (i + 3) < startArcAngles.size()) {
+            if (i % QUARTERS_COUNT == 0 && (i + 3) < startArcAngles.size()) {
                 RadialTimePickerView.TimerSection timerSection = new RadialTimePickerView.TimerSection();
 
-                for (int j = i; j < i + 4; j++) {
+                for (int j = i; j < i + QUARTERS_COUNT; j++) {
                     sectionsStartAngles.add(startArcAngles.get(j));
                 }
                 timerSection.setSectionStartAngles(sectionsStartAngles);
@@ -69,7 +72,7 @@ public class TimePickerUtils {
                 if (i == 0) {
                     timerSection.setHour(isPm ? HOURS_12 : 0);
                 } else {
-                    timerSection.setHour(isPm ? ++hour + 12 : ++hour);
+                    timerSection.setHour(isPm ? ++hour + HOURS_12 : ++hour);
                 }
                 timerSections.add(timerSection);
             }
@@ -89,7 +92,7 @@ public class TimePickerUtils {
                 return timerSection;
             }
 
-            if ((degrees >= startAngle && degrees <= 360 && endAngle < startAngle) ||
+            if ((degrees >= startAngle && degrees <= FULL_ANGLE && endAngle < startAngle) ||
                     (degrees > 0 && degrees <= endAngle && endAngle < startAngle)) {
                 return timerSection;
             }
@@ -105,7 +108,7 @@ public class TimePickerUtils {
         if (endDegree > startDegree) {
             distanceToEndDegrees = endDegree - degrees;
         } else if (endDegree < startDegree) {
-            distanceToEndDegrees = 360 - degrees;
+            distanceToEndDegrees = FULL_ANGLE - degrees;
         }
         return distanceToStartDegrees < distanceToEndDegrees;
     }
@@ -141,23 +144,23 @@ public class TimePickerUtils {
         if (unassignedQuarter == 1) {
             if (hour == 0) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q30) : new Pair<>(HOURS_12 - 1, Q45);
-            } else if (hour == 12) {
+            } else if (hour == HOURS_12) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q30) : new Pair<>(HOURS_24 - 1, Q45);
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q30) : new Pair<>(hour - 1, Q45);
         } else if (unassignedQuarter == 2) {
             if (hour == 0) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q45) : new Pair<>(0, 0);
-            } else if (hour == 12) {
+            } else if (hour == HOURS_12) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q45) : new Pair<>(HOURS_12, 0);
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
             return isDegreesCloserToStartDegree ? new Pair<>(hour, Q0) : new Pair<>(hour, Q15);
-        } else if (unassignedQuarter == 4) {
+        } else if (unassignedQuarter == QUARTERS_COUNT) {
             if (hour == 0) {
                 return isDegreesCloserToStartDegree ? new Pair<>(hour, Q15) : new Pair<>(hour, Q30);
-            } else if (hour == 12) {
+            } else if (hour == HOURS_12) {
                 return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12, Q15) : new Pair<>(HOURS_12, Q30);
             }
             return isDegreesCloserToStartDegree ? new Pair<>(hour, Q15) : new Pair<>(hour, Q30);
@@ -168,8 +171,8 @@ public class TimePickerUtils {
     public static RadialTimePickerView.TimerSection findSectionForHour(int hour, ArrayList<RadialTimePickerView.TimerSection> timerSections) {
         if (timerSections != null && timerSections.size() != 0) {
             for (RadialTimePickerView.TimerSection timerSection : timerSections) {
-                if (timerSection.getHour() == hour || (timerSection.getHour() == 12 && hour == 0)
-                        || (timerSection.getHour() == 24 && hour == 12)) {
+                if (timerSection.getHour() == hour || (timerSection.getHour() == HOURS_12 && hour == 0)
+                        || (timerSection.getHour() == HOURS_24 && hour == HOURS_12)) {
                     return timerSection;
                 }
             }
@@ -195,19 +198,19 @@ public class TimePickerUtils {
     }
 
     public static float mapStartAngleToDrawArcAngle(float startAngle) {
-        if (startAngle < 90) {
-            return 360 - (90 - startAngle);
+        if (startAngle < ANGLE_90) {
+            return FULL_ANGLE - (ANGLE_90 - startAngle);
         } else {
-            return startAngle - 90;
+            return startAngle - ANGLE_90;
         }
     }
 
     public static boolean isTimePm(int hour, int minute) {
-        if (hour == 12 && minute == 0) {
+        if (hour == HOURS_12 && minute == 0) {
             return true;
-        } else if (hour == 12 && minute > 0) {
+        } else if (hour == HOURS_12 && minute > 0) {
             return true;
-        } else if (hour > 12) {
+        } else if (hour > HOURS_12) {
             return true;
         }
         return false;
@@ -234,11 +237,11 @@ public class TimePickerUtils {
     }
 
     public static int getTimeAsMinutes(int startHour, int startMinute) {
-        return startHour * 60 + startMinute;
+        return startHour * MINUTES_60 + startMinute;
     }
 
     public static Pair<Integer, Integer> timeInMinutesAsHourAndMin(int timeInMinutes) {
-        return new Pair<>(timeInMinutes / 60, timeInMinutes % 60);
+        return new Pair<>(timeInMinutes / MINUTES_60, timeInMinutes % MINUTES_60);
     }
 
     public static boolean isSelectedInBlockedArea(Pair<Integer, Integer> selectedTime,
@@ -250,8 +253,8 @@ public class TimePickerUtils {
         int selectedTimeInMin = TimePickerUtils.getTimeAsMinutes(selectedTime.first, selectedTime.second);
         int startTimeInMin = TimePickerUtils.getTimeAsMinutes(startHourAndMin.first, startHourAndMin.second);
         int endTimeMin = TimePickerUtils.getTimeAsMinutes(endHourAndMin.first, endHourAndMin.second);
-        int twelveInMin = TimePickerUtils.getTimeAsMinutes(12, Q0);
-        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(24, Q0);
+        int twelveInMin = TimePickerUtils.getTimeAsMinutes(HOURS_12, Q0);
+        int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(HOURS_24, Q0);
 
         //edge case
         if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin) {
@@ -304,9 +307,9 @@ public class TimePickerUtils {
 
     private static void addHourByHourTill24Check24(LockedInterval lockedInterval,
                                                    LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = lockedInterval.getStartHour() + 1; hour <= 24; hour++) {
-            if (hour == 24) {
-                hoursToOvershadow.add(hour - 12);
+        for (int hour = lockedInterval.getStartHour() + 1; hour <= HOURS_24; hour++) {
+            if (hour == HOURS_24) {
+                hoursToOvershadow.add(hour - HOURS_12);
             } else {
                 hoursToOvershadow.add(hour);
             }
@@ -316,8 +319,8 @@ public class TimePickerUtils {
     private static void addHourByHourTillEndCheck12(LockedInterval lockedInterval,
                                                     LinkedHashSet<Integer> hoursToOvershadow) {
         for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
-            if (hour == 12) {
-                hoursToOvershadow.add(hour + 12);
+            if (hour == HOURS_12) {
+                hoursToOvershadow.add(hour + HOURS_12);
             } else {
                 hoursToOvershadow.add(hour);
             }

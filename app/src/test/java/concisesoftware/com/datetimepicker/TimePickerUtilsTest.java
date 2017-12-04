@@ -43,44 +43,39 @@ public class TimePickerUtilsTest {
     @Test
     public void mapToTimeAsPairTest0_11h() {
         Pair<Integer, Integer> timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, true, false);
-        assertTrue(timeAsPair.first == 3);
-        assertTrue(timeAsPair.second == 45);
+        assertTimeAsPairEqualsTime(timeAsPair, 3, 45);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(4, 2, false, false);
-        assertTrue(timeAsPair.first == 4);
-        assertTrue(timeAsPair.second == 0);
+        assertTimeAsPairEqualsTime(timeAsPair, 4, 0);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 2, true, false);
-        assertTrue(timeAsPair.first == 11);
-        assertTrue(timeAsPair.second == 45);
+        assertTimeAsPairEqualsTime(timeAsPair, 11, 45);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 2, false, false);
-        assertTrue(timeAsPair.first == 0);
-        assertTrue(timeAsPair.second == 0);
+        assertTimeAsPairEqualsTime(timeAsPair, 0, 0);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 3, true, false);
-        assertTrue(timeAsPair.first == 0);
-        assertTrue(timeAsPair.second == 0);
+        assertTimeAsPairEqualsTime(timeAsPair, 0, 0);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 3, false, false);
-        assertTrue(timeAsPair.first == 0);
-        assertTrue(timeAsPair.second == 15);
+        assertTimeAsPairEqualsTime(timeAsPair, 0, 15);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 1, true, false);
-        assertTrue(timeAsPair.first == 11);
-        assertTrue(timeAsPair.second == 30);
+        assertTimeAsPairEqualsTime(timeAsPair, 11, 30);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 1, false, false);
-        assertTrue(timeAsPair.first == 11);
-        assertTrue(timeAsPair.second == 45);
+        assertTimeAsPairEqualsTime(timeAsPair, 11, 45);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 4, true, false);
-        assertTrue(timeAsPair.first == 0);
-        assertTrue(timeAsPair.second == 15);
+        assertTimeAsPairEqualsTime(timeAsPair, 0, 15);
 
         timeAsPair = TimePickerUtils.mapToTimeAsPair(0, 4, false, false);
-        assertTrue(timeAsPair.first == 0);
-        assertTrue(timeAsPair.second == 30);
+        assertTimeAsPairEqualsTime(timeAsPair, 0, 30);
+    }
+
+    private void assertTimeAsPairEqualsTime(Pair<Integer, Integer> timeAsPair, int hour, int minute) {
+        assertTrue(timeAsPair.first == hour);
+        assertTrue(timeAsPair.second == minute);
     }
 
     @Test
