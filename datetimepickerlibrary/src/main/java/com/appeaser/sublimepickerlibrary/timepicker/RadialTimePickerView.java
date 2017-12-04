@@ -678,7 +678,6 @@ public class RadialTimePickerView extends View {
         }
 
         drawHours(canvas, alphaMod);
-        drawCenter(canvas, alphaMod);
     }
 
     private void addLockedInterval(Canvas canvas, Paint paint, RectF rectF, LockedInterval lockedInterval) {
@@ -745,13 +744,6 @@ public class RadialTimePickerView extends View {
             drawTextElements(canvas, mTextSize[HOURS], mTypeface, mTextColor[HOURS],
                     mOuterTextHours, mOuterTextX[HOURS], mOuterTextY[HOURS], mPaint[HOURS],
                     hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
-        }
-    }
-
-    private void drawCenter(Canvas canvas, float alphaMod) {
-        if (!lockSelectorDrawing) {
-            mPaintCenter.setAlpha((int) (255 * alphaMod + 0.5f));
-            canvas.drawCircle(mXCenter, mYCenter, mCenterDotRadius, mPaintCenter);
         }
     }
 

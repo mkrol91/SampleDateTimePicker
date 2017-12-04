@@ -126,18 +126,18 @@
     <dimen name="sp_day_picker_padding_horizontal">0dp</dimen>
     <dimen name="sp_day_picker_padding_top">0dp</dimen>
 
-    <dimen name="sp_timepicker_selector_radius">20dp</dimen>
+    <dimen name="sp_timepicker_selector_radius">18dp</dimen>
     <dimen name="sp_timepicker_selector_stroke">2dp</dimen>
     <dimen name="sp_timepicker_selector_dot_radius">2dp</dimen>
     <dimen name="sp_timepicker_center_dot_radius">3dp</dimen>
-    <dimen name="sp_timepicker_text_size_normal">16sp</dimen>
+    <dimen name="sp_timepicker_text_size_normal">12sp</dimen>
     <dimen name="sp_timepicker_text_size_inner">12sp</dimen>
     <dimen name="sp_timepicker_text_inset_normal">22dp</dimen>
     <dimen name="sp_timepicker_text_inset_inner">58dp</dimen>
 
     <dimen name="sp_timepicker_radial_picker_horizontal_margin">16dp</dimen>
     <dimen name="sp_timepicker_radial_picker_top_margin">16dp</dimen>
-    <dimen name="sp_timepicker_radial_picker_dimen">296dp</dimen>
+    <dimen name="sp_timepicker_radial_picker_dimen">181dp</dimen>
 
     <dimen name="sp_timepicker_separator_padding">2dp</dimen>
     <dimen name="sp_timepicker_am_top_padding">4dp</dimen>
@@ -164,4 +164,5 @@
     <dimen name="track_rounded_rect_corner">18dp</dimen>
     <dimen name="thumb_rounded_rect_height">30dp</dimen>
     <dimen name="thumb_rounded_rect_corner">16dp</dimen>
+    <dimen name="time_picker_bottom_margin">19dp</dimen>
 </resources>
