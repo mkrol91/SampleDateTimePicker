@@ -330,7 +330,7 @@ public class TimePickerUtils {
         return false;
     }
 
-    public static LinkedHashSet<Integer> extractHoursToOvershadow(RadialTimePickerView.LockedInterval lockedInterval) {
+    public static LinkedHashSet<Integer> extractHoursToOvershadow(LockedInterval lockedInterval) {
         LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
         boolean istStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
         boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
@@ -349,14 +349,14 @@ public class TimePickerUtils {
         return hoursToOvershadow;
     }
 
-    private static void addFromOneTillEnd(RadialTimePickerView.LockedInterval lockedInterval,
+    private static void addFromOneTillEnd(LockedInterval lockedInterval,
                                           LinkedHashSet<Integer> hoursToOvershadow) {
         for (int hour = 1; hour <= lockedInterval.getEndHour(); hour++) {
             hoursToOvershadow.add(hour);
         }
     }
 
-    private static void addHourByHourTill24Check24(RadialTimePickerView.LockedInterval lockedInterval,
+    private static void addHourByHourTill24Check24(LockedInterval lockedInterval,
                                                    LinkedHashSet<Integer> hoursToOvershadow) {
         for (int hour = lockedInterval.getStartHour() + 1; hour <= 24; hour++) {
             if (hour == 24) {
@@ -367,7 +367,7 @@ public class TimePickerUtils {
         }
     }
 
-    private static void addHourByHourTillEndCheck12(RadialTimePickerView.LockedInterval lockedInterval,
+    private static void addHourByHourTillEndCheck12(LockedInterval lockedInterval,
                                                     LinkedHashSet<Integer> hoursToOvershadow) {
         for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
             if (hour == 12) {
@@ -378,7 +378,7 @@ public class TimePickerUtils {
         }
     }
 
-    private static void addHourByHourTillEnd(RadialTimePickerView.LockedInterval lockedInterval,
+    private static void addHourByHourTillEnd(LockedInterval lockedInterval,
                                              LinkedHashSet<Integer> hoursToOvershadow) {
         for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
             hoursToOvershadow.add(hour);
