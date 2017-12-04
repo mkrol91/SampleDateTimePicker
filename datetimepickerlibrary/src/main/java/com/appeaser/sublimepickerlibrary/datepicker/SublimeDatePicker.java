@@ -46,6 +46,7 @@ import android.widget.ViewAnimator;
 
 import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
+import com.appeaser.sublimepickerlibrary.timepicker.SublimeTimePicker;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
 import com.appeaser.sublimepickerlibrary.utilities.Config;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
@@ -85,6 +86,7 @@ public class SublimeDatePicker extends FrameLayout {
     private String mSelectYear;
 
     private SublimeDatePicker.OnDateChangedListener mDateChangedListener;
+    private SublimeTimePicker.OnTimeChangedListener mTimeChangedListener;
 
     private int mCurrentView = UNINITIALIZED;
 

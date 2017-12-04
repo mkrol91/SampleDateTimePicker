@@ -33,11 +33,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.Region;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.ExploreByTouchHelper;
@@ -50,53 +51,51 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.appeaser.sublimepickerlibrary.R;
+import com.appeaser.sublimepickerlibrary.utilities.LockedInterval;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
+import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * View to show a clock circle picker (with one or two picking circles)
  */
 public class RadialTimePickerView extends View {
+    public static final int FULL_ANGLE = 360;
+    public static final float FULL_ANGLE_FLOAT = FULL_ANGLE;
     private static final String TAG = RadialTimePickerView.class.getSimpleName();
-
     private static final int HOURS = 0;
     private static final int MINUTES = 1;
     private static final int HOURS_INNER = 2;
-
     private static final int SELECTOR_CIRCLE = 0;
     private static final int SELECTOR_DOT = 1;
     private static final int SELECTOR_LINE = 2;
-
     private static final int AM = 0;
     private static final int PM = 1;
-
     // Opaque alpha level
     private static final int ALPHA_OPAQUE = 255;
-
     // Transparent alpha level
     private static final int ALPHA_TRANSPARENT = 0;
-
     private static final int HOURS_IN_CIRCLE = 12;
+    public static final float UNIT_WIDTH = FULL_ANGLE_FLOAT / HOURS_IN_CIRCLE / 4;
     private static final int MINUTES_IN_CIRCLE = 60;
-    private static final int DEGREES_FOR_ONE_HOUR = 360 / HOURS_IN_CIRCLE;
-    private static final int DEGREES_FOR_ONE_MINUTE = 360 / MINUTES_IN_CIRCLE;
-
-    private static final int[] HOURS_NUMBERS = {12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    private static final int[] HOURS_NUMBERS_24 = {0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
-    private static final int[] MINUTES_NUMBERS = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55};
-
+    private static final int DEGREES_FOR_ONE_HOUR = FULL_ANGLE / HOURS_IN_CIRCLE;
+    private static final int DEGREES_FOR_ONE_MINUTE = FULL_ANGLE / MINUTES_IN_CIRCLE;
+    private static final int[] HOURS_NUMBERS_AM = {12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     private static final int FADE_OUT_DURATION = 500;
     private static final int FADE_IN_DURATION = 500;
-
     private static final int[] SNAP_PREFER_30S_MAP = new int[361];
-
     private static final int NUM_POSITIONS = 12;
     private static final float[] COS_30 = new float[NUM_POSITIONS];
     private static final float[] SIN_30 = new float[NUM_POSITIONS];
+    private static final int ANGLE_NOT_FOUND = -1;
+    public static int UNITS_COUNT = (int) (FULL_ANGLE_FLOAT / UNIT_WIDTH);
 
     static {
         // Prepare mapping to snap touchable degrees to selectable degrees.
@@ -113,82 +112,88 @@ public class RadialTimePickerView extends View {
 
     private final InvalidateUpdateListener mInvalidateUpdateListener =
             new InvalidateUpdateListener();
-
-    private final String[] mHours12Texts = new String[12];
-    private final String[] mOuterHours24Texts = new String[12];
-    private final String[] mInnerHours24Texts = new String[12];
-    private final String[] mMinutesTexts = new String[12];
-
+    private final String[] hoursTexts = new String[12];
     private final Paint[] mPaint = new Paint[2];
     private final IntHolder[] mAlpha = new IntHolder[2];
-
     private final Paint mPaintCenter = new Paint();
-
     private final Paint[][] mPaintSelector = new Paint[2][3];
-
-    private int mSelectorColor;
-    private int mSelectorDotColor;
-
     private final Paint mPaintBackground = new Paint();
-
-    private Typeface mTypeface;
-
     private final ColorStateList[] mTextColor = new ColorStateList[3];
     private final int[] mTextSize = new int[3];
     private final int[] mTextInset = new int[3];
-
     private final float[][] mOuterTextX = new float[2][12];
     private final float[][] mOuterTextY = new float[2][12];
-
     private final float[] mInnerTextX = new float[12];
     private final float[] mInnerTextY = new float[12];
-
     private final int[] mSelectionDegrees = new int[2];
-
     private final ArrayList<Animator> mHoursToMinutesAnims = new ArrayList<>();
     private final ArrayList<Animator> mMinuteToHoursAnims = new ArrayList<>();
-
+    private int mSelectorColor;
+    private int mSelectorDotColor;
+    private Typeface mTypeface;
     private RadialPickerTouchHelper mTouchHelper;
-
-    private final Path mSelectorPath = new Path();
-
     private boolean mIs24HourMode;
     private boolean mShowHours;
-
     /**
      * When in 24-hour mode, indicates that the current hour is between
      * 1 and 12 (inclusive).
      */
     private boolean mIsOnInnerCircle;
-
     private int mSelectorRadius;
     private int mSelectorStroke;
     private int mSelectorDotRadius;
     private int mCenterDotRadius;
-
     private int mXCenter;
     private int mYCenter;
     private int mCircleRadius;
-
     private int mMinDistForInnerNumber;
     private int mMaxDistForOuterNumber;
     private int mHalfwayDist;
-
     private String[] mOuterTextHours;
-    private String[] mInnerTextHours;
-    private String[] mMinutesText;
     private AnimatorSet mTransition;
-
     private int mAmOrPm;
-
     private float mDisabledAlpha;
-
     private OnValueSelectedListener mListener;
-
     private boolean mInputEnabled = true;
+    private boolean mChangedDuringTouch = false;
+    private int activeHoursBackgroundColor;
+    private int inactiveHoursBackgroundColor;
+    private int inactiveDigitsColor;
+    private boolean isPm;
+    private ArrayList<TimerSection> timerSections;
+    private float selCenterX;
+    private float selCenterY;
+    private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
+    private List<LockedInterval> lockedIntervals = new ArrayList<>();
+    private boolean lockSelectorDrawing = true;
+    private boolean wasSomeCorrectTouch = false;
+    private Pair<Integer, Integer> selectedTime;
+    private TimerSection selectedSection;
+    private LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
 
-    public interface OnValueSelectedListener {
-        void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance);
+
+    @SuppressWarnings("unused")
+    public RadialTimePickerView(Context context) {
+        this(context, null);
+        setDrawingCacheEnabled(true);
+    }
+
+    public RadialTimePickerView(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.spRadialTimePickerStyle);
+        setDrawingCacheEnabled(true);
+    }
+
+    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setDrawingCacheEnabled(true);
+        init(attrs, defStyleAttr, R.style.RadialTimePickerViewStyle);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs);
+        setDrawingCacheEnabled(true);
+        init(attrs, defStyleAttr, defStyleRes);
     }
 
     /**
@@ -230,7 +235,7 @@ public class RadialTimePickerView extends View {
             // the next expected count.
             if (count == expectedCount) {
                 snappedOutputDegrees += 6;
-                if (snappedOutputDegrees == 360) {
+                if (snappedOutputDegrees == FULL_ANGLE) {
                     expectedCount = 7;
                 } else if (snappedOutputDegrees % 30 == 0) {
                     expectedCount = 14;
@@ -289,24 +294,88 @@ public class RadialTimePickerView extends View {
         return degrees;
     }
 
-    @SuppressWarnings("unused")
-    public RadialTimePickerView(Context context) {
-        this(context, null);
+    private static int snapOnly(int degrees, final int stepSize, int forceHigherOrLower) {
+        int floor = (degrees / stepSize) * stepSize;
+        final int ceiling = floor + stepSize;
+        if (forceHigherOrLower == 1) {
+            degrees = ceiling;
+        } else if (forceHigherOrLower == -1) {
+            if (degrees == floor) {
+                floor -= stepSize;
+            }
+            degrees = floor;
+        } else {
+            if ((degrees - floor) < (ceiling - degrees)) {
+                degrees = floor;
+            } else {
+                degrees = ceiling;
+            }
+        }
+        return degrees;
     }
 
-    public RadialTimePickerView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.spRadialTimePickerStyle);
+    /**
+     * Using the trigonometric Unit Circle, calculate the positions that the text will need to be
+     * drawn at based on the specified circle radius. Place the values in the textGridHeights and
+     * textGridWidths parameters.
+     */
+    private static void calculatePositions(Paint paint, float radius, float xCenter, float yCenter,
+                                           float textSize, float[] x, float[] y) {
+        // Adjust yCenter to account for the text's baseline.
+        paint.setTextSize(textSize);
+        yCenter -= (paint.descent() + paint.ascent()) / 2;
+
+        for (int i = 0; i < NUM_POSITIONS; i++) {
+            x[i] = xCenter - radius * COS_30[i];
+            y[i] = yCenter - radius * SIN_30[i];
+        }
     }
 
-    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(attrs, defStyleAttr, R.style.RadialTimePickerViewStyle);
+    private static ObjectAnimator getFadeOutAnimator(IntHolder target, int startAlpha, int endAlpha,
+                                                     InvalidateUpdateListener updateListener) {
+        final ObjectAnimator animator = ObjectAnimator.ofInt(target, "value", startAlpha, endAlpha);
+        animator.setDuration(FADE_OUT_DURATION);
+        animator.addUpdateListener(updateListener);
+        return animator;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public RadialTimePickerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs);
-        init(attrs, defStyleAttr, defStyleRes);
+    private static ObjectAnimator getFadeInAnimator(IntHolder target, int startAlpha, int endAlpha,
+                                                    InvalidateUpdateListener updateListener) {
+        final float delayMultiplier = 0.25f;
+        final float transitionDurationMultiplier = 1f;
+        final float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
+        final int totalDuration = (int) (FADE_IN_DURATION * totalDurationMultiplier);
+        final float delayPoint = (delayMultiplier * FADE_IN_DURATION) / totalDuration;
+
+        final Keyframe kf0, kf1, kf2;
+        kf0 = Keyframe.ofInt(0f, startAlpha);
+        kf1 = Keyframe.ofInt(delayPoint, startAlpha);
+        kf2 = Keyframe.ofInt(1f, endAlpha);
+        final PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("value", kf0, kf1, kf2);
+
+        final ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(target, fadeIn);
+        animator.setDuration(totalDuration);
+        animator.addUpdateListener(updateListener);
+        return animator;
+    }
+
+    public List<LockedInterval> getLockedIntervals() {
+        return lockedIntervals;
+    }
+
+    public void setLockedIntervals(List<LockedInterval> lockedIntervals) {
+        this.lockedIntervals = lockedIntervals;
+    }
+
+    public void toggleAmPm() {
+        isPm = !isPm;
+        initHoursAndMinutesText();
+        mOuterTextHours = hoursTexts;
+        if (wasSomeCorrectTouch) {
+            lockSelectorDrawing = !lockSelectorDrawing;
+        }
+        invalidate();
+        mTouchHelper.invalidateRoot();
     }
 
     private void init(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -329,8 +398,11 @@ public class RadialTimePickerView extends View {
             mAlpha[i] = new IntHolder(ALPHA_OPAQUE);
         }
 
+        activeHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_activeHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background));
+        inactiveHoursBackgroundColor = a.getColor(R.styleable.RadialTimePickerView_inactiveHoursBackgroundColor, ContextCompat.getColor(context, R.color.timer_background_blocked));
+        inactiveDigitsColor = a.getColor(R.styleable.RadialTimePickerView_inactiveDigitsColor, ContextCompat.getColor(context, R.color.inactive_digits_color));
+
         mTextColor[HOURS] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersTextColor);
-        mTextColor[HOURS_INNER] = a.getColorStateList(R.styleable.RadialTimePickerView_spNumbersInnerTextColor);
         mTextColor[MINUTES] = mTextColor[HOURS];
 
         mPaint[HOURS] = new Paint();
@@ -408,7 +480,7 @@ public class RadialTimePickerView extends View {
         }
 
         initHoursAndMinutesText();
-        initData();
+        mOuterTextHours = hoursTexts;
 
         a.recycle();
 
@@ -417,20 +489,15 @@ public class RadialTimePickerView extends View {
         final int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         final int currentMinute = calendar.get(Calendar.MINUTE);
 
-        setCurrentHourInternal(currentHour, false, false);
-        setCurrentMinuteInternal(currentMinute, false);
-
         setHapticFeedbackEnabled(true);
     }
 
     public void initialize(int hour, int minute, boolean is24HourMode) {
         if (mIs24HourMode != is24HourMode) {
             mIs24HourMode = is24HourMode;
-            initData();
+            mOuterTextHours = hoursTexts;
         }
 
-        setCurrentHourInternal(hour, false, false);
-        setCurrentMinuteInternal(minute, false);
     }
 
     public void setCurrentItemShowing(int item, boolean animate) {
@@ -455,45 +522,6 @@ public class RadialTimePickerView extends View {
     }
 
     /**
-     * Sets the current hour in 24-hour time.
-     *
-     * @param hour the current hour between 0 and 23 (inclusive)
-     */
-    public void setCurrentHour(int hour) {
-        setCurrentHourInternal(hour, true, false);
-    }
-
-    /**
-     * Sets the current hour.
-     *
-     * @param hour        The current hour
-     * @param callback    Whether the value listener should be invoked
-     * @param autoAdvance Whether the listener should auto-advance to the next
-     *                    selection mode, e.g. hour to minutes
-     */
-    private void setCurrentHourInternal(int hour, boolean callback, boolean autoAdvance) {
-        final int degrees = (hour % 12) * DEGREES_FOR_ONE_HOUR;
-        mSelectionDegrees[HOURS] = degrees;
-
-        // 0 is 12 AM (midnight) and 12 is 12 PM (noon).
-        final int amOrPm = (hour == 0 || (hour % 24) < 12) ? AM : PM;
-        final boolean isOnInnerCircle = getInnerCircleForHour(hour);
-        if (mAmOrPm != amOrPm || mIsOnInnerCircle != isOnInnerCircle) {
-            mAmOrPm = amOrPm;
-            mIsOnInnerCircle = isOnInnerCircle;
-
-            initData();
-            mTouchHelper.invalidateRoot();
-        }
-
-        invalidate();
-
-        if (callback && mListener != null) {
-            mListener.onValueSelected(HOURS, hour, autoAdvance);
-        }
-    }
-
-    /**
      * Returns the current hour in 24-hour time.
      *
      * @return the current hour between 0 and 23 (inclusive)
@@ -501,6 +529,7 @@ public class RadialTimePickerView extends View {
     public int getCurrentHour() {
         return getHourForDegrees(mSelectionDegrees[HOURS], mIsOnInnerCircle);
     }
+
 
     private int getHourForDegrees(int degrees, boolean innerCircle) {
         int hour = (degrees / DEGREES_FOR_ONE_HOUR) % 12;
@@ -542,20 +571,6 @@ public class RadialTimePickerView extends View {
         return mIs24HourMode && (hour == 0 || hour > 12);
     }
 
-    public void setCurrentMinute(int minute) {
-        setCurrentMinuteInternal(minute, true);
-    }
-
-    private void setCurrentMinuteInternal(int minute, boolean callback) {
-        mSelectionDegrees[MINUTES] = (minute % MINUTES_IN_CIRCLE) * DEGREES_FOR_ONE_MINUTE;
-
-        invalidate();
-
-        if (callback && mListener != null) {
-            mListener.onValueSelected(MINUTES, minute, false);
-        }
-    }
-
     // Returns minutes in 0-59 range
     public int getCurrentMinute() {
         return getMinuteForDegrees(mSelectionDegrees[MINUTES]);
@@ -569,14 +584,14 @@ public class RadialTimePickerView extends View {
         return minute * DEGREES_FOR_ONE_MINUTE;
     }
 
+    public int getAmOrPm() {
+        return mAmOrPm;
+    }
+
     public void setAmOrPm(int val) {
         mAmOrPm = (val % 2);
         invalidate();
         mTouchHelper.invalidateRoot();
-    }
-
-    public int getAmOrPm() {
-        return mAmOrPm;
     }
 
     private void showHours(boolean animate) {
@@ -590,7 +605,7 @@ public class RadialTimePickerView extends View {
             startMinutesToHoursAnimation();
         }
 
-        initData();
+        mOuterTextHours = hoursTexts;
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -606,7 +621,7 @@ public class RadialTimePickerView extends View {
             startHoursToMinutesAnimation();
         }
 
-        initData();
+        mOuterTextHours = hoursTexts;
         invalidate();
         mTouchHelper.invalidateRoot();
     }
@@ -614,29 +629,12 @@ public class RadialTimePickerView extends View {
     private void initHoursAndMinutesText() {
         // Initialize the hours and minutes numbers.
         for (int i = 0; i < 12; i++) {
-            mHours12Texts[i] = String.format("%d", HOURS_NUMBERS[i]);
-            mInnerHours24Texts[i] = String.format("%02d", HOURS_NUMBERS_24[i]);
-            mOuterHours24Texts[i] = String.format("%d", HOURS_NUMBERS[i]);
-            mMinutesTexts[i] = String.format("%02d", MINUTES_NUMBERS[i]);
+            if (isPm) {
+                hoursTexts[i] = String.format("%d", HOURS_NUMBERS_AM[i] + 12);
+            } else {
+                hoursTexts[i] = String.format("%d", HOURS_NUMBERS_AM[i]);
+            }
         }
-    }
-
-    private void initData() {
-        if (mIs24HourMode) {
-            mOuterTextHours = mOuterHours24Texts;
-            mInnerTextHours = mInnerHours24Texts;
-        } else {
-            mOuterTextHours = mHours12Texts;
-            mInnerTextHours = mHours12Texts;
-        }
-
-        mMinutesText = mMinutesTexts;
-
-        final int hoursAlpha = mShowHours ? ALPHA_OPAQUE : ALPHA_TRANSPARENT;
-        mAlpha[HOURS].setValue(hoursAlpha);
-
-        final int minutesAlpha = mShowHours ? ALPHA_TRANSPARENT : ALPHA_OPAQUE;
-        mAlpha[MINUTES].setValue(minutesAlpha);
     }
 
     @Override
@@ -662,66 +660,99 @@ public class RadialTimePickerView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         final float alphaMod = mInputEnabled ? 1 : mDisabledAlpha;
+        Log.i("hourTest:", "onDraw");
 
-        drawCircleBackground(canvas);
+        ArrayList<Float> startArcAngles = TimePickerUtils.generateTimerStartArcAngles();
+        timerSections = TimePickerUtils.generateTimerSections(startArcAngles, isPm);
+
+        Paint paint = new Paint();
+        paint.setColor(activeHoursBackgroundColor);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setStrokeWidth(5);
+        RectF rectF = new RectF(mXCenter - mCircleRadius, mYCenter - mCircleRadius,
+                mXCenter + mCircleRadius, mYCenter + mCircleRadius);
+        canvas.drawOval(rectF, paint);
+
+        for (LockedInterval lockedInterval : lockedIntervals) {
+            addLockedInterval(canvas, paint, rectF, lockedInterval);
+        }
+
         drawHours(canvas, alphaMod);
-        drawMinutes(canvas, alphaMod);
         drawCenter(canvas, alphaMod);
     }
 
-    private void drawCircleBackground(Canvas canvas) {
-        canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, mPaintBackground);
+    private void addLockedInterval(Canvas canvas, Paint paint, RectF rectF, LockedInterval lockedInterval) {
+        timesToBlock.put(TimePickerUtils.getTimeAsMinutes(lockedInterval.getStartHour(), lockedInterval.getStartMinute()),
+                TimePickerUtils.getTimeAsMinutes(lockedInterval.getEndHour(), lockedInterval.getEndMinute()));
+        hoursToOvershadow.addAll(TimePickerUtils.extractHoursToOvershadow(lockedInterval));
+        drawBlockedHours(canvas, paint, rectF, lockedInterval);
     }
+
+    private void drawBlockedHours(Canvas canvas, Paint paint, RectF rectF,
+                                  LockedInterval lockedInterval) {
+        TimerSection startSection = TimePickerUtils.findSectionForHour(lockedInterval.getStartHour(), timerSections);
+        float startAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(lockedInterval.getStartMinute(), startSection);
+        if (startAngle == ANGLE_NOT_FOUND) {
+            startAngle = 0;
+        }
+        TimerSection endSection = TimePickerUtils.findSectionForHour(lockedInterval.getEndHour(), timerSections);
+        float endAngle = TimePickerUtils.findAngleForGivenMinutesAndHours(lockedInterval.getEndMinute(), endSection);
+        if (endAngle == ANGLE_NOT_FOUND) {
+            endAngle = 0;
+        }
+        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
+        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
+                isStartTimePm, isEndTimePm);
+
+        paint.setColor(inactiveHoursBackgroundColor);
+
+        float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
+
+        float finalStartDrawingAngle = 0;
+        float finalSweepAngle = 0;
+        if (!isPm && sweepAngles.first != null) {
+            finalStartDrawingAngle = drawArcAngle;
+            finalSweepAngle = sweepAngles.first;
+        }
+        if (isPm && sweepAngles.second != null) {
+            finalStartDrawingAngle = drawArcAngle;
+            finalSweepAngle = sweepAngles.second;
+        }
+
+        if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
+            finalStartDrawingAngle -= UNIT_WIDTH;
+            finalSweepAngle += 2 * UNIT_WIDTH;
+        } else if (!isStartTimePm && isEndTimePm && endAngle != 0) {
+            finalSweepAngle += UNIT_WIDTH;
+        } else if (isStartTimePm == isEndTimePm && startAngle != endAngle) {
+            finalSweepAngle += UNIT_WIDTH;
+        }
+
+        canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
+    }
+
 
     private void drawHours(Canvas canvas, float alphaMod) {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);
         if (hoursAlpha > 0) {
             // Draw the hour selector under the elements.
-            drawSelector(canvas, mIsOnInnerCircle ? HOURS_INNER : HOURS, null, alphaMod);
+            if (!lockSelectorDrawing) {
+                drawSelector(canvas, mIsOnInnerCircle ? HOURS_INNER : HOURS, null, alphaMod);
+            }
 
             // Draw outer hours.
             drawTextElements(canvas, mTextSize[HOURS], mTypeface, mTextColor[HOURS],
                     mOuterTextHours, mOuterTextX[HOURS], mOuterTextY[HOURS], mPaint[HOURS],
                     hoursAlpha, !mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
-
-            // Draw inner hours (13-00) for 24-hour time.
-            if (mIs24HourMode && mInnerTextHours != null) {
-                drawTextElements(canvas, mTextSize[HOURS_INNER], mTypeface, mTextColor[HOURS_INNER],
-                        mInnerTextHours, mInnerTextX, mInnerTextY, mPaint[HOURS], hoursAlpha,
-                        mIsOnInnerCircle, mSelectionDegrees[HOURS], false);
-            }
-        }
-    }
-
-    private void drawMinutes(Canvas canvas, float alphaMod) {
-        final int minutesAlpha = (int) (mAlpha[MINUTES].getValue() * alphaMod + 0.5f);
-        if (minutesAlpha > 0) {
-            // Draw the minute selector under the elements.
-            drawSelector(canvas, MINUTES, mSelectorPath, alphaMod);
-
-            // Exclude the selector region, then draw minutes with no
-            // activated states.
-            canvas.save(Canvas.CLIP_SAVE_FLAG);
-            canvas.clipPath(mSelectorPath, Region.Op.DIFFERENCE);
-            drawTextElements(canvas, mTextSize[MINUTES], mTypeface, mTextColor[MINUTES],
-                    mMinutesText, mOuterTextX[MINUTES], mOuterTextY[MINUTES], mPaint[MINUTES],
-                    minutesAlpha, false, 0, false);
-            canvas.restore();
-
-            // Intersect the selector region, then draw minutes with only
-            // activated states.
-            canvas.save(Canvas.CLIP_SAVE_FLAG);
-            canvas.clipPath(mSelectorPath, Region.Op.INTERSECT);
-            drawTextElements(canvas, mTextSize[MINUTES], mTypeface, mTextColor[MINUTES],
-                    mMinutesText, mOuterTextX[MINUTES], mOuterTextY[MINUTES], mPaint[MINUTES],
-                    minutesAlpha, true, mSelectionDegrees[MINUTES], true);
-            canvas.restore();
         }
     }
 
     private void drawCenter(Canvas canvas, float alphaMod) {
-        mPaintCenter.setAlpha((int) (255 * alphaMod + 0.5f));
-        canvas.drawCircle(mXCenter, mYCenter, mCenterDotRadius, mPaintCenter);
+        if (!lockSelectorDrawing) {
+            mPaintCenter.setAlpha((int) (255 * alphaMod + 0.5f));
+            canvas.drawCircle(mXCenter, mYCenter, mCenterDotRadius, mPaintCenter);
+        }
     }
 
     private int applyAlpha(int argb, int alpha) {
@@ -742,8 +773,8 @@ public class RadialTimePickerView extends View {
         final int selRadius = mSelectorRadius;
         final int selLength = mCircleRadius - mTextInset[index];
         final double selAngleRad = Math.toRadians(mSelectionDegrees[index % 2]);
-        final float selCenterX = mXCenter + selLength * (float) Math.sin(selAngleRad);
-        final float selCenterY = mYCenter - selLength * (float) Math.cos(selAngleRad);
+        selCenterX = mXCenter + selLength * (float) Math.sin(selAngleRad);
+        selCenterY = mYCenter - selLength * (float) Math.cos(selAngleRad);
 
         // Draw the selection circle.
         final Paint paint = mPaintSelector[index % 2][SELECTOR_CIRCLE];
@@ -807,23 +838,6 @@ public class RadialTimePickerView extends View {
     }
 
     /**
-     * Using the trigonometric Unit Circle, calculate the positions that the text will need to be
-     * drawn at based on the specified circle radius. Place the values in the textGridHeights and
-     * textGridWidths parameters.
-     */
-    private static void calculatePositions(Paint paint, float radius, float xCenter, float yCenter,
-                                           float textSize, float[] x, float[] y) {
-        // Adjust yCenter to account for the text's baseline.
-        paint.setTextSize(textSize);
-        yCenter -= (paint.descent() + paint.ascent()) / 2;
-
-        for (int i = 0; i < NUM_POSITIONS; i++) {
-            x[i] = xCenter - radius * COS_30[i];
-            y[i] = yCenter - radius * SIN_30[i];
-        }
-    }
-
-    /**
      * Draw the 12 text values at the positions specified by the textGrid parameters.
      */
     private void drawTextElements(Canvas canvas, float textSize, Typeface typeface,
@@ -846,46 +860,24 @@ public class RadialTimePickerView extends View {
             final int stateMask = SUtils.STATE_ENABLED
                     | (showActivated && activated ? SUtils.STATE_ACTIVATED : 0);
             final int color = textColor.getColorForState(SUtils.resolveStateSet(stateMask), 0);
-            paint.setColor(color);
+            paint.setColor(Color.BLACK);
+            if (!lockSelectorDrawing) {
+                if (selectedTime.second != 30 && isSelectedSectionDrawing(i)) {
+                    paint.setColor(Color.WHITE);
+                }
+            }
+            int drawingHour = Integer.parseInt(texts[i]);
+            if (hoursToOvershadow.contains(drawingHour)) {
+                paint.setColor(inactiveDigitsColor);
+            }
             paint.setAlpha(getMultipliedAlpha(color, alpha));
 
             canvas.drawText(texts[i], textX[i], textY[i], paint);
         }
     }
 
-    private static ObjectAnimator getFadeOutAnimator(IntHolder target, int startAlpha, int endAlpha,
-                                                     InvalidateUpdateListener updateListener) {
-        final ObjectAnimator animator = ObjectAnimator.ofInt(target, "value", startAlpha, endAlpha);
-        animator.setDuration(FADE_OUT_DURATION);
-        animator.addUpdateListener(updateListener);
-        return animator;
-    }
-
-    private static ObjectAnimator getFadeInAnimator(IntHolder target, int startAlpha, int endAlpha,
-                                                    InvalidateUpdateListener updateListener) {
-        final float delayMultiplier = 0.25f;
-        final float transitionDurationMultiplier = 1f;
-        final float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
-        final int totalDuration = (int) (FADE_IN_DURATION * totalDurationMultiplier);
-        final float delayPoint = (delayMultiplier * FADE_IN_DURATION) / totalDuration;
-
-        final Keyframe kf0, kf1, kf2;
-        kf0 = Keyframe.ofInt(0f, startAlpha);
-        kf1 = Keyframe.ofInt(delayPoint, startAlpha);
-        kf2 = Keyframe.ofInt(1f, endAlpha);
-        final PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("value", kf0, kf1, kf2);
-
-        final ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(target, fadeIn);
-        animator.setDuration(totalDuration);
-        animator.addUpdateListener(updateListener);
-        return animator;
-    }
-
-    private class InvalidateUpdateListener implements ValueAnimator.AnimatorUpdateListener {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            RadialTimePickerView.this.invalidate();
-        }
+    private boolean isSelectedSectionDrawing(int index) {
+        return isPm ? selectedSection.getHour() == index + HOURS_IN_CIRCLE : selectedSection.getHour() == index;
     }
 
     private void startHoursToMinutesAnimation() {
@@ -944,7 +936,7 @@ public class RadialTimePickerView extends View {
         // Convert to degrees.
         final int degrees = (int) (Math.toDegrees(Math.atan2(dY, dX) + Math.PI / 2) + 0.5);
         if (degrees < 0) {
-            return degrees + 360;
+            return degrees + FULL_ANGLE;
         } else {
             return degrees;
         }
@@ -959,8 +951,6 @@ public class RadialTimePickerView extends View {
         }
         return false;
     }
-
-    private boolean mChangedDuringTouch = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -1003,30 +993,68 @@ public class RadialTimePickerView extends View {
             return false;
         }
 
-        final int type;
-        final int newValue;
-        final boolean valueChanged;
+        int type = HOURS;
+        boolean valueChanged = false;
 
         if (mShowHours) {
-            final int snapDegrees = snapOnly30s(degrees, 0) % 360;
-            valueChanged = mIsOnInnerCircle != isOnInnerCircle
-                    || mSelectionDegrees[HOURS] != snapDegrees;
-            mIsOnInnerCircle = isOnInnerCircle;
-            mSelectionDegrees[HOURS] = snapDegrees;
-            type = HOURS;
-            newValue = getCurrentHour();
-        } else {
-            final int snapDegrees = snapPrefer30s(degrees) % 360;
-            valueChanged = mSelectionDegrees[MINUTES] != snapDegrees;
-            mSelectionDegrees[MINUTES] = snapDegrees;
-            type = MINUTES;
-            newValue = getCurrentMinute();
+            selectedSection = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
+            int snapDegrees = 0;
+            if (selectedSection != null) {
+                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, selectedSection);
+                float endAngle = startAngle + UNIT_WIDTH;
+                boolean isDegreesCloserToStartDegree =
+                        TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
+                if (isDegreesCloserToStartDegree) {
+                    snapDegrees = (int) startAngle;
+                } else {
+                    snapDegrees = (int) endAngle;
+                }
+
+                Log.i("timerTest", "snapDegrees:" + snapDegrees);
+                int hour = selectedSection.getHour();
+                int unassignedQuarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(degrees,
+                        selectedSection);
+                selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
+                        unassignedQuarter,
+                        isDegreesCloserToStartDegree, isPm);
+
+                Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
+                Log.i("hourTest:", "-----------------------------");
+                boolean isInJoinedBlockedAreas = isInJoinedBlockedAreas(selectedTime);
+                if (isInJoinedBlockedAreas) {
+                    return false;
+                }
+                wasSomeCorrectTouch = true;
+
+                valueChanged = setParamsOnAllowedTimeSelected(isOnInnerCircle, snapDegrees);
+
+                Log.i("hourTest:", "inJoinedAreas:" + isInJoinedBlockedAreas);
+
+                if (notifyNewTimeAndInvalidate(forceSelection, autoAdvance, valueChanged, selectedTime))
+                    return true;
+
+            }
         }
 
+        return false;
+    }
+
+    private boolean setParamsOnAllowedTimeSelected(boolean isOnInnerCircle, int snapDegrees) {
+        boolean valueChanged;
+        valueChanged = mIsOnInnerCircle != isOnInnerCircle
+                || mSelectionDegrees[HOURS] != snapDegrees;
+        mIsOnInnerCircle = isOnInnerCircle;
+        mSelectionDegrees[HOURS] = snapDegrees;
+        lockSelectorDrawing = false;
+        return valueChanged;
+    }
+
+    private boolean notifyNewTimeAndInvalidate(boolean forceSelection, boolean autoAdvance, boolean valueChanged,
+                                               Pair<Integer, Integer> selectedTime) {
         if (valueChanged || forceSelection || autoAdvance) {
             // Fire the listener even if we just need to auto-advance.
             if (mListener != null) {
-                mListener.onValueSelected(type, newValue, autoAdvance);
+                mListener.onValueSelected(selectedTime);
             }
 
             // Only provide feedback if the value actually changed.
@@ -1036,8 +1064,26 @@ public class RadialTimePickerView extends View {
             }
             return true;
         }
-
         return false;
+    }
+
+    private boolean isInJoinedBlockedAreas(Pair<Integer, Integer> selectedTime) {
+        boolean isInJoinedAreas = false;
+        for (Map.Entry<Integer, Integer> entry : timesToBlock.entrySet()) {
+            Integer startTimeInMin = entry.getKey();
+            Integer endTimeInMin = entry.getValue();
+            Pair<Integer, Integer> startHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(startTimeInMin);
+            Pair<Integer, Integer> endHourAndMin = TimePickerUtils.timeInMinutesAsHourAndMin(endTimeInMin);
+            Log.i("hourTest:", "startHourAndMin:" + startHourAndMin);
+            Log.i("hourTest:", "endHourAndMin:" + endHourAndMin);
+            Log.i("hourTest:", "selectedHourAndMin:" + selectedTime);
+
+            isInJoinedAreas |= TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+                    startHourAndMin, endHourAndMin);
+            Log.i("hourTest:", TimePickerUtils.isSelectedInBlockedArea(selectedTime,
+                    startHourAndMin, endHourAndMin) + "");
+        }
+        return isInJoinedAreas;
     }
 
     @Override
@@ -1049,6 +1095,54 @@ public class RadialTimePickerView extends View {
     public void setInputEnabled(boolean inputEnabled) {
         mInputEnabled = inputEnabled;
         invalidate();
+    }
+
+    public interface OnValueSelectedListener {
+        void onValueSelected(Pair<Integer, Integer> selectedTime);
+    }
+
+    private static class IntHolder {
+        private int mValue;
+
+        public IntHolder(int value) {
+            mValue = value;
+        }
+
+        public int getValue() {
+            return mValue;
+        }
+
+        public void setValue(int value) {
+            mValue = value;
+        }
+    }
+
+    public static class TimerSection {
+        private int hour;
+        private ArrayList<Float> sectionStartAngles;
+
+        public int getHour() {
+            return hour;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public ArrayList<Float> getSectionStartAngles() {
+            return sectionStartAngles;
+        }
+
+        public void setSectionStartAngles(ArrayList<Float> sectionStartAngles) {
+            this.sectionStartAngles = sectionStartAngles;
+        }
+    }
+
+    private class InvalidateUpdateListener implements ValueAnimator.AnimatorUpdateListener {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            RadialTimePickerView.this.invalidate();
+        }
     }
 
     private class RadialPickerTouchHelper extends ExploreByTouchHelper {
@@ -1133,10 +1227,8 @@ public class RadialTimePickerView extends View {
                 final int value = getValueFromId(virtualViewId);
                 if (type == TYPE_HOUR) {
                     final int hour = mIs24HourMode ? value : hour12To24(value, mAmOrPm);
-                    setCurrentHour(hour);
                     return true;
                 } else if (type == TYPE_MINUTE) {
-                    setCurrentMinute(value);
                     return true;
                 }
             }
@@ -1196,11 +1288,6 @@ public class RadialTimePickerView extends View {
 
             final int nextValue = (initialStep + step) * stepSize;
             final int clampedValue = SUtils.constrain(nextValue, minValue, maxValue);
-            if (mShowHours) {
-                setCurrentHour(clampedValue);
-            } else {
-                setCurrentMinute(clampedValue);
-            }
         }
 
         @Override
@@ -1208,7 +1295,7 @@ public class RadialTimePickerView extends View {
             final int id;
             final int degrees = getDegreesFromXY(x, y, true);
             if (degrees != -1) {
-                final int snapDegrees = snapOnly30s(degrees, 0) % 360;
+                final int snapDegrees = snapOnly30s(degrees, 0) % FULL_ANGLE;
                 if (mShowHours) {
                     final boolean isOnInnerCircle = getInnerCircleFromXY(x, y);
                     final int hour24 = getHourForDegrees(snapDegrees, isOnInnerCircle);
@@ -1359,22 +1446,6 @@ public class RadialTimePickerView extends View {
 
         private int getValueFromId(int id) {
             return id >>> SHIFT_VALUE & MASK_VALUE;
-        }
-    }
-
-    private static class IntHolder {
-        private int mValue;
-
-        public IntHolder(int value) {
-            mValue = value;
-        }
-
-        public void setValue(int value) {
-            mValue = value;
-        }
-
-        public int getValue() {
-            return mValue;
         }
     }
 }

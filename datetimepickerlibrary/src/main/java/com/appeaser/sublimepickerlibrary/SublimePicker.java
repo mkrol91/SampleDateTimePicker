@@ -64,6 +64,7 @@ import java.util.TimeZone;
  */
 public class SublimePicker extends FrameLayout
         implements SublimeDatePicker.OnDateChangedListener,
+        SublimeTimePicker.OnTimeChangedListener,
         SublimeDatePicker.DatePickerValidationCallback,
         SublimeTimePicker.TimePickerValidationCallback {
     private static final String TAG = SublimePicker.class.getSimpleName();
@@ -551,9 +552,9 @@ public class SublimePicker extends FrameLayout
         if (mTimePickerEnabled) {
             int[] timeParams = mOptions.getTimeParams();
             mTimePicker.setCurrentHour(timeParams[0] /* hour of day */);
-            mTimePicker.setCurrentMinute(timeParams[1] /* minute */);
             mTimePicker.setIs24HourView(mOptions.is24HourView());
             mTimePicker.setValidationCallback(this);
+            mTimePicker.setOnTimeChangedListener(this);
 
             ivRecurrenceOptionsTP.setVisibility(View.GONE);
         } else {
@@ -608,17 +609,15 @@ public class SublimePicker extends FrameLayout
     }
 
     private void updateTabs() {
-        boolean isDatePicker = mCurrentPicker == SublimeOptions.Picker.DATE_PICKER;
-        mDateTabBkg.setActivated(isDatePicker);
-        mTimeTabBkg.setActivated(!isDatePicker);
+        mDateTab.setActivated(mCurrentPicker == SublimeOptions.Picker.DATE_PICKER);
+        mTimeTab.setActivated(mCurrentPicker == SublimeOptions.Picker.TIME_PICKER);
 
-        mTabDivider.setScaleX(mTimeTabBkg.isActivated() ? -1 : 1);
+        mTabDivider.setScaleX(mTimeTab.isActivated() ? -1 : 1);
 
-        Calendar cal = mDatePicker.getVisibleMonth();
-        mDateTabTv.setText(mMonthFormat.format(cal.getTime()));
+        Calendar date = mDatePicker.getSelectedDate().getStartDate();
+        mDateTabTv.setText(android.text.format.DateFormat.format("d. MMMM", date.getTimeInMillis()));
 
-        mDateLeftArrow.setVisibility(isDatePicker ? VISIBLE : GONE);
-        mDateRightArrow.setVisibility(isDatePicker ? VISIBLE : GONE);
+
     }
 
     @Override
@@ -647,6 +646,11 @@ public class SublimePicker extends FrameLayout
 
     public void setDisplayChangedListener(DisplayChangedListener displayChangedListener) {
         this.displayChangedListener = displayChangedListener;
+    }
+
+    @Override
+    public void onTimeChanged(String formattedTime) {
+        mTimeTabTv.setText(formattedTime);
     }
 
     public interface SublimePickerDateChangedListener {
