@@ -13,6 +13,7 @@ import static com.appeaser.sublimepickerlibrary.timepicker.RadialTimePickerView.
 import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q0;
 import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q15;
 import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q30;
+import static com.appeaser.sublimepickerlibrary.utilities.Quarter.Q45;
 
 
 /**
@@ -139,18 +140,18 @@ public class TimePickerUtils {
     public static Pair<Integer, Integer> mapToTimeAsPair(int hour, int unassignedQuarter, boolean isDegreesCloserToStartDegree, boolean isPm) {
         if (unassignedQuarter == 1) {
             if (hour == 0) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q30) : new Pair<>(HOURS_12 - 1, 45);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q30) : new Pair<>(HOURS_12 - 1, Q45);
             } else if (hour == 12) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q30) : new Pair<>(HOURS_24 - 1, 45);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q30) : new Pair<>(HOURS_24 - 1, Q45);
             }
-            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q30) : new Pair<>(hour - 1, 45);
+            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q30) : new Pair<>(hour - 1, Q45);
         } else if (unassignedQuarter == 2) {
             if (hour == 0) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, 45) : new Pair<>(0, 0);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_12 - 1, Q45) : new Pair<>(0, 0);
             } else if (hour == 12) {
-                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, 45) : new Pair<>(HOURS_12, 0);
+                return isDegreesCloserToStartDegree ? new Pair<>(HOURS_24 - 1, Q45) : new Pair<>(HOURS_12, 0);
             }
-            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, 45) : new Pair<>(hour, 0);
+            return isDegreesCloserToStartDegree ? new Pair<>(hour - 1, Q45) : new Pair<>(hour, 0);
         } else if (unassignedQuarter == 3) {
             return isDegreesCloserToStartDegree ? new Pair<>(hour, Q0) : new Pair<>(hour, Q15);
         } else if (unassignedQuarter == 4) {
@@ -186,7 +187,7 @@ public class TimePickerUtils {
                     return section.getSectionStartAngles().get(3);
                 case Q30:
                     return section.getSectionStartAngles().get(3) + UNIT_WIDTH;
-                case 45:
+                case Q45:
                     return section.getSectionStartAngles().get(3) + 15f;
             }
         }
