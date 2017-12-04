@@ -50,11 +50,13 @@ import android.widget.TextView;
 import com.appeaser.sublimepickerlibrary.R;
 import com.appeaser.sublimepickerlibrary.common.DateTimePatternHelper;
 import com.appeaser.sublimepickerlibrary.utilities.AccessibilityUtils;
+import com.appeaser.sublimepickerlibrary.utilities.LockedInterval;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
 import com.appeaser.sublimepickerlibrary.utilities.TimePickerUtils;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -226,6 +228,17 @@ public class SublimeTimePicker extends FrameLayout
         a.recycle();
 
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
+        //lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
+        //lockedIntervals.add(new LockedInterval(2, 15, 7, 0));
+        //lockedIntervals.add(new LockedInterval(6, 15, 14, 45));
+        //lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
+        //lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
+        //lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
+        //lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
+        //lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
+        mRadialTimePickerView.setLockedIntervals(
+                Arrays.asList(new LockedInterval(2,0,7,0),
+                new LockedInterval(22, 15, 1, 30)));
         amLabelText = mainView.findViewById(R.id.am_label_text);
         pmLabelText = mainView.findViewById(R.id.pm_label_text);
         amPmSwitch = mainView.findViewById(R.id.am_pm_switch);

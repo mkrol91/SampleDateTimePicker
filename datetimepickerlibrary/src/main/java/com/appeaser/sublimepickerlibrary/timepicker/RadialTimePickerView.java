@@ -164,12 +164,13 @@ public class RadialTimePickerView extends View {
     private float selCenterX;
     private float selCenterY;
     private HashMap<Integer, Integer> timesToBlock = new HashMap<>();
-    private ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
+    private List<LockedInterval> lockedIntervals = new ArrayList<>();
     private boolean lockSelectorDrawing = true;
     private boolean wasSomeCorrectTouch = false;
     private Pair<Integer, Integer> selectedTime;
     private TimerSection selectedSection;
     private LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
+
 
     @SuppressWarnings("unused")
     public RadialTimePickerView(Context context) {
@@ -358,6 +359,14 @@ public class RadialTimePickerView extends View {
         return animator;
     }
 
+    public List<LockedInterval> getLockedIntervals() {
+        return lockedIntervals;
+    }
+
+    public void setLockedIntervals(List<LockedInterval> lockedIntervals) {
+        this.lockedIntervals = lockedIntervals;
+    }
+
     public void toggleAmPm() {
         isPm = !isPm;
         initHoursAndMinutesText();
@@ -371,15 +380,6 @@ public class RadialTimePickerView extends View {
 
     private void init(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         Context context = getContext();
-
-        //lockedIntervals.add(new LockedInterval(2, 0, 7, 0));
-//        lockedIntervals.add(new LockedInterval(2, 15, 7, 0));
-        //lockedIntervals.add(new LockedInterval(6, 15, 14, 45));V
-        //lockedIntervals.add(new LockedInterval(22, 15, 2, 0));
-        //lockedIntervals.add(new LockedInterval(23, 0, 4, 0));
-        //lockedIntervals.add(new LockedInterval(16, 15, 19, 0));
-//        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));V
-//        lockedIntervals.add(new LockedInterval(9, 15, 23, 45));
 
         // Pull disabled alpha from theme.
         final TypedValue outValue = new TypedValue();
