@@ -609,15 +609,17 @@ public class SublimePicker extends FrameLayout
     }
 
     private void updateTabs() {
-        mDateTab.setActivated(mCurrentPicker == SublimeOptions.Picker.DATE_PICKER);
-        mTimeTab.setActivated(mCurrentPicker == SublimeOptions.Picker.TIME_PICKER);
+        boolean isDatePicker = mCurrentPicker == SublimeOptions.Picker.DATE_PICKER;
+        mDateTabBkg.setActivated(isDatePicker);
+        mTimeTabBkg.setActivated(!isDatePicker);
 
-        mTabDivider.setScaleX(mTimeTab.isActivated() ? -1 : 1);
+        mTabDivider.setScaleX(mTimeTabBkg.isActivated() ? -1 : 1);
 
-        Calendar date = mDatePicker.getSelectedDate().getStartDate();
-        mDateTabTv.setText(android.text.format.DateFormat.format("d. MMMM", date.getTimeInMillis()));
+        Calendar cal = mDatePicker.getVisibleMonth();
+        mDateTabTv.setText(mMonthFormat.format(cal.getTime()));
 
-
+        mDateLeftArrow.setVisibility(isDatePicker ? VISIBLE : GONE);
+        mDateRightArrow.setVisibility(isDatePicker ? VISIBLE : GONE);
     }
 
     @Override
