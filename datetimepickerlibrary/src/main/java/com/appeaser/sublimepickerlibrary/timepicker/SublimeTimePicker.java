@@ -59,7 +59,9 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.locks.Lock;
 
 public class SublimeTimePicker extends FrameLayout
         implements RadialTimePickerView.OnValueSelectedListener {
@@ -264,6 +266,10 @@ public class SublimeTimePicker extends FrameLayout
                 new SpannableStringBuilder().append(text,
                         new TtsSpan.VerbatimBuilder(text).build(), 0)
                 : text;
+    }
+
+    public void setDisabledIntervals(List<LockedInterval> disabledIntervals) {
+        mRadialTimePickerView.setLockedIntervals(disabledIntervals);
     }
 
     private int computeStableWidth(TextView v, int maxNumber) {
@@ -515,6 +521,7 @@ public class SublimeTimePicker extends FrameLayout
         String timeWitPmInfo = isTimePm ? formattedTime + pm : formattedTime + am;
         if (mOnTimeChangedListener != null) {
             mOnTimeChangedListener.onTimeChanged(timeWitPmInfo);
+            mOnTimeChangedListener.onTimeChanged(selectedTime.first, selectedTime.second);
         }
     }
 
@@ -1074,6 +1081,8 @@ public class SublimeTimePicker extends FrameLayout
      */
     public interface OnTimeChangedListener {
         void onTimeChanged(String timeWitPmInfo);
+
+        void onTimeChanged(int hour, int minute);
     }
 
     /**

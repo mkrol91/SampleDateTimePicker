@@ -38,10 +38,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.appeaser.sublimepickerlibrary.common.ButtonHandler;
+import com.appeaser.sublimepickerlibrary.datepicker.RentalSpan;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.appeaser.sublimepickerlibrary.datepicker.SublimeDatePicker;
 import com.appeaser.sublimepickerlibrary.drawables.OverflowDrawable;
-import com.appeaser.sublimepickerlibrary.helpers.SublimeListenerAdapter;
+import com.appeaser.sublimepickerlibrary.helpers.SublimeDateTimeChangeListener;
 import com.appeaser.sublimepickerlibrary.helpers.SublimeOptions;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.appeaser.sublimepickerlibrary.timepicker.SublimeTimePicker;
@@ -105,7 +106,7 @@ public class SublimePicker extends FrameLayout
     private ImageView mIncreaseRentalHours;
 
     // Callback
-    private SublimeListenerAdapter mListener;
+    private SublimeDateTimeChangeListener dateTimeChangeListener;
 
     // Client-set options
     private SublimeOptions mOptions;
@@ -143,18 +144,18 @@ public class SublimePicker extends FrameLayout
                     = SublimeRecurrencePicker.RecurrenceOption.DOES_NOT_REPEAT;
             String recurrenceRule = null;
 
-            mListener.onDateTimeRecurrenceSet(SublimePicker.this,
-                    // DatePicker
-                    selectedDate,
-                    // TimePicker
-                    hour, minute,
-                    // RecurrencePicker
-                    recurrenceOption, recurrenceRule);
+//            mListener.onDateTimeRecurrenceSet(SublimePicker.this,
+//                    // DatePicker
+//                    selectedDate,
+//                    // TimePicker
+//                    hour, minute,
+//                    // RecurrencePicker
+//                    recurrenceOption, recurrenceRule);
         }
 
         @Override
         public void onCancel() {
-            mListener.onCancelled();
+//            mListener.onCancelled();
         }
 
         @Override
@@ -259,7 +260,7 @@ public class SublimePicker extends FrameLayout
         mDatePicker.setArrowButtons(mDateLeftArrow, mDateRightArrow);
     }
 
-    public void initializePicker(SublimeOptions options, SublimeListenerAdapter listener) {
+    public void initializePicker(SublimeOptions options, SublimeDateTimeChangeListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null.");
         }
@@ -271,7 +272,7 @@ public class SublimePicker extends FrameLayout
         }
 
         mOptions = options;
-        mListener = listener;
+        dateTimeChangeListener = listener;
 
         processOptions();
         updateDisplay();
@@ -319,7 +320,7 @@ public class SublimePicker extends FrameLayout
                 Date toFormat = new Date(mTimePicker.getCurrentHour() * DateUtils.HOUR_IN_MILLIS
                         + mTimePicker.getCurrentMinute() * DateUtils.MINUTE_IN_MILLIS);
 
-                switchButtonText = mListener.formatTime(toFormat);
+                switchButtonText = "";
 
                 if (TextUtils.isEmpty(switchButtonText)) {
                     switchButtonText = mDefaultTimeFormatter.format(toFormat);
@@ -341,7 +342,7 @@ public class SublimePicker extends FrameLayout
 
             if (mButtonLayout.isSwitcherButtonEnabled()) {
                 SelectedDate selectedDate = mDatePicker.getSelectedDate();
-                switchButtonText = mListener.formatDate(selectedDate);
+                switchButtonText = "";
 
                 if (TextUtils.isEmpty(switchButtonText)) {
                     if (selectedDate.getType() == SelectedDate.Type.SINGLE) {
@@ -364,14 +365,17 @@ public class SublimePicker extends FrameLayout
 
         updateTabs();
 
-        SublimeOptions.RentalSpan days = mOptions.getSubsequentDays();
-        mDecreaseRentalHours.setEnabled(days != SublimeOptions.RentalSpan.HALF_DAY);
-        boolean fromRangeDisabled = mDatePicker.isAnyDayFromRangeDisabled(mDatePicker.getSelectedDate().getStartDate(), mOptions.getSubsequentDaysCount() + 1);
-        mIncreaseRentalHours.setEnabled(days != SublimeOptions.RentalSpan.TWO_DAYS && !fromRangeDisabled);
-        if (days == SublimeOptions.RentalSpan.HALF_DAY) {
+        RentalSpan days = mOptions.getSubsequentDays();
+        mDecreaseRentalHours.setEnabled(!days.isMinSelected());
+        RentalSpan moreDays = new RentalSpan(days.getMaxSpan() + 1f, days.getSelectedSpan());
+        moreDays.increaseSelection();
+        boolean fromRangeDisabled = mDatePicker.isAnyDayFromRangeDisabled(mDatePicker.getSelectedDate().getStartDate(),
+                                                                          moreDays);
+        mIncreaseRentalHours.setEnabled(!days.isMaxSelected() && !fromRangeDisabled);
+        if (days.isMinSelected()) {
             mRentalHours.setText(getContext().getString(R.string.twelve_hours));
         } else {
-            int daysCount = mOptions.getSubsequentDaysCount() + 1;
+            int daysCount = (int) days.getSelectedSpan();
             mRentalHours.setText(getContext().getResources().getQuantityString(R.plurals.days, daysCount, daysCount));
         }
     }
@@ -456,23 +460,21 @@ public class SublimePicker extends FrameLayout
         mDecreaseRentalHours.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                SublimeOptions.RentalSpan days = mOptions.getSubsequentDays();
-                if (days != SublimeOptions.RentalSpan.HALF_DAY) {
-                    mOptions.setSubsequentDays(SublimeOptions.RentalSpan.values()[days.ordinal() - 1]);
-                }
-                mDatePicker.setSubsequentDays(mOptions.getSubsequentDaysCount());
+                RentalSpan days = mOptions.getSubsequentDays();
+                days.decreaseSelection();
+                mDatePicker.setSubsequentDays(new RentalSpan(days));
                 updateDisplay();
+                dateTimeChangeListener.onRentalSpanChanged(days.getSelectedSpan());
             }
         });
         mIncreaseRentalHours.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                SublimeOptions.RentalSpan days = mOptions.getSubsequentDays();
-                if (days != SublimeOptions.RentalSpan.TWO_DAYS) {
-                    mOptions.setSubsequentDays(SublimeOptions.RentalSpan.values()[days.ordinal() + 1]);
-                }
-                mDatePicker.setSubsequentDays(mOptions.getSubsequentDaysCount());
+                RentalSpan days = mOptions.getSubsequentDays();
+                days.increaseSelection();
+                mDatePicker.setSubsequentDays(new RentalSpan(days));
                 updateDisplay();
+                dateTimeChangeListener.onRentalSpanChanged(days.getSelectedSpan());
             }
         });
     }
@@ -540,7 +542,7 @@ public class SublimePicker extends FrameLayout
 
             mDatePicker.setDisabledDays(mOptions.getDisabledDays());
             mDatePicker.setCalendarLocale(mOptions.getDefaultLocale());
-            mDatePicker.setSubsequentDays(mOptions.getSubsequentDaysCount());
+            mDatePicker.setSubsequentDays(mOptions.getSubsequentDays());
 
             mMonthFormat = new SimpleDateFormat("LLLL", mOptions.getDefaultLocale());
 
@@ -598,8 +600,14 @@ public class SublimePicker extends FrameLayout
 
         mDatePicker.init(selectedDate, mOptions.canPickDateRange(), this);
 
+        updateDisplay();
+
         if (sublimePickerDateChangedListener != null) {
             sublimePickerDateChangedListener.onSublimePickerDateChanged(selectedDate);
+        }
+        if (dateTimeChangeListener != null) {
+            dateTimeChangeListener.onDateChanged(selectedDate.isSet() ? selectedDate.getStartDate() : null,
+                                                 mOptions.getSubsequentDays().getSelectedSpan());
         }
     }
 
@@ -653,6 +661,11 @@ public class SublimePicker extends FrameLayout
     @Override
     public void onTimeChanged(String formattedTime) {
         mTimeTabTv.setText(formattedTime);
+    }
+
+    @Override
+    public void onTimeChanged(final int hour, final int minute) {
+        dateTimeChangeListener.onTimeChanged(hour, minute);
     }
 
     public interface SublimePickerDateChangedListener {

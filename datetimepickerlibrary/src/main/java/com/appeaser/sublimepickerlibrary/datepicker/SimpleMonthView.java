@@ -405,6 +405,11 @@ class SimpleMonthView extends View {
         return (((x - mDownX) * (x - mDownX)) + ((y - mDownY) * (y - mDownY))) <= mTouchSlopSquared;
     }
 
+    public void setDisabledDays(final ArrayList<Calendar> disabledDays) {
+        this.mDisabledDays = disabledDays;
+        invalidate();
+    }
+
     private final class CheckForTap implements Runnable {
 
         @Override

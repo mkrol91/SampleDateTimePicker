@@ -97,7 +97,7 @@ public class SublimeDatePicker extends FrameLayout {
 
     private int mFirstDayOfWeek;
     private ArrayList<Calendar> mDisabledDays = new ArrayList<>();
-    private int mSubsequentDays = 0;
+    private RentalSpan mSubsequentDays = new RentalSpan(RentalSpan.HALF_DAY);
 
     private Locale mCurrentLocale;
 
@@ -116,7 +116,7 @@ public class SublimeDatePicker extends FrameLayout {
             boolean updatePosition = false;
             Calendar endDay = Calendar.getInstance();
             endDay.setTimeInMillis(day.getTimeInMillis());
-            endDay.add(Calendar.DAY_OF_YEAR, mSubsequentDays);
+            endDay.add(Calendar.DAY_OF_YEAR, mSubsequentDays.getDaysDifference());
             if (day.equals(mCurrentDate.getStartDate()) && endDay.equals(mCurrentDate.getEndDate()) && mCurrentDate.isSet()) {
                 mCurrentDate.unset();
             } else if (SelectedDate.compareDates(day, mMinDate) >= 0 && SelectedDate.compareDates(endDay, mMaxDate) <= 0) {
@@ -126,7 +126,7 @@ public class SublimeDatePicker extends FrameLayout {
                 }
             }
 
-            onDateChanged(true, updatePosition, updatePosition);
+            onDateChanged(true, true, updatePosition);
         }
 
         @Override
@@ -209,15 +209,18 @@ public class SublimeDatePicker extends FrameLayout {
         initializeLayout(attrs, defStyleAttr, defStyleRes);
     }
 
-    public boolean isAnyDayFromRangeDisabled(Calendar startDay, int range) {
+    public boolean isAnyDayFromRangeDisabled(Calendar startDay, RentalSpan span) {
         Calendar day = Calendar.getInstance();
         day.setTimeInMillis(startDay.getTimeInMillis());
         if (mDisabledDays.contains(day)) {
             return true;
         }
-        for (int i = 0; i < range; i++) {
+        for (int i = 0; i < span.getDaysDifference(); i++) {
             day.add(Calendar.DAY_OF_YEAR, 1);
             if (mDisabledDays.contains(day)) {
+                return true;
+            }
+            if (SelectedDate.compareDates(day, mMaxDate) == 1) {
                 return true;
             }
         }
@@ -528,10 +531,10 @@ public class SublimeDatePicker extends FrameLayout {
             return;
         }
         if (mCurrentDate.getStartDate().before(mTempDate)) {
-            mCurrentDate.getStartDate().setTimeInMillis(minDate);
+            mCurrentDate.getStartDate().setTime(mTempDate.getTime());
             onDateChanged(false, true, true);
         }
-        mMinDate.setTimeInMillis(minDate);
+        mMinDate.setTime(mTempDate.getTime());
         mDayPickerView.setMinDate(minDate);
     }
 
@@ -562,10 +565,10 @@ public class SublimeDatePicker extends FrameLayout {
             return;
         }
         if (mCurrentDate.getEndDate().after(mTempDate)) {
-            mCurrentDate.getEndDate().setTimeInMillis(maxDate);
+            mCurrentDate.getEndDate().setTime(mTempDate.getTime());
             onDateChanged(false, true, true);
         }
-        mMaxDate.setTimeInMillis(maxDate);
+        mMaxDate.setTime(mTempDate.getTime());
         mDayPickerView.setMaxDate(maxDate);
     }
 
@@ -696,16 +699,28 @@ public class SublimeDatePicker extends FrameLayout {
     }
 
     public void setDisabledDays(ArrayList<Calendar> disabledDays) {
-        this.mDisabledDays = disabledDays;
-        mDayPickerView.setDisabledDays(disabledDays);
+        ArrayList<Calendar> dates = extractDates(disabledDays);
+        this.mDisabledDays = dates;
+        mDayPickerView.setDisabledDays(dates);
+    }
+
+    private ArrayList<Calendar> extractDates(final ArrayList<Calendar> days) {
+        ArrayList<Calendar> dates = new ArrayList<>(days.size());
+        for (Calendar day : days) {
+            Calendar date = Calendar.getInstance();
+            date.clear();
+            date.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+            dates.add(date);
+        }
+        return dates;
     }
 
     public void setCalendarLocale(Locale locale) {
         mDayPickerView.setCalendarLocale(locale);
     }
 
-    public void setSubsequentDays(int subsequentDays) {
-        boolean hasChanged = mSubsequentDays != subsequentDays;
+    public void setSubsequentDays(RentalSpan subsequentDays) {
+        boolean hasChanged = mSubsequentDays.getDaysDifference() != subsequentDays.getDaysDifference();
         this.mSubsequentDays = subsequentDays;
         if (mProxyDaySelectionEventListener != null && mCurrentDate.isSet() && hasChanged) {
             mProxyDaySelectionEventListener.onDaySelected(null, mCurrentDate.getStartDate());

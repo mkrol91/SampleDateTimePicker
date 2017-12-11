@@ -21,6 +21,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.appeaser.sublimepickerlibrary.datepicker.RentalSpan;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.appeaser.sublimepickerlibrary.utilities.SUtils;
@@ -69,7 +70,7 @@ public class SublimeOptions implements Parcelable {
 
     // Defaults
     private Picker mPickerToShow = Picker.DATE_PICKER;
-    private RentalSpan mSubsequentDays = RentalSpan.HALF_DAY;
+    private RentalSpan mSubsequentDays = new RentalSpan(RentalSpan.HALF_DAY);
     private Locale mDefaultLocale = Locale.getDefault();
 
     public SublimeOptions() {
@@ -258,7 +259,7 @@ public class SublimeOptions implements Parcelable {
 
         Calendar endCal = SUtils.getCalendarForLocale(null, Locale.getDefault());
         if (mEndYear == -1 || mEndMonth == -1 || mEndDayOfMonth == -1) {
-            endCal.add(Calendar.DAY_OF_YEAR, getSubsequentDaysCount());
+            endCal.add(Calendar.DAY_OF_YEAR, mSubsequentDays.getDaysDifference());
             mEndYear = endCal.get(Calendar.YEAR);
             mEndMonth = endCal.get(Calendar.MONTH);
             mEndDayOfMonth = endCal.get(Calendar.DAY_OF_MONTH);
@@ -339,24 +340,10 @@ public class SublimeOptions implements Parcelable {
         return mSubsequentDays;
     }
 
-    public int getSubsequentDaysCount() {
-        if (mSubsequentDays == null) {
-            return 0;
-        }
-
-        switch (mSubsequentDays) {
-            case HALF_DAY:
-            case ONE_DAY:
-                return 0;
-            case TWO_DAYS:
-                return 1;
-            default:
-                return 0;
-        }
-    }
-
     public SublimeOptions setSubsequentDays(RentalSpan days) {
-        this.mSubsequentDays = days;
+        if (days != null) {
+            this.mSubsequentDays = days;
+        }
         return this;
     }
 
@@ -391,7 +378,7 @@ public class SublimeOptions implements Parcelable {
         mRecurrenceRule = in.readString();
         mCanPickDateRange = in.readByte() != 0;
         disabledDays = (ArrayList<Calendar>) in.readSerializable();
-        mSubsequentDays = RentalSpan.valueOf(in.readString());
+        mSubsequentDays = (RentalSpan) in.readSerializable();
     }
 
     @Override
@@ -411,12 +398,10 @@ public class SublimeOptions implements Parcelable {
         dest.writeString(mRecurrenceRule);
         dest.writeByte((byte) (mCanPickDateRange ? 1 : 0));
         dest.writeSerializable(disabledDays);
-        dest.writeString(mSubsequentDays.name());
+        dest.writeSerializable(mSubsequentDays);
     }
 
     public enum Picker {DATE_PICKER, TIME_PICKER, REPEAT_OPTION_PICKER, INVALID}
-
-    public enum RentalSpan {HALF_DAY, ONE_DAY, TWO_DAYS}
 
     // Thrown if supplied 'SublimeOptions' are not valid
     public class InvalidOptionsException extends RuntimeException {
