@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import com.appeaser.sublimepickerlibrary.SublimePicker;
 import com.appeaser.sublimepickerlibrary.common.ButtonHandler;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
+import com.appeaser.sublimepickerlibrary.helpers.SublimeDateTimeChangeListener;
 import com.appeaser.sublimepickerlibrary.helpers.SublimeListenerAdapter;
 import com.appeaser.sublimepickerlibrary.helpers.SublimeOptions;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         options.setTimeParams(currentHourOfDay, currentMinute, false);
         options.setDateRange(startCal.getTimeInMillis(), endCal.getTimeInMillis());
         options.setDisabledDays(getDisabledDays());
-        options.setSubsequentDays(SublimeOptions.RentalSpan.TWO_DAYS);
+       // options.setSubsequentDays(SublimeOptions.RentalSpan.TWO_DAYS);
 
         int displayOptions = 0;
         displayOptions |= SublimeOptions.ACTIVATE_TIME_PICKER;
@@ -62,7 +63,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         options.setPickerToShow(SublimeOptions.Picker.TIME_PICKER);
         options.setDisplayOptions(displayOptions);
-        picker.initializePicker(options, pickerListner);
+        picker.initializePicker(options, new SublimeDateTimeChangeListener() {
+            @Override
+            public void onTimeChanged(int hour, int minute) {
+                
+            }
+
+            @Override
+            public void onDateChanged(Calendar date, Float rentalSpan) {
+
+            }
+
+            @Override
+            public void onRentalSpanChanged(Float rentalSpan) {
+
+            }
+        });
 
         timeButtonDate.setOnClickListener(this);
         dateButtonDate.setOnClickListener(this);

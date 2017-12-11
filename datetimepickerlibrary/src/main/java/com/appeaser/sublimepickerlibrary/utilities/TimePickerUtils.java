@@ -264,15 +264,15 @@ public class TimePickerUtils {
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
             return selectedTimeInMin >= startTimeInMin && selectedTimeInMin < endTimeMin;
         } else if (isSelectedPm && isStartPm) {
-            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
+            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
                 return true;
             }
         } else if ((!isSelectedPm && isStartPm && !isEndPm) || (isSelectedPm && isEndPm)) {
-            if (selectedTimeInMin <= endTimeMin) {
+            if (selectedTimeInMin < endTimeMin) {
                 return true;
             }
         } else if (!isSelectedPm && !isStartPm) {
-            if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twelveInMin) {
+            if (selectedTimeInMin >= startTimeInMin && selectedTimeInMin <= twelveInMin) {
                 return true;
             }
         }
@@ -284,15 +284,33 @@ public class TimePickerUtils {
         boolean istStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
         boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
 
+        int startIterHour;
+        if (lockedInterval.getStartMinute() > 0) {
+            startIterHour = lockedInterval.getStartHour() + 1;
+        } else {
+            startIterHour = lockedInterval.getStartHour();
+        }
         if (!istStartTimePm && !isEndTimePm) {
-            addHourByHourTillEnd(lockedInterval, hoursToOvershadow);
+            for (int hour = startIterHour; hour < lockedInterval.getEndHour(); hour++) {
+                hoursToOvershadow.add(hour);
+            }
         } else if (!istStartTimePm) {
             addHourByHourTillEndCheck12(lockedInterval, hoursToOvershadow);
         } else if (!isEndTimePm) {
-            addHourByHourTill24Check24(lockedInterval, hoursToOvershadow);
+            if (lockedInterval.getStartHour() == HOURS_12) {
+                hoursToOvershadow.add(HOURS_24);
+            } else {
+                hoursToOvershadow.add(HOURS_12);
+            }
+
+            for (int hour = startIterHour; hour < HOURS_24; hour++) {
+                hoursToOvershadow.add(hour);
+            }
             addFromOneTillEnd(lockedInterval, hoursToOvershadow);
         } else {
-            addHourByHourTillEnd(lockedInterval, hoursToOvershadow);
+            for (int hour = startIterHour; hour < lockedInterval.getEndHour(); hour++) {
+                hoursToOvershadow.add(hour);
+            }
         }
 
         return hoursToOvershadow;
@@ -300,7 +318,7 @@ public class TimePickerUtils {
 
     private static void addFromOneTillEnd(LockedInterval lockedInterval,
                                           LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = 1; hour <= lockedInterval.getEndHour(); hour++) {
+        for (int hour = 1; hour < lockedInterval.getEndHour(); hour++) {
             hoursToOvershadow.add(hour);
         }
     }
@@ -318,19 +336,12 @@ public class TimePickerUtils {
 
     private static void addHourByHourTillEndCheck12(LockedInterval lockedInterval,
                                                     LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
+        for (int hour = lockedInterval.getStartHour() + 1; hour < lockedInterval.getEndHour(); hour++) {
             if (hour == HOURS_12) {
                 hoursToOvershadow.add(hour + HOURS_12);
             } else {
                 hoursToOvershadow.add(hour);
             }
-        }
-    }
-
-    private static void addHourByHourTillEnd(LockedInterval lockedInterval,
-                                             LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = lockedInterval.getStartHour() + 1; hour <= lockedInterval.getEndHour(); hour++) {
-            hoursToOvershadow.add(hour);
         }
     }
 }
