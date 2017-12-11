@@ -262,7 +262,7 @@ public class TimePickerUtils {
         }
 
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
-            return selectedTimeInMin > startTimeInMin && selectedTimeInMin <= endTimeMin;
+            return selectedTimeInMin >= startTimeInMin && selectedTimeInMin < endTimeMin;
         } else if (isSelectedPm && isStartPm) {
             if (selectedTimeInMin > startTimeInMin && selectedTimeInMin <= twentyFourInMin) {
                 return true;

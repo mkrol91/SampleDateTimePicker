@@ -366,15 +366,15 @@ public class TimePickerUtilsTest {
         Pair<Integer, Integer> startTime = new Pair<>(5, 0);
         Pair<Integer, Integer> endTime = new Pair<>(6, 0);
 
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(6, 0);
-        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(11, 45);
         startTime = new Pair<>(6, 15);
         endTime = new Pair<>(11, 45);
-        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(4, 0);
         startTime = new Pair<>(23, 0);
@@ -432,12 +432,12 @@ public class TimePickerUtilsTest {
         selectedTime = new Pair<>(8, 15);
         startTime = new Pair<>(8, 15);
         endTime = new Pair<>(11, 30);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(11, 30);
         startTime = new Pair<>(8, 15);
         endTime = new Pair<>(11, 30);
-        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(24, 0);
         startTime = new Pair<>(24, 0);
@@ -452,13 +452,23 @@ public class TimePickerUtilsTest {
         selectedTime = new Pair<>(12, 0);
         startTime = new Pair<>(12, 0);
         endTime = new Pair<>(14, 30);
-        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
 
         selectedTime = new Pair<>(12, 0);
         startTime = new Pair<>(11, 15);
         endTime = new Pair<>(14, 45);
 
         assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(2, 0);
+        startTime = new Pair<>(2, 0);
+        endTime = new Pair<>(7, 0);
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(7, 0);
+        startTime = new Pair<>(2, 0);
+        endTime = new Pair<>(7, 0);
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
     }
 
     @Test
