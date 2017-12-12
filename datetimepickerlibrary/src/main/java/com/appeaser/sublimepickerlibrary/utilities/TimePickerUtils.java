@@ -257,8 +257,10 @@ public class TimePickerUtils {
         int twentyFourInMin = TimePickerUtils.getTimeAsMinutes(HOURS_24, Q0);
 
         //edge case
-        if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin) {
+        if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin && endTimeMin != twelveInMin) {
             return true;
+        } else if (!isStartPm && isEndPm && selectedTimeInMin == twelveInMin) {
+            return false;
         }
 
         if (isSelectedPm == isStartPm && isStartPm == isEndPm) {
@@ -300,15 +302,13 @@ public class TimePickerUtils {
             }
         } else if (!isEndTimePm) {
             for (int hour = startIterHour; hour <= HOURS_24; hour++) {
-                int hourToAdd;
-                if (hour == HOURS_24) {
-                    hourToAdd = HOURS_12;
-                } else if (hour == HOURS_12) {
-                    hourToAdd = HOURS_24;
+                if (hour == HOURS_24 && !TimePickerUtils.isEndHour0(lockedInterval)) {
+                    hoursToOvershadow.add(HOURS_12);
+                } else if (hour == HOURS_12 && !TimePickerUtils.isEndHour0(lockedInterval)) {
+                    hoursToOvershadow.add(HOURS_24);
                 } else {
-                    hourToAdd = hour;
+                    hoursToOvershadow.add(hour);
                 }
-                hoursToOvershadow.add(hourToAdd);
             }
             for (int hour = 1; hour <= endIterHour; hour++) {
                 hoursToOvershadow.add(hour);
@@ -320,6 +320,14 @@ public class TimePickerUtils {
         }
 
         return hoursToOvershadow;
+    }
+
+    public static boolean isEndHour12(LockedInterval lockedInterval) {
+        return lockedInterval.getEndHour() == HOURS_12 && lockedInterval.getEndMinute() == 0;
+    }
+
+    public static boolean isEndHour0(LockedInterval lockedInterval) {
+        return lockedInterval.getEndHour() == 0 && lockedInterval.getEndMinute() == 0;
     }
 
     private static int getStartIterHour(LockedInterval lockedInterval) {

@@ -365,10 +365,10 @@ public class RadialTimePickerView extends View {
 
     public void setLockedIntervals(List<LockedInterval> lockedIntervals) {
         this.lockedIntervals = lockedIntervals;
-        if(hoursToOvershadow!=null){
+        if (hoursToOvershadow != null) {
             hoursToOvershadow.clear();
         }
-        if(timesToBlock!=null){
+        if (timesToBlock != null) {
             timesToBlock.clear();
         }
         invalidate();
@@ -728,8 +728,10 @@ public class RadialTimePickerView extends View {
         }
 
         if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
-            finalStartDrawingAngle -= UNIT_WIDTH;
-            finalSweepAngle += UNIT_WIDTH;
+            if (!TimePickerUtils.isEndHour0(lockedInterval) && !TimePickerUtils.isEndHour12(lockedInterval) && !isPm) {
+                finalStartDrawingAngle -= UNIT_WIDTH;
+                finalSweepAngle += UNIT_WIDTH;
+            }
         } else if (!isStartTimePm && isEndTimePm && endAngle != 0) {
             finalStartDrawingAngle -= 2 * UNIT_WIDTH;
             finalSweepAngle += UNIT_WIDTH;
@@ -739,11 +741,13 @@ public class RadialTimePickerView extends View {
         } else if (isStartTimePm == isEndTimePm && startAngle != endAngle) {
             finalStartDrawingAngle -= UNIT_WIDTH;
             finalSweepAngle += UNIT_WIDTH;
+        } else if (isStartTimePm && !isEndTimePm && isPm) {
+            finalStartDrawingAngle -= UNIT_WIDTH;
+            finalSweepAngle += UNIT_WIDTH;
         }
 
         canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
     }
-
 
     private void drawHours(Canvas canvas, float alphaMod) {
         final int hoursAlpha = (int) (mAlpha[HOURS].getValue() * alphaMod + 0.5f);

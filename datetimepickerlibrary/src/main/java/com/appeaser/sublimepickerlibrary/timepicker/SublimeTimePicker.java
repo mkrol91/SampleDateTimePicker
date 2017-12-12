@@ -226,8 +226,11 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         //TODO: add locked time intervals
 
-        mRadialTimePickerView.setLockedIntervals(
-                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
+                mRadialTimePickerView.setLockedIntervals(
+                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
+
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
 
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(11, Quarter.Q45, 12, Quarter.Q30)));

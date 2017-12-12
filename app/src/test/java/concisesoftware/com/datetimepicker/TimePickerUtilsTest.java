@@ -489,6 +489,27 @@ public class TimePickerUtilsTest {
         startTime = new Pair<>(0, 15);
         endTime = new Pair<>(15, 0);
         assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(12, 0);
+        startTime = new Pair<>(7, 0);
+        endTime = new Pair<>(12, 0);
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(24, 0);
+        startTime = new Pair<>(15, 0);
+        endTime = new Pair<>(24, 0);
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(12, 0);
+        startTime = new Pair<>(7, 0);
+        endTime = new Pair<>(12, 15);
+        assertTrue(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
+        selectedTime = new Pair<>(0, 0);
+        startTime = new Pair<>(15, 0);
+        endTime = new Pair<>(0, 0);
+        assertFalse(TimePickerUtils.isSelectedInBlockedArea(selectedTime, startTime, endTime));
+
     }
 
     @Test
@@ -523,6 +544,10 @@ public class TimePickerUtilsTest {
 
         hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(0, 15, 15, 0));
         result = new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 24, 13, 14));
+        assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(15, 0, 0, 0));
+        result = new LinkedHashSet<>(Arrays.asList(15,16,17,18,19,20,21,22,23));
         assertEquals(result, hours);
     }
 
