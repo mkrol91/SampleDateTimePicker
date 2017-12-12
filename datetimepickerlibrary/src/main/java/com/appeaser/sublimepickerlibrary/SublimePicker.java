@@ -370,7 +370,7 @@ public class SublimePicker extends FrameLayout
         RentalSpan moreDays = new RentalSpan(days.getMaxSpan() + 1f, days.getSelectedSpan());
         moreDays.increaseSelection();
         boolean fromRangeDisabled = mDatePicker.isAnyDayFromRangeDisabled(mDatePicker.getSelectedDate().getStartDate(),
-                                                                          moreDays);
+                moreDays);
         mIncreaseRentalHours.setEnabled(!days.isMaxSelected() && !fromRangeDisabled);
         if (days.isMinSelected()) {
             mRentalHours.setText(getContext().getString(R.string.twelve_hours));
@@ -607,7 +607,7 @@ public class SublimePicker extends FrameLayout
         }
         if (dateTimeChangeListener != null) {
             dateTimeChangeListener.onDateChanged(selectedDate.isSet() ? selectedDate.getStartDate() : null,
-                                                 mOptions.getSubsequentDays().getSelectedSpan());
+                    mOptions.getSubsequentDays().getSelectedSpan());
         }
     }
 
@@ -666,6 +666,11 @@ public class SublimePicker extends FrameLayout
     @Override
     public void onTimeChanged(final int hour, final int minute) {
         dateTimeChangeListener.onTimeChanged(hour, minute);
+    }
+
+    @Override
+    public void onTimeReset() {
+        mTimeTabTv.setText(getContext().getResources().getString(R.string.any_time));
     }
 
     public interface SublimePickerDateChangedListener {

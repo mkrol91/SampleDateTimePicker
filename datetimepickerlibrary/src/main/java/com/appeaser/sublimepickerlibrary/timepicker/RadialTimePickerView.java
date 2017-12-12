@@ -1106,6 +1106,14 @@ public class RadialTimePickerView extends View {
         invalidate();
     }
 
+    public void reset() {
+        lockSelectorDrawing = true;
+        wasSomeCorrectTouch = false;
+        setLockedIntervals(new ArrayList<LockedInterval>());
+        invalidate();
+        mTouchHelper.invalidateRoot();
+    }
+
     public interface OnValueSelectedListener {
         void onValueSelected(Pair<Integer, Integer> selectedTime);
     }

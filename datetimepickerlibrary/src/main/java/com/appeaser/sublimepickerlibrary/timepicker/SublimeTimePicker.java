@@ -226,15 +226,12 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         //TODO: add locked time intervals
 
-                mRadialTimePickerView.setLockedIntervals(
-                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
-
+//                mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
-
-//        mRadialTimePickerView.setLockedIntervals(
-//                Arrays.asList(new LockedInterval(11, Quarter.Q45, 12, Quarter.Q30)));
-
+        mRadialTimePickerView.setLockedIntervals(
+                Arrays.asList(new LockedInterval(8, Quarter.Q45, 12, Quarter.Q30)));
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(7, Quarter.Q15, 10, Quarter.Q30)));
 //        mRadialTimePickerView.setLockedIntervals(
@@ -249,6 +246,20 @@ public class SublimeTimePicker extends FrameLayout
                 amLabelText.setSelected(!isChecked);
                 pmLabelText.setSelected(isChecked);
                 mRadialTimePickerView.toggleAmPm();
+            }
+        });
+        mainView.findViewById(R.id.reset).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnTimeChangedListener.onTimeReset();
+                amPmSwitch.setChecked(false);
+                mRadialTimePickerView.reset();
+            }
+        });
+        mainView.findViewById(R.id.set_locked_intervals).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRadialTimePickerView.setLockedIntervals(Arrays.asList(new LockedInterval(13, Quarter.Q15, 17, Quarter.Q45)));
             }
         });
 
@@ -1093,6 +1104,8 @@ public class SublimeTimePicker extends FrameLayout
         void onTimeChanged(String timeWitPmInfo);
 
         void onTimeChanged(int hour, int minute);
+
+        void onTimeReset();
     }
 
     /**
