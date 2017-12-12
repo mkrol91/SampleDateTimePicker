@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.locks.Lock;
 
 public class SublimeTimePicker extends FrameLayout
         implements RadialTimePickerView.OnValueSelectedListener {
@@ -226,8 +225,13 @@ public class SublimeTimePicker extends FrameLayout
 
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         //TODO: add locked time intervals
+
+        mRadialTimePickerView.setLockedIntervals(
+                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
+
 //        mRadialTimePickerView.setLockedIntervals(
-//                Arrays.asList(new LockedInterval(14, Quarter.Q0, 21, Quarter.Q0)));
+//                Arrays.asList(new LockedInterval(11, Quarter.Q45, 12, Quarter.Q30)));
+
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(7, Quarter.Q15, 10, Quarter.Q30)));
 //        mRadialTimePickerView.setLockedIntervals(

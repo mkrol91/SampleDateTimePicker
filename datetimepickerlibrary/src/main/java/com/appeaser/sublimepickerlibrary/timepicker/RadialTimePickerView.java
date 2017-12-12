@@ -365,6 +365,14 @@ public class RadialTimePickerView extends View {
 
     public void setLockedIntervals(List<LockedInterval> lockedIntervals) {
         this.lockedIntervals = lockedIntervals;
+        if(hoursToOvershadow!=null){
+            hoursToOvershadow.clear();
+        }
+        if(timesToBlock!=null){
+            timesToBlock.clear();
+        }
+        invalidate();
+        mTouchHelper.invalidateRoot();
     }
 
     public void toggleAmPm() {
