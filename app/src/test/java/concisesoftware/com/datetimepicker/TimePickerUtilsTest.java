@@ -494,7 +494,7 @@ public class TimePickerUtilsTest {
     @Test
     public void extractHoursToOvershadowTest() {
         LinkedHashSet<Integer> hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(2, 0, 7, 0));
-        LinkedHashSet<Integer> result = new LinkedHashSet<>(Arrays.asList(2,3, 4, 5, 6));
+        LinkedHashSet<Integer> result = new LinkedHashSet<>(Arrays.asList(2, 3, 4, 5, 6));
         assertEquals(result, hours);
 
         hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(2, 15, 7, 0));

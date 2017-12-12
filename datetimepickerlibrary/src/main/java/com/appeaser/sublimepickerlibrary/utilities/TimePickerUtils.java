@@ -283,32 +283,38 @@ public class TimePickerUtils {
         LinkedHashSet<Integer> hoursToOvershadow = new LinkedHashSet<>();
         boolean istStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
         boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
+        int startIterHour = getStartIterHour(lockedInterval);
+        int endIterHour = getEndIterHour(lockedInterval);
 
-        int startIterHour;
-        if (lockedInterval.getStartMinute() > 0) {
-            startIterHour = lockedInterval.getStartHour() + 1;
-        } else {
-            startIterHour = lockedInterval.getStartHour();
-        }
         if (!istStartTimePm && !isEndTimePm) {
-            for (int hour = startIterHour; hour < lockedInterval.getEndHour(); hour++) {
+            for (int hour = startIterHour; hour <= endIterHour; hour++) {
                 hoursToOvershadow.add(hour);
             }
         } else if (!istStartTimePm) {
-            addHourByHourTillEndCheck12(lockedInterval, hoursToOvershadow);
-        } else if (!isEndTimePm) {
-            if (lockedInterval.getStartHour() == HOURS_12) {
-                hoursToOvershadow.add(HOURS_24);
-            } else {
-                hoursToOvershadow.add(HOURS_12);
+            for (int hour = startIterHour; hour <= endIterHour; hour++) {
+                if (hour == HOURS_12) {
+                    hoursToOvershadow.add(HOURS_24);
+                } else {
+                    hoursToOvershadow.add(hour);
+                }
             }
-
-            for (int hour = startIterHour; hour < HOURS_24; hour++) {
+        } else if (!isEndTimePm) {
+            for (int hour = startIterHour; hour <= HOURS_24; hour++) {
+                int hourToAdd;
+                if (hour == HOURS_24) {
+                    hourToAdd = HOURS_12;
+                } else if (hour == HOURS_12) {
+                    hourToAdd = HOURS_24;
+                } else {
+                    hourToAdd = hour;
+                }
+                hoursToOvershadow.add(hourToAdd);
+            }
+            for (int hour = 1; hour <= endIterHour; hour++) {
                 hoursToOvershadow.add(hour);
             }
-            addFromOneTillEnd(lockedInterval, hoursToOvershadow);
         } else {
-            for (int hour = startIterHour; hour < lockedInterval.getEndHour(); hour++) {
+            for (int hour = startIterHour; hour <= endIterHour; hour++) {
                 hoursToOvershadow.add(hour);
             }
         }
@@ -316,32 +322,24 @@ public class TimePickerUtils {
         return hoursToOvershadow;
     }
 
-    private static void addFromOneTillEnd(LockedInterval lockedInterval,
-                                          LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = 1; hour < lockedInterval.getEndHour(); hour++) {
-            hoursToOvershadow.add(hour);
+    private static int getStartIterHour(LockedInterval lockedInterval) {
+        int startIterHour;
+        if (lockedInterval.getStartMinute() > 0) {
+            startIterHour = lockedInterval.getStartHour() + 1;
+        } else {
+            startIterHour = lockedInterval.getStartHour();
         }
+        return startIterHour;
     }
 
-    private static void addHourByHourTill24Check24(LockedInterval lockedInterval,
-                                                   LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = lockedInterval.getStartHour() + 1; hour <= HOURS_24; hour++) {
-            if (hour == HOURS_24) {
-                hoursToOvershadow.add(hour - HOURS_12);
-            } else {
-                hoursToOvershadow.add(hour);
-            }
+    private static int getEndIterHour(LockedInterval lockedInterval) {
+        int endIterHour;
+        if (lockedInterval.getEndMinute() > 0) {
+            endIterHour = lockedInterval.getEndHour();
+        } else {
+            endIterHour = lockedInterval.getEndHour() - 1;
         }
+        return endIterHour;
     }
 
-    private static void addHourByHourTillEndCheck12(LockedInterval lockedInterval,
-                                                    LinkedHashSet<Integer> hoursToOvershadow) {
-        for (int hour = lockedInterval.getStartHour() + 1; hour < lockedInterval.getEndHour(); hour++) {
-            if (hour == HOURS_12) {
-                hoursToOvershadow.add(hour + HOURS_12);
-            } else {
-                hoursToOvershadow.add(hour);
-            }
-        }
-    }
 }
