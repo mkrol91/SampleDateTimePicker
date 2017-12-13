@@ -150,6 +150,8 @@ public class TimePickerUtilsTest {
         Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(270, 90,
                 false, true);
         assertTrue(sweepAngles.second == 90);
+
+
     }
 
     @Test

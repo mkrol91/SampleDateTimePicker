@@ -331,6 +331,50 @@ public class TimePickerUtils {
         return hoursToOvershadow;
     }
 
+    public static Pair<Float, Float> getInitialSweepAngles(boolean isPm, Pair<Float, Float> sweepAngles, float drawArcAngle) {
+        float initialStartDrawingAngle = 0;
+        float initialSweepAngle = 0;
+        if (!isPm && sweepAngles.first != null) {
+            initialStartDrawingAngle = drawArcAngle;
+            initialSweepAngle = sweepAngles.first;
+        }
+        if (isPm && sweepAngles.second != null) {
+            initialStartDrawingAngle = drawArcAngle;
+            initialSweepAngle = sweepAngles.second;
+        }
+        return new Pair(initialStartDrawingAngle, initialSweepAngle);
+    }
+
+    public static Pair<Float, Float> correctedAngle(float drawArcAngle, boolean isStartTimePm,
+                                                    boolean isEndTimePm, Pair<Float, Float> initialSweepAngles,
+                                                    LockedInterval lockedInterval,
+                                                    float startAngle, float endAngle, boolean isPm) {
+        float finalStartDrawingAngle = initialSweepAngles.first;
+        float finalSweepAngle = initialSweepAngles.second;
+
+        if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
+            if (!TimePickerUtils.isEndHour0(lockedInterval) && !TimePickerUtils.isEndHour12(lockedInterval)) {
+                finalStartDrawingAngle -= UNIT_WIDTH;
+                finalSweepAngle += UNIT_WIDTH;
+            }
+        } else if (!isStartTimePm && isEndTimePm && endAngle != 0) {
+            finalStartDrawingAngle -= 2 * UNIT_WIDTH;
+            finalSweepAngle += UNIT_WIDTH;
+        } else if (!isStartTimePm && isEndTimePm) {
+            finalStartDrawingAngle -= UNIT_WIDTH;
+            finalSweepAngle += UNIT_WIDTH;
+        } else if (isStartTimePm == isEndTimePm && startAngle != endAngle) {
+            if (finalStartDrawingAngle != finalSweepAngle || finalStartDrawingAngle != 0) {
+                finalStartDrawingAngle -= UNIT_WIDTH;
+                finalSweepAngle += UNIT_WIDTH;
+            }
+        } else if (isStartTimePm && !isEndTimePm && isPm) {
+            finalStartDrawingAngle -= UNIT_WIDTH;
+            finalSweepAngle += UNIT_WIDTH;
+        }
+        return new Pair<>(finalStartDrawingAngle, finalSweepAngle);
+    }
+
     public static boolean isEndHour12(LockedInterval lockedInterval) {
         return lockedInterval.getEndHour() == HOURS_12 && lockedInterval.getEndMinute() == 0;
     }
@@ -359,4 +403,6 @@ public class TimePickerUtils {
         return endIterHour;
     }
 
+    public static void getInitialSweepAngles() {
+    }
 }

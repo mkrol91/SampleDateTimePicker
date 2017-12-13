@@ -715,40 +715,11 @@ public class RadialTimePickerView extends View {
         paint.setColor(inactiveHoursBackgroundColor);
 
         float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
+        Pair<Float, Float> initialSweepAngles = TimePickerUtils.getInitialSweepAngles(isPm, sweepAngles, drawArcAngle);
+        Pair<Float, Float> correctedAngles = TimePickerUtils.correctedAngle(drawArcAngle,
+                isStartTimePm, isEndTimePm, initialSweepAngles, lockedInterval, startAngle, endAngle, isPm);
 
-        float finalStartDrawingAngle = 0;
-        float finalSweepAngle = 0;
-        if (!isPm && sweepAngles.first != null) {
-            finalStartDrawingAngle = drawArcAngle;
-            finalSweepAngle = sweepAngles.first;
-        }
-        if (isPm && sweepAngles.second != null) {
-            finalStartDrawingAngle = drawArcAngle;
-            finalSweepAngle = sweepAngles.second;
-        }
-
-        if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
-            if (!TimePickerUtils.isEndHour0(lockedInterval) && !TimePickerUtils.isEndHour12(lockedInterval)) {
-                finalStartDrawingAngle -= UNIT_WIDTH;
-                finalSweepAngle += UNIT_WIDTH;
-            }
-        } else if (!isStartTimePm && isEndTimePm && endAngle != 0) {
-            finalStartDrawingAngle -= 2 * UNIT_WIDTH;
-            finalSweepAngle += UNIT_WIDTH;
-        } else if (!isStartTimePm && isEndTimePm) {
-            finalStartDrawingAngle -= UNIT_WIDTH;
-            finalSweepAngle += UNIT_WIDTH;
-        } else if (isStartTimePm == isEndTimePm && startAngle != endAngle) {
-            if (finalStartDrawingAngle != finalSweepAngle || finalStartDrawingAngle != 0) {
-                finalStartDrawingAngle -= UNIT_WIDTH;
-                finalSweepAngle += UNIT_WIDTH;
-            }
-        } else if (isStartTimePm && !isEndTimePm && isPm) {
-            finalStartDrawingAngle -= UNIT_WIDTH;
-            finalSweepAngle += UNIT_WIDTH;
-        }
-
-        canvas.drawArc(rectF, finalStartDrawingAngle, finalSweepAngle, true, paint);
+        canvas.drawArc(rectF, correctedAngles.first, correctedAngles.second, true, paint);
     }
 
     private void drawHours(Canvas canvas, float alphaMod) {
