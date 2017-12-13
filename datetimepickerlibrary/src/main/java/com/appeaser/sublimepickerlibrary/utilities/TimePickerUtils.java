@@ -316,7 +316,11 @@ public class TimePickerUtils {
             }
         } else {
             for (int hour = startIterHour; hour <= endIterHour; hour++) {
-                hoursToOvershadow.add(hour);
+                if (hour == HOURS_12) {
+                    hoursToOvershadow.add(HOURS_24);
+                } else {
+                    hoursToOvershadow.add(hour);
+                }
             }
         }
 

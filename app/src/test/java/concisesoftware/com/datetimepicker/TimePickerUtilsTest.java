@@ -549,6 +549,10 @@ public class TimePickerUtilsTest {
         hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(15, 0, 0, 0));
         result = new LinkedHashSet<>(Arrays.asList(15,16,17,18,19,20,21,22,23));
         assertEquals(result, hours);
+
+        hours = TimePickerUtils.extractHoursToOvershadow(new LockedInterval(12, 0, 12, 15));
+        result = new LinkedHashSet<>(Arrays.asList(24));
+        assertEquals(result, hours);
     }
 
 }
