@@ -739,8 +739,10 @@ public class RadialTimePickerView extends View {
             finalStartDrawingAngle -= UNIT_WIDTH;
             finalSweepAngle += UNIT_WIDTH;
         } else if (isStartTimePm == isEndTimePm && startAngle != endAngle) {
-            finalStartDrawingAngle -= UNIT_WIDTH;
-            finalSweepAngle += UNIT_WIDTH;
+            if (finalStartDrawingAngle != finalSweepAngle || finalStartDrawingAngle != 0) {
+                finalStartDrawingAngle -= UNIT_WIDTH;
+                finalSweepAngle += UNIT_WIDTH;
+            }
         } else if (isStartTimePm && !isEndTimePm && isPm) {
             finalStartDrawingAngle -= UNIT_WIDTH;
             finalSweepAngle += UNIT_WIDTH;

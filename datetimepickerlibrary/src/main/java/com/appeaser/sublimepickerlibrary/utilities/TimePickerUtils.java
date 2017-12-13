@@ -290,7 +290,11 @@ public class TimePickerUtils {
 
         if (!istStartTimePm && !isEndTimePm) {
             for (int hour = startIterHour; hour <= endIterHour; hour++) {
-                hoursToOvershadow.add(hour);
+                if (hour == 0) {
+                    hoursToOvershadow.add(HOURS_12);
+                } else {
+                    hoursToOvershadow.add(hour);
+                }
             }
         } else if (!istStartTimePm) {
             for (int hour = startIterHour; hour <= endIterHour; hour++) {
