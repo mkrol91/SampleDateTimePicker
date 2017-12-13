@@ -302,7 +302,8 @@ public class TimePickerUtils {
             }
         } else if (!isEndTimePm) {
             for (int hour = startIterHour; hour <= HOURS_24; hour++) {
-                if (hour == HOURS_24 && !TimePickerUtils.isEndHour0(lockedInterval)) {
+                if (hour == HOURS_24 && TimePickerUtils.isEndHour0(lockedInterval)) {
+                } else if (hour == HOURS_24 && !TimePickerUtils.isEndHour0(lockedInterval)) {
                     hoursToOvershadow.add(HOURS_12);
                 } else if (hour == HOURS_12 && !TimePickerUtils.isEndHour0(lockedInterval)) {
                     hoursToOvershadow.add(HOURS_24);

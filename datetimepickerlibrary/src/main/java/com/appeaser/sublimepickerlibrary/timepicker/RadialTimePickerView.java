@@ -728,7 +728,7 @@ public class RadialTimePickerView extends View {
         }
 
         if (drawArcAngle == 270 && isStartTimePm != isEndTimePm) {
-            if (!TimePickerUtils.isEndHour0(lockedInterval) && !TimePickerUtils.isEndHour12(lockedInterval) && !isPm) {
+            if (!TimePickerUtils.isEndHour0(lockedInterval) && !TimePickerUtils.isEndHour12(lockedInterval)) {
                 finalStartDrawingAngle -= UNIT_WIDTH;
                 finalSweepAngle += UNIT_WIDTH;
             }
@@ -886,7 +886,11 @@ public class RadialTimePickerView extends View {
     }
 
     private boolean isSelectedSectionDrawing(int index) {
-        return isPm ? selectedSection.getHour() == index + HOURS_IN_CIRCLE : selectedSection.getHour() == index;
+        if (isPm) {
+            return selectedSection.getHour() == index + HOURS_IN_CIRCLE;
+        } else {
+            return selectedSection.getHour() == index;
+        }
     }
 
     private void startHoursToMinutesAnimation() {

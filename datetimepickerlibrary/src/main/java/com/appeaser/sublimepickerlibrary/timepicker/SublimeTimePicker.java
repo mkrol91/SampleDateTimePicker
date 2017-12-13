@@ -230,6 +230,10 @@ public class SublimeTimePicker extends FrameLayout
 //                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
+
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
+        //todo:
         mRadialTimePickerView.setLockedIntervals(
                 Arrays.asList(new LockedInterval(8, Quarter.Q45, 12, Quarter.Q30)));
 //        mRadialTimePickerView.setLockedIntervals(
@@ -248,20 +252,10 @@ public class SublimeTimePicker extends FrameLayout
                 mRadialTimePickerView.toggleAmPm();
             }
         });
-        mainView.findViewById(R.id.reset).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mOnTimeChangedListener.onTimeReset();
-                amPmSwitch.setChecked(false);
-                mRadialTimePickerView.reset();
-            }
-        });
-        mainView.findViewById(R.id.set_locked_intervals).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRadialTimePickerView.setLockedIntervals(Arrays.asList(new LockedInterval(13, Quarter.Q15, 17, Quarter.Q45)));
-            }
-        });
+        //actions on reset
+//        mOnTimeChangedListener.onTimeReset();
+//        amPmSwitch.setChecked(false);
+//        mRadialTimePickerView.reset();
 
         setupListeners();
 
