@@ -146,15 +146,6 @@ public class TimePickerUtilsTest {
     }
 
     @Test
-    public void findSweepAnglesTest() {
-        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(270, 90,
-                false, true);
-        assertTrue(sweepAngles.second == 90);
-
-
-    }
-
-    @Test
     public void isDegreesCloserTest() {
         boolean isDegreesCloserToStartDegree =
                 TimePickerUtils.isDegreeCloserToStartDegree(353,

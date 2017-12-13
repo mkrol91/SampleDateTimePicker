@@ -707,19 +707,33 @@ public class RadialTimePickerView extends View {
         if (endAngle == ANGLE_NOT_FOUND) {
             endAngle = 0;
         }
-        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
-        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
-        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle,
-                isStartTimePm, isEndTimePm);
+
+        Pair<Float, Float> sweepAngles = TimePickerUtils.findSweepAngles(startAngle, endAngle, lockedInterval);
 
         paint.setColor(inactiveHoursBackgroundColor);
 
         float drawArcAngle = TimePickerUtils.mapStartAngleToDrawArcAngle(startAngle);
         Pair<Float, Float> initialSweepAngles = TimePickerUtils.getInitialSweepAngles(isPm, sweepAngles, drawArcAngle);
         Pair<Float, Float> correctedAngles = TimePickerUtils.correctedAngle(drawArcAngle,
-                isStartTimePm, isEndTimePm, initialSweepAngles, lockedInterval, startAngle, endAngle, isPm);
+                initialSweepAngles, lockedInterval, startAngle, endAngle, isPm);
 
-        canvas.drawArc(rectF, correctedAngles.first, correctedAngles.second, true, paint);
+        if (canDrawOncurrentScreen(lockedInterval)) {
+            canvas.drawArc(rectF, correctedAngles.first, correctedAngles.second, true, paint);
+        }
+    }
+
+    private boolean canDrawOncurrentScreen(LockedInterval lockedInterval) {
+        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
+        return isPmAndCanDrawPm(isStartTimePm, isEndTimePm) || isAmAndCanDrawAm(isStartTimePm, isEndTimePm);
+    }
+
+    private boolean isAmAndCanDrawAm(boolean isStartTimePm, boolean isEndTimePm) {
+        return !isPm && (!isEndTimePm || !isStartTimePm);
+    }
+
+    private boolean isPmAndCanDrawPm(boolean isStartTimePm, boolean isEndTimePm) {
+        return isPm && (isEndTimePm || isStartTimePm);
     }
 
     private void drawHours(Canvas canvas, float alphaMod) {

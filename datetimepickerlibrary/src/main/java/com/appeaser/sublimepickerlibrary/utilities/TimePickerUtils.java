@@ -218,7 +218,9 @@ public class TimePickerUtils {
 
     public static @NonNull
     Pair<Float, Float> findSweepAngles(float startAngle, float endAngle,
-                                       boolean isStartTimePm, boolean isEndTimePm) {
+                                       LockedInterval lockedInterval) {
+        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
         Float amSweep = null;
         Float pmSweep = null;
         if (!isStartTimePm && !isEndTimePm && endAngle > startAngle) {
@@ -345,10 +347,11 @@ public class TimePickerUtils {
         return new Pair(initialStartDrawingAngle, initialSweepAngle);
     }
 
-    public static Pair<Float, Float> correctedAngle(float drawArcAngle, boolean isStartTimePm,
-                                                    boolean isEndTimePm, Pair<Float, Float> initialSweepAngles,
+    public static Pair<Float, Float> correctedAngle(float drawArcAngle, Pair<Float, Float> initialSweepAngles,
                                                     LockedInterval lockedInterval,
                                                     float startAngle, float endAngle, boolean isPm) {
+        boolean isStartTimePm = TimePickerUtils.isTimePm(lockedInterval.getStartHour(), lockedInterval.getStartMinute());
+        boolean isEndTimePm = TimePickerUtils.isTimePm(lockedInterval.getEndHour(), lockedInterval.getEndMinute());
         float finalStartDrawingAngle = initialSweepAngles.first;
         float finalSweepAngle = initialSweepAngles.second;
 
