@@ -995,10 +995,10 @@ public class RadialTimePickerView extends View {
         boolean valueChanged = false;
 
         if (mShowHours) {
-            selectedSection = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
+            TimerSection newSelectedSection = TimePickerUtils.findSectionForDegrees(timerSections, degrees);
             int snapDegrees = 0;
-            if (selectedSection != null) {
-                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, selectedSection);
+            if (newSelectedSection != null) {
+                float startAngle = TimePickerUtils.findStartAngleOfSectionWhichContainsDegree(degrees, newSelectedSection);
                 float endAngle = startAngle + UNIT_WIDTH;
                 boolean isDegreesCloserToStartDegree =
                         TimePickerUtils.isDegreeCloserToStartDegree(degrees, startAngle, endAngle);
@@ -1009,26 +1009,28 @@ public class RadialTimePickerView extends View {
                 }
 
                 Log.i("timerTest", "snapDegrees:" + snapDegrees);
-                int hour = selectedSection.getHour();
+                int hour = newSelectedSection.getHour();
                 int unassignedQuarter = TimePickerUtils.findUnasignedQuarterOfSectionWhichContainsDegree(degrees,
-                        selectedSection);
-                selectedTime = TimePickerUtils.mapToTimeAsPair(hour,
+                        newSelectedSection);
+                Pair<Integer, Integer> newTime = TimePickerUtils.mapToTimeAsPair(hour,
                         unassignedQuarter,
                         isDegreesCloserToStartDegree, isPm);
 
-                Log.i("timerTest", "hour:" + selectedTime.first + " minute:" + selectedTime.second);
+                Log.i("timerTest", "new Time hour:" + newTime.first + " minute:" + newTime.second);
                 Log.i("hourTest:", "-----------------------------");
-                boolean isInJoinedBlockedAreas = isInJoinedBlockedAreas(selectedTime);
+                boolean isInJoinedBlockedAreas = isInJoinedBlockedAreas(newTime);
                 if (isInJoinedBlockedAreas) {
                     return false;
                 }
                 wasSomeCorrectTouch = true;
-
+                selectedSection = newSelectedSection;
+                selectedTime = newTime;
                 valueChanged = setParamsOnAllowedTimeSelected(isOnInnerCircle, snapDegrees);
 
                 Log.i("hourTest:", "inJoinedAreas:" + isInJoinedBlockedAreas);
 
-                if (notifyNewTimeAndInvalidate(forceSelection, autoAdvance, valueChanged, selectedTime))
+                if (notifyNewSelectedTimeAndInvalidate(forceSelection, autoAdvance, valueChanged,
+                        selectedTime))
                     return true;
 
             }
@@ -1047,8 +1049,8 @@ public class RadialTimePickerView extends View {
         return valueChanged;
     }
 
-    private boolean notifyNewTimeAndInvalidate(boolean forceSelection, boolean autoAdvance, boolean valueChanged,
-                                               Pair<Integer, Integer> selectedTime) {
+    private boolean notifyNewSelectedTimeAndInvalidate(boolean forceSelection, boolean autoAdvance, boolean valueChanged,
+                                                       Pair<Integer, Integer> selectedTime) {
         if (valueChanged || forceSelection || autoAdvance) {
             // Fire the listener even if we just need to auto-advance.
             if (mListener != null) {
