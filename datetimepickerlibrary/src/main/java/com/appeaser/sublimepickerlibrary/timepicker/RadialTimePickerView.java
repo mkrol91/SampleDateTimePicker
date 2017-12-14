@@ -857,10 +857,8 @@ public class RadialTimePickerView extends View {
                     | (showActivated && activated ? SUtils.STATE_ACTIVATED : 0);
             final int color = textColor.getColorForState(SUtils.resolveStateSet(stateMask), 0);
             paint.setColor(Color.BLACK);
-            if (!lockSelectorDrawing) {
-                if (selectedTime.second != 30 && isSelectedSectionDrawing(i)) {
-                    paint.setColor(Color.WHITE);
-                }
+            if (!lockSelectorDrawing && selectedTime.second != 30 && isSelectedSectionDrawing(i)) {
+                paint.setColor(Color.WHITE);
             }
             int drawingHour = Integer.parseInt(texts[i]);
             if (hoursToOvershadow.contains(drawingHour)) {

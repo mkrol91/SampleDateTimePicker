@@ -226,6 +226,27 @@ public class SublimeTimePicker extends FrameLayout
         mRadialTimePickerView = mainView.findViewById(R.id.radial_picker);
         //TODO: add locked time intervals
 
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(11, Quarter.Q45, 12, Quarter.Q0),
+//                        new LockedInterval(12, Quarter.Q15, 12, Quarter.Q30)));
+//
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(0, Quarter.Q15, 15, Quarter.Q0)));
+
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(0, Quarter.Q0, 0, Quarter.Q15),
+//                        new LockedInterval(0, Quarter.Q15, 0, Quarter.Q30),
+//                        new LockedInterval(0, Quarter.Q45, 1, Quarter.Q0),
+//                        new LockedInterval(1, Quarter.Q0, 1, Quarter.Q15)));
+
+//        mRadialTimePickerView.setLockedIntervals(generateLockedIntervals());
+
+//        mRadialTimePickerView.setLockedIntervals(
+//                Arrays.asList(new LockedInterval(12, Quarter.Q0, 17, Quarter.Q15),
+//                        new LockedInterval(21, Quarter.Q15, 0, Quarter.Q0),
+//                        new LockedInterval(0, Quarter.Q0, 1, Quarter.Q45),
+//                        new LockedInterval(4, Quarter.Q15, 9, Quarter.Q15)));
+
 
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(0, Quarter.Q0, 0, Quarter.Q15)));
@@ -246,8 +267,8 @@ public class SublimeTimePicker extends FrameLayout
 
 //                mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
-//        mRadialTimePickerView.setLockedIntervals(
-//                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
+        mRadialTimePickerView.setLockedIntervals(
+                Arrays.asList(new LockedInterval(7, Quarter.Q0, 12, Quarter.Q0)));
 
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(15, Quarter.Q0, 0, Quarter.Q0)));
@@ -256,8 +277,7 @@ public class SublimeTimePicker extends FrameLayout
 //                Arrays.asList(new LockedInterval(8, Quarter.Q45, 12, Quarter.Q30)));
 //        mRadialTimePickerView.setLockedIntervals(
 //                Arrays.asList(new LockedInterval(7, Quarter.Q15, 10, Quarter.Q30)));
-//        mRadialTimePickerView.setLockedIntervals(
-//                Arrays.asList(new LockedInterval(0, Quarter.Q15, 15, Quarter.Q0)));
+
         amLabelText = mainView.findViewById(R.id.am_label_text);
         pmLabelText = mainView.findViewById(R.id.pm_label_text);
         amPmSwitch = mainView.findViewById(R.id.am_pm_switch);
@@ -291,6 +311,19 @@ public class SublimeTimePicker extends FrameLayout
         final int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         final int currentMinute = calendar.get(Calendar.MINUTE);
         initialize(currentHour, currentMinute, false /* 12h */, HOUR_INDEX);
+    }
+
+    private List<LockedInterval> generateLockedIntervals() {
+        ArrayList<LockedInterval> lockedIntervals = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+
+            lockedIntervals.add(new LockedInterval(i, Quarter.Q0, i, Quarter.Q15));
+            lockedIntervals.add(new LockedInterval(i, Quarter.Q15, i, Quarter.Q30));
+            lockedIntervals.add(new LockedInterval(i, Quarter.Q30, i, Quarter.Q45));
+            lockedIntervals.add(new LockedInterval(i, Quarter.Q45, i + 1, Quarter.Q0));
+
+        }
+        return lockedIntervals;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
